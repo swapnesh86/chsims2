@@ -4,9 +4,12 @@ import useAuth from "../../hooks/useAuth"
 
 const Welcome = () => {
 
-    const { isManager, isAdmin } = useAuth()
+    const { isSkuManager, isAdmin, isPoInCharge, isAdInCharge, isBaInCharge } = useAuth()
     const date = new Date()
     const today = new Intl.DateTimeFormat('en-US', { dateStyle: 'full', timeStyle: 'long' }).format(date)
+
+    const billingText = (isAdInCharge || isBaInCharge || isPoInCharge) ? 'Billing' : 'Billing / Transfers'
+    const skuText = (isAdInCharge || isBaInCharge || isPoInCharge) ? 'View SKU List' : 'View / Edit SKUs'
 
     const content = (
         <section className="welcome">
@@ -14,12 +17,30 @@ const Welcome = () => {
             <p>{today}</p>
 
             <h1>Welcome to SIMS 2.0!</h1>
+            <h3><Link to="/dash/billing">{billingText}</Link></h3>
+            <h3><Link to="/dash/inventory">Inventory</Link></h3>
+            <h3><Link to="/dash/ledger">Accounts Summary</Link></h3>
+            <br></br>
+            <h3>SKU Details</h3>
+            <div className="indent">
+                {(isSkuManager || isAdmin) && <p><Link to="/dash/skus/new">Generate SKUs</Link></p>}
+                <p><Link to="/dash/skus">{skuText}</Link></p>
+            </div>
+            {isAdmin &&
+                <>
+                    <h3>User Details</h3>
+                    <div className="indent">
+                        <p><Link to="/dash/users/new">Create New User</Link></p>
+                        <p><Link to="/dash/users">View / Edit Users</Link></p>
+                    </div>
+                </>
+            }
+            <h3>Membership</h3>
+            <div className="indent">
+                <p><Link to="/dash/membership">Memberships</Link></p>
+                <p><Link to="/dash/membership/new">Create New Membership</Link></p>
+            </div>
 
-            {(!isManager && !isAdmin) && <p><Link to="/dash/skus">View SKUs</Link></p>}
-            {(isManager || isAdmin) && <p><Link to="/dash/skus/new">Generate SKUs</Link></p>}
-            {(isManager || isAdmin) && <p><Link to="/dash/skus">View / Edit SKUs</Link></p>}
-            {isAdmin && <p><Link to="/dash/users/new">Create New User</Link></p>}
-            {isAdmin && <p><Link to="/dash/users">View / Edit Users</Link></p>}
 
         </section>
     )

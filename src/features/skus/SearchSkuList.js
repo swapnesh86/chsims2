@@ -7,8 +7,8 @@ import useAuth from "../../hooks/useAuth";
 
 const SearchSkuList = () => {
 
-  const { isAdmin, isManager } = useAuth()
-  const [search, setSearch] = useState('');
+  const { isAdmin, isSkuManager } = useAuth()
+  const [search, setSearch] = useState('kurta');
   const [edit, setEdit] = useState(false)
 
   const {
@@ -38,13 +38,13 @@ const SearchSkuList = () => {
     )
     )
 
-    const tableContent = (ids?.length && edit)
+    const tableContent = (ids?.length && edit && search.length !== 0)
       ? filteredIds.map(skuId => <EditSku key={skuId} skuId={skuId} />)
-      : ids?.length
+      : (ids?.length && search.length !== 0)
         ? filteredIds.map(skuId => <Sku key={skuId} skuId={skuId} />)
         : null
 
-    const errClass = (isAdmin && edit) ? "table--skuseditdel" : (isManager && edit) ? "table--skusedit" : "table--skus"
+    const errClass = (isAdmin && edit) ? "table--skuseditdel" : (isSkuManager && edit) ? "table--skusedit" : "table--skus"
     const editClass = edit ? "sku__primary" : "sku__optional"
 
     content = (
@@ -59,7 +59,7 @@ const SearchSkuList = () => {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
-          {(isAdmin || isManager) && <label htmlFor="persist" className="form__persist">
+          {(isAdmin || isSkuManager) && <label htmlFor="persist" className="form__persist">
             <input
               type="checkbox"
               className="form__checkbox"
@@ -81,7 +81,7 @@ const SearchSkuList = () => {
               <th scope="col" className="table__th sku__primary">MRP</th>
               <th scope="col" className={`table__th ${editClass}`}>MBR</th>
               <th scope="col" className={`table__th ${editClass}`}>HSNCode</th>
-              {(isAdmin || isManager) && edit && <th scope="col" className="table__th sku__primary">Edit</th>}
+              {(isAdmin || isSkuManager) && edit && <th scope="col" className="table__th sku__primary">Edit</th>}
               {isAdmin && edit && <th scope="col" className="table__th sku__primary">Delete</th>}
             </tr>
           </thead>

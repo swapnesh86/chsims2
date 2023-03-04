@@ -10,6 +10,12 @@ import NewSku from './features/skus/NewSku';
 import UsersList from './features/users/UsersList';
 import EditUser from './features/users/EditUser';
 import NewUserForm from './features/users/NewUserForm';
+import LedgerList from './features/ledger/LedgerList';
+import InventoryList from './features/inventory/InventoryList';
+import BillList from './features/transfers/BillList';
+import MembershipList from './features/membership/MembershipList';
+import NewMemberForm from './features/membership/NewMemberForm';
+
 import Prefetch from './features/auth/Prefetch';
 import PersistLogin from './features/auth/PersistLogin';
 import { ROLES } from './config/roles';
@@ -32,7 +38,7 @@ function App() {
                 <Route index element={<Welcome />} />
                 <Route path="skus">
                   <Route index element={<SearchSkuList />} />
-                  <Route element={<RequireAuth allowedRoles={[ROLES.Admin, ROLES.Manager]} />}>
+                  <Route element={<RequireAuth allowedRoles={[ROLES.Admin, ROLES.SkuManager]} />}>
                     <Route path="new" element={<NewSku />} />
                   </Route>
                 </Route>
@@ -41,6 +47,27 @@ function App() {
                     <Route index element={<UsersList />} />
                     <Route path=":id" element={<EditUser />} />
                     <Route path="new" element={<NewUserForm />} />
+                  </Route>
+                </Route>
+                <Route element={<RequireAuth allowedRoles={[ROLES.Admin, ROLES.ShopManager, ROLES.AdInCharge, ROLES.PoInCharge, ROLES.BaInCharge]} />}>
+                  <Route path="ledger">
+                    <Route index element={<LedgerList />} />
+                  </Route>
+                </Route>
+                <Route element={<RequireAuth allowedRoles={[ROLES.Admin, ROLES.ShopManager, ROLES.AdInCharge, ROLES.PoInCharge, ROLES.BaInCharge, ROLES.InventoryManager]} />}>
+                  <Route path="inventory">
+                    <Route index element={<InventoryList />} />
+                  </Route>
+                </Route>
+                <Route element={<RequireAuth allowedRoles={[ROLES.Admin, ROLES.ShopManager, ROLES.AdInCharge, ROLES.PoInCharge, ROLES.BaInCharge]} />}>
+                  <Route path="billing">
+                    <Route index element={<BillList />} />
+                  </Route>
+                </Route>
+                <Route element={<RequireAuth allowedRoles={[ROLES.Admin, ROLES.ShopManager, ROLES.AdInCharge, ROLES.PoInCharge, ROLES.BaInCharge]} />}>
+                  <Route path="membership">
+                    <Route index element={<MembershipList />} />
+                    <Route path="new" element={<NewMemberForm />} />
                   </Route>
                 </Route>
               </Route>

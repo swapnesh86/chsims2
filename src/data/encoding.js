@@ -1,4 +1,21 @@
 export const encoding = {
+	"membership": [
+		{
+			"ID": 1,
+			"duration": 60,
+			"barcode": "FBFSBIA2001"
+		},
+		{
+			"ID": 2,
+			"duration": 180,
+			"barcode": "FBFSCIA2001"
+		},
+		{
+			"ID": 3,
+			"duration": 365,
+			"barcode": "FBFSDIA2001"
+		},
+	],
 	"brands": [
 		{
 			"BRAND": "Creative Handicrafts",

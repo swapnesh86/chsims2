@@ -1,18 +1,21 @@
 import { useEffect } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faFileCirclePlus, faFilePen, faUserGear, faUserPlus, faRightFromBracket } from "@fortawesome/free-solid-svg-icons"
+import { faFileCirclePlus, faList, faUserPlus, faRightFromBracket, faMoneyBills, faStore } from "@fortawesome/free-solid-svg-icons"
 import { useNavigate, Link, useLocation } from 'react-router-dom'
 
 import { useSendLogoutMutation } from '../features/auth/authApiSlice'
 import useAuth from '../hooks/useAuth'
 
 const DASH_REGEX = /^\/dash(\/)?$/
+const BILLING_REGEX = /^\/dash\/billing(\/)?$/
 const SKUS_REGEX = /^\/dash\/skus(\/)?$/
 const USERS_REGEX = /^\/dash\/users(\/)?$/
+const LEDGER_REGEX = /^\/dash\/ledger(\/)?$/
+const INVENTORY_REGEX = /^\/dash\/inventory(\/)?$/
 
 const DashHeader = () => {
 
-    const { isManager, isAdmin } = useAuth()
+    const { isAdmin } = useAuth()
 
     const navigate = useNavigate()
     const { pathname } = useLocation()
@@ -28,30 +31,43 @@ const DashHeader = () => {
         if (isSuccess) navigate('/')
     }, [isSuccess, navigate])
 
-    const onNewSkuClicked = () => navigate('/dash/skus/new')
+    const onNewBillClicked = () => navigate('/dash/billing')
     const onNewUserClicked = () => navigate('/dash/users/new')
     const onSkuListClicked = () => navigate('/dash/skus')
-    const onUsersClicked = () => navigate('/dash/users')
+    const onLedgerClicked = () => navigate('/dash/ledger')
+    const onInventoryClicked = () => navigate('/dash/inventory')
 
     let dashClass = null
     if (!DASH_REGEX.test(pathname) && !SKUS_REGEX.test(pathname) && !USERS_REGEX.test(pathname)) {
         dashClass = "dash-header__container--small"
     }
 
-    let newSkuButton = null
-    if (isManager || isAdmin) {
-        if (SKUS_REGEX.test(pathname)) {
-            newSkuButton = (
-                <button
-                    className="icon-button"
-                    title="New Sku"
-                    onClick={onNewSkuClicked}
-                >
-                    <FontAwesomeIcon icon={faFileCirclePlus} />
-                </button>
-            )
-        }
+    let newBillButton = null
+    if (!BILLING_REGEX.test(pathname) && !USERS_REGEX.test(pathname)) {
+        newBillButton = (
+            <button
+                className="icon-button"
+                title="New Bill"
+                onClick={onNewBillClicked}
+            >
+                <FontAwesomeIcon icon={faFileCirclePlus} />
+            </button>
+        )
     }
+
+    let inventoryButton = null
+    if (!INVENTORY_REGEX.test(pathname) && !USERS_REGEX.test(pathname)) {
+        inventoryButton = (
+            <button
+                className="icon-button"
+                title="Inventory"
+                onClick={onInventoryClicked}
+            >
+                <FontAwesomeIcon icon={faStore} />
+            </button>
+        )
+    }
+
 
     let newUserButton = null
     if (isAdmin) {
@@ -68,30 +84,30 @@ const DashHeader = () => {
         }
     }
 
-    let userButton = null
-    if (isAdmin) {
-        if (!USERS_REGEX.test(pathname) && pathname.includes('/dash')) {
-            userButton = (
-                <button
-                    className="icon-button"
-                    title="Users"
-                    onClick={onUsersClicked}
-                >
-                    <FontAwesomeIcon icon={faUserGear} />
-                </button>
-            )
-        }
+    let ledgerButton = null
+
+    if (!LEDGER_REGEX.test(pathname) && pathname.includes('/dash') && !USERS_REGEX.test(pathname)) {
+        ledgerButton = (
+            <button
+                className="icon-button"
+                title="Shop Accounts"
+                onClick={onLedgerClicked}
+            >
+                <FontAwesomeIcon icon={faMoneyBills} />
+            </button>
+        )
     }
 
+
     let skuListButton = null
-    if (!SKUS_REGEX.test(pathname) && pathname.includes('/dash')) {
+    if (!SKUS_REGEX.test(pathname) && pathname.includes('/dash') && !USERS_REGEX.test(pathname)) {
         skuListButton = (
             <button
                 className="icon-button"
                 title="SkuList"
                 onClick={onSkuListClicked}
             >
-                <FontAwesomeIcon icon={faFilePen} />
+                <FontAwesomeIcon icon={faList} />
             </button>
         )
     }
@@ -114,10 +130,11 @@ const DashHeader = () => {
     } else {
         buttonContent = (
             <>
-                {newSkuButton}
+                {newBillButton}
                 {newUserButton}
                 {skuListButton}
-                {userButton}
+                {ledgerButton}
+                {inventoryButton}
                 {logoutButton}
             </>
         )

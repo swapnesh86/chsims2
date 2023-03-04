@@ -24,7 +24,7 @@ const EditSku = ({ skuId }) => {
     const [mbr, setMbr] = useState(sku.MBR)
     const [hsn, setHsn] = useState(sku.HSNCode)
 
-    const { isAdmin, isManager } = useAuth()
+    const { isAdmin, isSkuManager } = useAuth()
     const [deleteSku] = useDeleteSkuMutation()
     const [updateSku] = useUpdateSkuMutation()
 
@@ -82,7 +82,7 @@ const EditSku = ({ skuId }) => {
                         onChange={(e) => setHsn(e.target.value)}
                     />
                 </td>
-                {(isAdmin || isManager) && <td className="table__cell sku__delete">
+                {(isAdmin || isSkuManager) && <td className="table__cell sku__delete">
                     <button
                         className="icon-skudelbutton"
                         title="Save"
