@@ -252,7 +252,7 @@ tr {
   position: sticky;
   top: 0;
   z-index: 1;
-  grid-template-columns: 9em 8em 7em 7em 7em 8em 9em 8em 8em 3em 4em 5em 4em;
+  grid-template-columns: 5em 9em 8em 9em 7em 8em 3em 4em 5em 4em;
   color: #000;
 }
 
@@ -260,7 +260,7 @@ tr {
   font-size: 0.75rem;
   display: grid;
   color: #000;
-  grid-template-columns: 9em 8em 7em 7em 7em 8em 9em 8em 8em 3em 4em 5em 4em;
+  grid-template-columns: 5em 9em 8em 9em 7em 8em 3em 4em 5em 4em;
 }
 
 .table__thead--inventory {
@@ -402,6 +402,49 @@ tr {
   padding: 0.25em;
 }
 
+.inventory--header {
+  display: grid;
+  grid-template-columns: 3em 6em 5em 6em 10em;
+  align-items: center;
+  border-radius: 15px;
+  padding: 0.25em;
+  column-gap: 1em;
+}
+
+.billing--header {
+  display: grid;
+  grid-template-columns: 17em 10em;
+  align-items: center;
+  border-radius: 15px;
+  padding: 0.25em;
+  column-gap: 1em;
+}
+
+.billing--line2 {
+  display: grid;
+  grid-template-columns: 8em 8em 10em;
+  align-items: center;
+  border-radius: 15px;
+  padding: 0.25em;
+  column-gap: 1em;
+}
+
+.add-bill-entry {
+  display: grid;
+  grid-template-columns: 20em 12em 6em;
+  align-items: center;
+  border-radius: 15px;
+  padding: 0.25em;
+}
+
+.ledger--header {
+  display: grid;
+  grid-template-columns: 8em 8em;
+  align-items: center;
+  border-radius: 15px;
+  padding: 0.25em;
+}
+
 .green-back {
   background-color: green;
 }
@@ -479,7 +522,7 @@ tr {
 
 .bill--searchrow {
   display: grid;
-  grid-template-columns: 9em 13em 3em 8em;
+  grid-template-columns: 10em 15em 4em 9em;
 }
 
 
