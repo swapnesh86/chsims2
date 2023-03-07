@@ -37,7 +37,7 @@ const LedgerList = () => {
 
     const [dateBegin, setDateBegin] = useState((new Date()).setDate(0));
     const [dateEnd, setDateEnd] = useState(new Date());
-    const [orderType, setOrderType] = useState('');
+    const [billNoSearch, setBillNoSearch] = useState('');
     const [tableContent, setTableContent] = useState([]);
     const [jsonContent, setJsonContent] = useState([]);
     const [andheri, setAndheri] = useState(false)
@@ -59,7 +59,7 @@ const LedgerList = () => {
             let filteredIds = ids.filter(entry => (
                 new Date(entities[entry].createdAt) >= new Date(dateBegin) &&
                 new Date(entities[entry].createdAt) <= new Date(dateEnd) &&
-                ((id === 'all' && orderType === '') ? 1 : (id !== 'all') ? entities[entry].billno.toLowerCase().match(id.toLowerCase()) : entities[entry].billno.toLowerCase().match(orderType.toLowerCase()))
+                ((id === 'all' && billNoSearch === '') ? 1 : (id !== 'all') ? entities[entry].billno.toLowerCase().match(id.toLowerCase()) : entities[entry].billno.toLowerCase().match(billNoSearch.toLowerCase()))
                 //((orderType === 'all') ? 1 : entities[entry].billno.toLowerCase().includes(orderType.toLowerCase()))
             )
             )
@@ -74,17 +74,17 @@ const LedgerList = () => {
 
         }
 
-    }, [isSuccess, dateBegin, dateEnd, orderType, ledger, skuSuccess, skus, id])
+    }, [isSuccess, dateBegin, dateEnd, billNoSearch, ledger, skuSuccess, skus, id])
 
     useEffect(() => {
         let tempstr = ''
         if (andheri) tempstr = tempstr + 'CHAD'
-        if (bandra) tempstr = tempstr + 'CHBA'
-        if (powai) tempstr = tempstr + 'CHPO'
+        if (bandra) tempstr = tempstr + (tempstr !== '' ? '|CHBA' : 'CHBA')
+        if (powai) tempstr = tempstr + (tempstr !== '' ? '|CHPO' : 'CHPO')
         if (purchases) tempstr = tempstr + 'CHDB|CHOS|CHDN'
         if (internal) tempstr = tempstr + 'CHIN'
 
-        setOrderType(tempstr)
+        setBillNoSearch(tempstr)
 
     }, [andheri, bandra, powai, purchases, internal])
 
@@ -203,7 +203,7 @@ const LedgerList = () => {
                     <p>End Date: </p>
                     <input type="date" onChange={e => setDateEnd(e.target.value)} />
                     <p>Search: </p>
-                    <input type="text" placeholder="Order Type" onChange={e => setOrderType(e.target.value)} />
+                    <input type="text" placeholder="Bill Number" onChange={e => setBillNoSearch(e.target.value)} />
                 </div>
                 <div className="ledger--header">
                     <button onClick={exportExcel}>GenExcel</button>
