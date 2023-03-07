@@ -53,20 +53,14 @@ const LedgerList = () => {
             )
             )
 
+            const mytableContent = filteredIds?.length && filteredIds.map(ledgerId => {
+                return (<Ledger key={ledgerId} ledgerId={ledgerId} />)
+            })
+            setTableContent(mytableContent)
 
-            if (skuSuccess) {
+            const myjsonContent = filteredIds?.length && filteredIds.map(ledgerId => ({ Date: (new Intl.DateTimeFormat('en-US').format(new Date(entities[ledgerId].createdAt))), BillNo: entities[ledgerId].billno, Barcode: entities[ledgerId].barcode, Qty: entities[ledgerId].qty, Price: entities[ledgerId].totalprice, HSN: entities[ledgerId].hsncode }))
+            setJsonContent(myjsonContent)
 
-                const { ids: skuids, entities: skuentities } = skus
-
-                const mytableContent = filteredIds?.length && filteredIds.map(ledgerId => {
-                    let skuId = skuids.find(sku => skuentities[sku].Barcode.toLowerCase() === entities[ledgerId].barcode.toLowerCase())
-                    return (<Ledger key={ledgerId} ledgerId={ledgerId} name={skuentities[skuId].Name} />)
-                })
-                setTableContent(mytableContent)
-
-                const myjsonContent = filteredIds?.length && filteredIds.map(ledgerId => ({ Date: (new Intl.DateTimeFormat('en-US').format(new Date(entities[ledgerId].createdAt))), BillNo: entities[ledgerId].billno, Barcode: entities[ledgerId].barcode, Qty: entities[ledgerId].qty, Price: entities[ledgerId].totalprice, HSN: entities[ledgerId].hsncode }))
-                setJsonContent(myjsonContent)
-            }
         }
 
     }, [isSuccess, dateBegin, dateEnd, orderType, ledger, skuSuccess, skus])

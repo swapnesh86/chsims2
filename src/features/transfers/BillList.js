@@ -286,9 +286,8 @@ const BillList = () => {
                     ledgerEntities[ledger].billno.toLowerCase().includes(returnBillNo.toLowerCase()) && returnBillNo.length === 12   // remove the previous comment before deployment
                 ))
                 const returnBilljson = returnBillIds?.length ? returnBillIds.map(ledgerId => {
-                    let skuId = ids.find(sku => entities[sku].Barcode.toLowerCase() === ledgerEntities[ledgerId].barcode.toLowerCase())
                     return (
-                        { Date: (new Intl.DateTimeFormat('en-US').format(new Date(ledgerEntities[ledgerId].createdAt))), Barcode: ledgerEntities[ledgerId].barcode, Name: entities[skuId].Name, Qty: ledgerEntities[ledgerId].qty, Price: ledgerEntities[ledgerId].totalprice, hsn: ledgerEntities[ledgerId].hsncode, gst: ledgerEntities[ledgerId].gst, Return: 0 }
+                        { Date: (new Intl.DateTimeFormat('en-US').format(new Date(ledgerEntities[ledgerId].createdAt))), Barcode: ledgerEntities[ledgerId].barcode, Name: ledgerEntities[ledgerId].name, Qty: ledgerEntities[ledgerId].qty, Price: ledgerEntities[ledgerId].totalprice, hsn: ledgerEntities[ledgerId].hsncode, gst: ledgerEntities[ledgerId].gst, Return: 0 }
                     )
                 }) : null
 
@@ -436,7 +435,7 @@ const BillList = () => {
 
                     bill.forEach(async (entry) => {
 
-                        const ledgerEntry = { billno: mybillno, barcode: entry.barcode, ordertype: myorderType, buyer: (myBuyer ? myBuyer : buyerCode), seller: mySeller, phone: myPhone, email: myEmail, paymenttype: myPaymentType, membership: myMembership, qty: entry.qty, totalprice: (entry.qty * entry.mrp * factor), hsncode: entry.hsn, gst: entry.gst }
+                        const ledgerEntry = { billno: mybillno, barcode: entry.barcode, name: entry.name, ordertype: myorderType, buyer: (myBuyer ? myBuyer : buyerCode), seller: mySeller, phone: myPhone, email: myEmail, paymenttype: myPaymentType, membership: myMembership, qty: entry.qty, totalprice: (entry.qty * entry.mrp * factor), hsncode: entry.hsn, gst: entry.gst }
 
                         let canSave = [mybillno, entry.barcode, myorderType, (myBuyer || buyerCode), mySeller, myPaymentType, entry.qty, entry.hsn, entry.gst].every(Boolean)
 
@@ -452,7 +451,7 @@ const BillList = () => {
                             if (invId[0]) {
                                 await updateinventory({ id: invId[0], source: updateInvStr.source, cwefstore: updateInvStr.cwefstore, andheri: updateInvStr.andheri, bandra: updateInvStr.bandra, powai: updateInvStr.powai, exhibition: updateInvStr.exhibition, sales: updateInvStr.sales })
                             } else {
-                                await addinventory({ barcode: entry.barcode, source: updateInvStr.source, cwefstore: updateInvStr.cwefstore, andheri: updateInvStr.andheri, bandra: updateInvStr.bandra, powai: updateInvStr.powai, exhibition: updateInvStr.exhibition, sales: updateInvStr.sales })
+                                await addinventory({ barcode: entry.barcode, name: entry.name, size: entry.size, colour: entry.colour, source: updateInvStr.source, cwefstore: updateInvStr.cwefstore, andheri: updateInvStr.andheri, bandra: updateInvStr.bandra, powai: updateInvStr.powai, exhibition: updateInvStr.exhibition, sales: updateInvStr.sales })
                             }
                         }
                     })
@@ -490,7 +489,12 @@ const BillList = () => {
                         const myGst = getGst(entities[skuId[0]].HSNCode, myMrp)
                         //console.log(skuId)
                         if (skuId[0]) {
-                            myBill = [...bill, { barcode: entities[skuId[0]].Barcode, name: entities[skuId[0]].Name, qty: 1, mrp: myMrp, hsn: entities[skuId[0]].HSNCode, gst: myGst, return: 0 }]
+                            myBill = [...bill, {
+                                barcode: entities[skuId[0]].Barcode, name: entities[skuId[0]].Name,
+                                colour: (entities[skuId[0]].Barcode.length === 11 ? (encoding.colour.find(item => item.IDENTITY === entities[skuId[0]].Barcode.substr(5, 1).toUpperCase()).COLOUR) : ""),
+                                size: (entities[skuId[0]].Barcode.length === 11 ? (encoding.sizes.find(item => item.IDENTITY === entities[skuId[0]].Barcode.substr(4, 1).toUpperCase()).SIZE) : ""),
+                                qty: 1, mrp: myMrp, hsn: entities[skuId[0]].HSNCode, gst: myGst, return: 0
+                            }]
 
                         } else {
                             myBill = [...bill, { barcode: 'NA', name: 'NA', mrp: 0, hsn: 'NA', gst: 'NA', return: 0 }]    // This needs to be removed

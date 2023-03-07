@@ -3,7 +3,7 @@ import { selectLedgerById } from './ledgerApiSlice'
 
 import { memo } from 'react'
 
-const Ledger = ({ ledgerId, name }) => {
+const Ledger = ({ ledgerId }) => {
 
     const ledger = useSelector(state => selectLedgerById(state, ledgerId))
 
@@ -17,7 +17,7 @@ const Ledger = ({ ledgerId, name }) => {
                 <td className="table__cell ledger__primary">{dateStr}</td>
                 <td className="table__cell ledger__primary">{ledger.billno}</td>
                 <td className="table__cell ledger__primary">{ledger.barcode}</td>
-                <td className="table__cell ledger__primary">{name}</td>
+                <td className="table__cell ledger__primary">{ledger.name}</td>
                 <td className="table__cell ledger__primary">{ledger.ordertype}</td>
                 {/* <td className="table__cell ledger__primary">{ledger.seller}</td> */}
                 <td className="table__cell ledger__primary">{ledger.buyer}</td>
