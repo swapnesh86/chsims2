@@ -37,9 +37,14 @@ const LedgerList = () => {
 
     const [dateBegin, setDateBegin] = useState((new Date()).setDate(0));
     const [dateEnd, setDateEnd] = useState(new Date());
-    const [orderType, setOrderType] = useState(id);
+    const [orderType, setOrderType] = useState('');
     const [tableContent, setTableContent] = useState([]);
     const [jsonContent, setJsonContent] = useState([]);
+    const [andheri, setAndheri] = useState(false)
+    const [bandra, setBandra] = useState(false)
+    const [powai, setPowai] = useState(false)
+    const [purchases, setPurchases] = useState(false)
+    const [internal, setInternal] = useState(false)
 
     let content
     if (isLoading) content = <p>Loading...</p>
@@ -54,7 +59,8 @@ const LedgerList = () => {
             let filteredIds = ids.filter(entry => (
                 new Date(entities[entry].createdAt) >= new Date(dateBegin) &&
                 new Date(entities[entry].createdAt) <= new Date(dateEnd) &&
-                ((orderType === 'all') ? 1 : entities[entry].billno.toLowerCase().includes(orderType.toLowerCase()))
+                ((id === 'all' && orderType === '') ? 1 : (id !== 'all') ? entities[entry].billno.toLowerCase().match(id.toLowerCase()) : entities[entry].billno.toLowerCase().match(orderType.toLowerCase()))
+                //((orderType === 'all') ? 1 : entities[entry].billno.toLowerCase().includes(orderType.toLowerCase()))
             )
             )
 
@@ -69,6 +75,18 @@ const LedgerList = () => {
         }
 
     }, [isSuccess, dateBegin, dateEnd, orderType, ledger, skuSuccess, skus, id])
+
+    useEffect(() => {
+        let tempstr = ''
+        if (andheri) tempstr = tempstr + 'CHAD'
+        if (bandra) tempstr = tempstr + 'CHBA'
+        if (powai) tempstr = tempstr + 'CHPO'
+        if (purchases) tempstr = tempstr + 'CHDB|CHOS|CHDN'
+        if (internal) tempstr = tempstr + 'CHIN'
+
+        setOrderType(tempstr)
+
+    }, [andheri, bandra, powai, purchases, internal])
 
 
     const exportExcel = () => {
@@ -115,11 +133,70 @@ const LedgerList = () => {
 
     };
 
+    const handleToggleAndheri = () => setAndheri(prev => !prev)
+    const handleToggleBandra = () => setBandra(prev => !prev)
+    const handleTogglePowai = () => setPowai(prev => !prev)
+    const handleTogglePurchases = () => setPurchases(prev => !prev)
+    const handleToggleInternal = () => setInternal(prev => !prev)
+
 
     if (isSuccess) {
 
         content = (
             <>
+                <div className="ledger--selector">
+                    {(id === 'all') && <label htmlFor="persist" className="form__persist">
+                        <input
+                            type="checkbox"
+                            className="form__checkbox"
+                            id="persist"
+                            onChange={handleToggleAndheri}
+                            checked={andheri}
+                        />
+                        Andheri
+                    </label>}
+                    {(id === 'all') && <label htmlFor="persist" className="form__persist">
+                        <input
+                            type="checkbox"
+                            className="form__checkbox"
+                            id="persist"
+                            onChange={handleToggleBandra}
+                            checked={bandra}
+                        />
+                        Bandra
+                    </label>}
+                    {(id === 'all') && <label htmlFor="persist" className="form__persist">
+                        <input
+                            type="checkbox"
+                            className="form__checkbox"
+                            id="persist"
+                            onChange={handleTogglePowai}
+                            checked={powai}
+                        />
+                        Powai
+                    </label>}
+                    {(id === 'all') && <label htmlFor="persist" className="form__persist">
+                        <input
+                            type="checkbox"
+                            className="form__checkbox"
+                            id="persist"
+                            onChange={handleTogglePurchases}
+                            checked={purchases}
+                        />
+                        Purchases
+                    </label>}
+                    {(id === 'all') && <label htmlFor="persist" className="form__persist">
+                        <input
+                            type="checkbox"
+                            className="form__checkbox"
+                            id="persist"
+                            onChange={handleToggleInternal}
+                            checked={internal}
+                        />
+                        Internal
+                    </label>}
+                </div>
+                <br></br>
                 <div className="ledger--header">
                     <p>Begin Date: </p>
                     <input type="date" onChange={e => setDateBegin(e.target.value)} />

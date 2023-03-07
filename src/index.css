@@ -453,6 +453,14 @@ tr {
   padding: 0.25em;
 }
 
+.ledger--selector {
+  display: grid;
+  grid-template-columns: 8em 8em 8em 9em 8em;
+  align-items: center;
+  border-radius: 15px;
+  padding: 0.25em;
+}
+
 .green-back {
   background-color: green;
 }
