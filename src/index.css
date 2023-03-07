@@ -89,6 +89,7 @@ select {
 .sku_edit_qty {
   text-align: center;
   width: 2em;
+
 }
 
 #root {
@@ -237,13 +238,13 @@ tr {
   position: sticky;
   top: 0;
   z-index: 1;
-  grid-template-columns: 8em 8em 6em 12em 12em 5em 3em;
+  grid-template-columns: 8em 8em 6em 12em 12em 3em;
   color: #000;
 }
 
 .member--row {
   display: grid;
-  grid-template-columns: 8em 8em 6em 12em 12em 5em 3em;
+  grid-template-columns: 8em 8em 6em 12em 12em 3em;
 }
 
 .table__thead--ledger {
@@ -252,7 +253,7 @@ tr {
   position: sticky;
   top: 0;
   z-index: 1;
-  grid-template-columns: 5em 9em 8em 9em 7em 8em 3em 4em 5em 4em;
+  grid-template-columns: 5em 9em 8em 12em 9em 7em 8em 3em 4em 5em 4em;
   color: #000;
 }
 
@@ -260,7 +261,14 @@ tr {
   font-size: 0.75rem;
   display: grid;
   color: #000;
-  grid-template-columns: 5em 9em 8em 9em 7em 8em 3em 4em 5em 4em;
+  grid-template-columns: 5em 9em 8em 12em 9em 7em 8em 3em 4em 5em 4em;
+}
+
+.ledger--returnrow {
+  font-size: 0.75rem;
+  display: grid;
+  color: #000;
+  grid-template-columns: 6em 9em 12em 6em 3em 4em 2em;
 }
 
 .table__thead--inventory {

@@ -13,7 +13,7 @@ const Member = ({ memberId, phone, duration, billno, prevbillnos, usectr }) => {
 
     const handleEdit = () => navigate(`/dash/membership/${memberId}`)
 
-    const memberBillNosString = prevbillnos.toString().replaceAll(',', ', ')
+    const memberBillNosString = prevbillnos?.toString().replaceAll(',', ', ')
 
     return (
         <tr className="table__row member--row">
@@ -22,7 +22,6 @@ const Member = ({ memberId, phone, duration, billno, prevbillnos, usectr }) => {
             <td className="table__cell bill__entry">{duration}</td>
             <td className="table__cell bill__entry">{billno}</td>
             <td className="table__cell bill__entry">{memberBillNosString}</td>
-            <td className="table__cell bill__entry">{usectr}</td>
             <td className="table__cell bill__entry">
                 <button
                     className="icon-button table__button"

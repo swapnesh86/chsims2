@@ -14,8 +14,8 @@ const Inventory = ({ inventoryId, name }) => {
             <tr className="table__row inventory--row" >
                 <td className="table__cell inventory__primary">{inventory.barcode}</td>
                 <td className="table__cell inventory__primary">{name}</td>
-                <td className="table__cell inventory__primary">{(inventory.barcode.length === 11 ? (encoding.colour.find(item => item.IDENTITY === inventory.barcode.substr(5, 1)).COLOUR) : null)}</td>
-                <td className="table__cell inventory__primary">{(inventory.barcode.length === 11 ? (encoding.sizes.find(item => item.IDENTITY === inventory.barcode.substr(4, 1)).SIZE) : null)}</td>
+                <td className="table__cell inventory__primary">{(inventory.barcode.length === 11 ? (encoding.colour.find(item => item.IDENTITY === inventory.barcode.substr(5, 1).toUpperCase()).COLOUR) : null)}</td>
+                <td className="table__cell inventory__primary">{(inventory.barcode.length === 11 ? (encoding.sizes.find(item => item.IDENTITY === inventory.barcode.substr(4, 1).toUpperCase()).SIZE) : null)}</td>
                 <td className="table__cell inventory__primary">{inventory.source}</td>
                 <td className="table__cell inventory__primary">{inventory.cwefstore}</td>
                 <td className="table__cell inventory__primary">{inventory.andheri}</td>

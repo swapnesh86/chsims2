@@ -1,4 +1,5 @@
 import { useGetLedgerQuery } from "./ledgerApiSlice"
+import { useGetSkusQuery } from "../skus/skusApiSlice"
 import Ledger from "./Ledger"
 
 import { useState, useEffect } from "react"
@@ -20,6 +21,15 @@ const LedgerList = () => {
         refetchOnMountOrArgChange: true
     })
 
+    const {
+        data: skus,
+        isSuccess: skuSuccess
+    } = useGetSkusQuery('skuList', {
+        pollingInterval: 120000,
+        refetchOnFocus: true,
+        refetchOnMountOrArgChange: true
+    })
+
     const [dateBegin, setDateBegin] = useState((new Date()).setDate(0));
     const [dateEnd, setDateEnd] = useState(new Date());
     const [orderType, setOrderType] = useState('');
@@ -37,20 +47,29 @@ const LedgerList = () => {
             const { ids, entities } = ledger
 
             let filteredIds = ids.filter(entry => (
-                new Date(entities[entry].createdAt) > new Date(dateBegin) &&
-                new Date(entities[entry].createdAt) < new Date(dateEnd) &&
+                new Date(entities[entry].createdAt) >= new Date(dateBegin) &&
+                new Date(entities[entry].createdAt) <= new Date(dateEnd) &&
                 entities[entry].ordertype.toLowerCase().includes(orderType.toLowerCase())
             )
             )
 
-            const mytableContent = filteredIds?.length ? filteredIds.map(ledgerId => <Ledger key={ledgerId} ledgerId={ledgerId} />) : null
-            setTableContent(mytableContent)
 
-            const myjsonContent = filteredIds?.length ? filteredIds.map(ledgerId => ({ Date: (new Intl.DateTimeFormat('en-US').format(new Date(entities[ledgerId].createdAt))), BillNo: entities[ledgerId].billno, Barcode: entities[ledgerId].barcode, Qty: entities[ledgerId].qty, Price: entities[ledgerId].totalprice, HSN: entities[ledgerId].hsncode })) : null
-            setJsonContent(myjsonContent)
+            if (skuSuccess) {
+
+                const { ids: skuids, entities: skuentities } = skus
+
+                const mytableContent = filteredIds?.length && filteredIds.map(ledgerId => {
+                    let skuId = skuids.find(sku => skuentities[sku].Barcode.toLowerCase() === entities[ledgerId].barcode.toLowerCase())
+                    return (<Ledger key={ledgerId} ledgerId={ledgerId} name={skuentities[skuId].Name} />)
+                })
+                setTableContent(mytableContent)
+
+                const myjsonContent = filteredIds?.length && filteredIds.map(ledgerId => ({ Date: (new Intl.DateTimeFormat('en-US').format(new Date(entities[ledgerId].createdAt))), BillNo: entities[ledgerId].billno, Barcode: entities[ledgerId].barcode, Qty: entities[ledgerId].qty, Price: entities[ledgerId].totalprice, HSN: entities[ledgerId].hsncode }))
+                setJsonContent(myjsonContent)
+            }
         }
 
-    }, [isSuccess, dateBegin, dateEnd, orderType, ledger])
+    }, [isSuccess, dateBegin, dateEnd, orderType, ledger, skuSuccess, skus])
 
 
     const exportExcel = () => {
@@ -121,6 +140,7 @@ const LedgerList = () => {
                             <th scope="col" className="table__th ledger__ledgername">Date</th>
                             <th scope="col" className="table__th ledger__ledgername">Billno</th>
                             <th scope="col" className="table__th ledger__ledgername">Barcode</th>
+                            <th scope="col" className="table__th ledger__ledgername">Name</th>
                             <th scope="col" className="table__th ledger__ledgername">OrderType</th>
                             {/* <th scope="col" className="table__th ledger__ledgername">Seller</th> */}
                             <th scope="col" className="table__th ledger__ledgername">Buyer</th>

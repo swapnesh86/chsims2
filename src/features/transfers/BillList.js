@@ -7,12 +7,13 @@ import useAuth from "../../hooks/useAuth";
 import { getGst } from "../utilities/GstCalc"
 
 import { useGetBillNosQuery, useUpdateBillNoMutation, categorySelect, finyearNow, pad } from "./billNoApiSlice"
-import { useAddNewLedgerMutation } from "../ledger/ledgerApiSlice"
+import { useGetLedgerQuery, useAddNewLedgerMutation } from "../ledger/ledgerApiSlice"
 
 import { useGetInventoryQuery, useAddNewInventoryMutation, useUpdateInventoryMutation } from "../inventory/inventoryApiSlice"
 import { useGetMembersQuery } from "../membership/membersApiSlice"
 
 import { useAddNewEmailMutation } from "./emailApiSlice"
+import ReturnLedger from "./ReturnLedger"
 
 import { useNavigate } from "react-router-dom"
 
@@ -22,6 +23,9 @@ const BillList = () => {
     const [bill, setBill] = useState([])
     const [total, setTotal] = useState(0)
     const [factor, setFactor] = useState(0)
+    const [returnBillNo, setReturnBillNo] = useState('XYZ');
+    const [returnBillContent, setReturnBillContent] = useState([]);
+    //const [returnBillTable, setReturnBillTable] = useState();
 
     const [action, setAction] = useState('')
     const [store, setStore] = useState('')
@@ -65,6 +69,15 @@ const BillList = () => {
     })
 
     const [updatebillnos] = useUpdateBillNoMutation()
+
+    const {
+        data: ledger,
+        isSuccess: ledgerSuccess
+    } = useGetLedgerQuery('ledgerList', {
+        pollingInterval: 120000,
+        refetchOnFocus: true,
+        refetchOnMountOrArgChange: true
+    })
 
     const [addledger, {
         isSuccess: addledgerSuccess
@@ -127,18 +140,22 @@ const BillList = () => {
 
                 const { ids: invIds, entities: invEntities } = inventory
 
+                let qtyArr = []
                 if (bill.length) {
                     bill.forEach(entry => {
                         let id = invIds.find(temp => invEntities[temp].barcode.toLowerCase() === entry.barcode.toLowerCase())
                         if (source === 'source') setValidQty(true)
                         else {
                             if (id) {
-                                if (entry.qty > invEntities[id][source]) setValidQty(false)
-                                else setValidQty(true)
-                            } else setValidQty(false)
+                                if (entry.qty > invEntities[id][source]) qtyArr.push(false)
+                                else qtyArr.push(true)
+                            } else qtyArr.push(false)
                         }
                     })
-                } else setValidQty(true)
+                } else qtyArr.push(true)
+
+                setValidQty(qtyArr.every(Boolean))
+
             }
         }
         checkQty()
@@ -152,10 +169,11 @@ const BillList = () => {
             else if (source === 'CWEF' || destination === 'CWEF') myfactor = 0
         }
         if ((isAdmin || isShopManager || isInventoryManager) && (action === 'Internal')) myfactor = 0
+        if (orderType === 'Internal') myfactor = 0
 
         setFactor(myfactor)
 
-    }, [isAdmin, isShopManager, isInventoryManager, action, source, destination, bill])
+    }, [isAdmin, isShopManager, isInventoryManager, action, orderType, source, destination, bill])
 
     useEffect(() => {
         if (addledgerSuccess) {
@@ -198,9 +216,11 @@ const BillList = () => {
                 if (isSuccess) {
                     const { ids: skuIds, entities: skuEntities } = skus
                     bill.forEach(entry => {
-                        let skuid = skuIds.find(temp => skuEntities[temp].Barcode.toLowerCase() === entry.barcode.toLowerCase())
-                        if (validMember) entry.mrp = skuEntities[skuid].MBR
-                        else entry.mrp = skuEntities[skuid].MRP
+                        if (!entry.return) {
+                            let skuid = skuIds.find(temp => skuEntities[temp].Barcode.toLowerCase() === entry.barcode.toLowerCase())
+                            if (validMember) entry.mrp = skuEntities[skuid].MBR
+                            else entry.mrp = skuEntities[skuid].MRP
+                        }
                     })
                 }
 
@@ -212,13 +232,42 @@ const BillList = () => {
 
     }, [bill, isSuccess, skus, validMember])
 
+
+    useEffect(() => {
+
+        const billwithReturns = () => {
+            let myBill = [...bill]
+
+            returnBillContent.forEach(entry => {
+                if (entry.Return !== 0) {
+                    const index = myBill.findIndex((obj) => obj.barcode === entry.Barcode)
+                    if (index !== -1) {
+                        myBill[index].qty -= entry.Return
+                        entry.Return = 0
+                    }
+                    else {
+                        myBill = [...bill, { barcode: entry.Barcode, name: entry.Name, qty: (-entry.Return), mrp: ((entry.Price / entry.Qty) * entry.Return), hsn: entry.hsn, gst: entry.gst, return: 1 }]
+                        entry.Return = 0
+                    }
+                    setBill(myBill)
+                }
+            })
+
+
+        }
+
+        billwithReturns()
+
+    }, [returnBillContent, bill])
+
     let shopHeaderSection
     let newInvHeaderSection
     let newItemSection
     let content
     let searchtableContent
+    let returnBillSection
 
-    if (isLoading) content = <tr>Loading...</tr>
+    if (isLoading) content = <p>Loading...</p>
     if (isError) content = <p className="errmsg">{error?.data?.message}</p>
 
     if (isSuccess) {
@@ -226,7 +275,74 @@ const BillList = () => {
         const { ids, entities } = skus
         let skuIds = ids.filter(sku => (entities[sku].Name.toLowerCase().includes(newSearch.toLowerCase())))
 
-        if (billLoading) content = <tr>Loading...</tr>
+        if (billLoading) content = <p>Loading...</p>
+
+        if (ledgerSuccess && orderType === 'Exchange') {
+
+            const getReturnBill = () => {
+
+                const { ids: ledgerIds, entities: ledgerEntities } = ledger
+                let returnBillIds = ledgerIds.filter(ledger => (
+                    ledgerEntities[ledger].billno.toLowerCase().includes(returnBillNo.toLowerCase()) && returnBillNo.length === 12   // remove the previous comment before deployment
+                ))
+                const returnBilljson = returnBillIds?.length ? returnBillIds.map(ledgerId => {
+                    let skuId = ids.find(sku => entities[sku].Barcode.toLowerCase() === ledgerEntities[ledgerId].barcode.toLowerCase())
+                    return (
+                        { Date: (new Intl.DateTimeFormat('en-US').format(new Date(ledgerEntities[ledgerId].createdAt))), Barcode: ledgerEntities[ledgerId].barcode, Name: entities[skuId].Name, Qty: ledgerEntities[ledgerId].qty, Price: ledgerEntities[ledgerId].totalprice, hsn: ledgerEntities[ledgerId].hsncode, gst: ledgerEntities[ledgerId].gst, Return: 0 }
+                    )
+                }) : null
+
+                let consolidatedReturn = []
+                for (let i = 0; i < returnBilljson?.length; i++) {
+                    let found = false;
+                    for (let j = 0; j < consolidatedReturn?.length; j++) {
+                        if (consolidatedReturn[j].Barcode === returnBilljson[i].Barcode) {
+                            found = true;
+                            consolidatedReturn[j].Qty = consolidatedReturn[j].Qty + returnBilljson[i].Qty;
+                            consolidatedReturn[j].Price = consolidatedReturn[j].Price + returnBilljson[i].Price;
+                            break;
+                        }
+                    }
+                    if (!found) consolidatedReturn.push(returnBilljson[i])
+                    //console.log(consolidatedReturn)
+                }
+
+                setReturnBillContent(consolidatedReturn)
+
+            }
+
+            const returnBillTable = returnBillContent?.map(entry => {
+                return (
+                    <ReturnLedger key={entry.barcode} entry={entry} />
+                )
+            })
+
+            //console.log(returnBilljson)
+
+            returnBillSection =
+                <>
+                    < div >
+                        <input type="text" placeholder="Enter Bill No." onChange={e => setReturnBillNo(e.target.value)} />
+                        <button onClick={getReturnBill}>GetBill</button>
+                    </div >
+                    <br></br>
+                    <table>
+                        <thead className="table__thead ledger--returnrow">
+                            <tr>
+                                <th scope="col" className="table__th ledger__ledgername">Date</th>
+                                <th scope="col" className="table__th ledger__ledgername">Barcode</th>
+                                <th scope="col" className="table__th ledger__ledgername">Name</th>
+                                <th scope="col" className="table__th ledger__ledgername">Total Price</th>
+                                <th scope="col" className="table__th ledger__ledgername">Qty</th>
+                                <th scope="col" className="table__th ledger__ledgername">Return</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {returnBillTable}
+                        </tbody>
+                    </table>
+                </>
+        }
 
         if (billSucecss) {
 
@@ -303,18 +419,26 @@ const BillList = () => {
                                 else if (destination === 'OS') { myorderType = 'OSReturn'; myBuyer = otherSeller; buyerCode = 'OS' }
                                 mySeller = 'CWEFStore'; sellerCode = mySeller
                             }
-                        } else if (action === 'Internal') { myorderType = 'InternalTransfer'; myBuyer = destination; mySeller = source; myPaymentType = 'NA';; sellerCode = mySeller; buyerCode = myBuyer }
+                        }
+                        else if (action === 'Internal') { myorderType = 'InternalTransfer'; myBuyer = destination; mySeller = source; myPaymentType = 'NA';; sellerCode = mySeller; buyerCode = myBuyer }
                         else if (action === 'Billing' && (isAdmin || isShopManager)) { myorderType = orderType; mySeller = store; myBuyer = name; myPhone = phone; myEmail = email; myPaymentType = (myorderType === 'Internal' ? 'NA' : paymentType); myMembership = membership; sellerCode = mySeller; buyerCode = 'Customer' }
                     } else if (isAdInCharge || isBaInCharge || isPoInCharge) { myorderType = orderType; mySeller = status; myBuyer = name; myPhone = phone; myEmail = email; myPaymentType = (myorderType === 'Internal' ? 'NA' : paymentType); myMembership = membership; sellerCode = mySeller; buyerCode = 'Customer' }
 
-                    const billdigits = pad(getbillno(sellerCode, buyerCode))
-                    let mybillno = `CH${categorySelect(sellerCode, buyerCode)}${finyearNow()}-${billdigits}`
+                    let mybillno
+                    if (orderType !== 'Exchange') {
+                        const billdigits = pad(getbillno(sellerCode, buyerCode))
+                        mybillno = `CH${categorySelect(sellerCode, buyerCode)}${finyearNow()}-${billdigits}`
+                        await updatebillnos(myUpdateStr)
+                    } else {
+                        mybillno = returnBillNo
+                    }
+
 
                     bill.forEach(async (entry) => {
 
-                        const ledgerEntry = { billno: mybillno, barcode: entry.barcode, ordertype: myorderType, buyer: myBuyer, seller: mySeller, phone: myPhone, email: myEmail, paymenttype: myPaymentType, membership: myMembership, qty: entry.qty, totalprice: (entry.qty * entry.mrp * factor), hsncode: entry.hsn, gst: entry.gst }
+                        const ledgerEntry = { billno: mybillno, barcode: entry.barcode, ordertype: myorderType, buyer: (myBuyer ? myBuyer : buyerCode), seller: mySeller, phone: myPhone, email: myEmail, paymenttype: myPaymentType, membership: myMembership, qty: entry.qty, totalprice: (entry.qty * entry.mrp * factor), hsncode: entry.hsn, gst: entry.gst }
 
-                        let canSave = [mybillno, entry.barcode, myorderType, myBuyer, mySeller, myPaymentType, entry.qty, entry.hsn, entry.gst].every(Boolean)
+                        let canSave = [mybillno, entry.barcode, myorderType, (myBuyer || buyerCode), mySeller, myPaymentType, entry.qty, entry.hsn, entry.gst].every(Boolean)
 
                         const invId = invids.filter(id => (
                             inventities[id].barcode.toLowerCase() === entry.barcode.toLowerCase()
@@ -333,7 +457,7 @@ const BillList = () => {
                         }
                     })
 
-                    await updatebillnos(myUpdateStr)
+
                     //console.log(billHtml)
                     let myemail
                     if ((isAdmin || isInventoryManager || isShopManager) && action === 'Inventory') myemail = 'swapnesh.j@gmail.com'         // send to Accounts, ShopManager, Inventory Manager
@@ -366,10 +490,10 @@ const BillList = () => {
                         const myGst = getGst(entities[skuId[0]].HSNCode, myMrp)
                         //console.log(skuId)
                         if (skuId[0]) {
-                            myBill = [...bill, { barcode: entities[skuId[0]].Barcode, name: entities[skuId[0]].Name, qty: 1, mrp: myMrp, hsn: entities[skuId[0]].HSNCode, gst: myGst }]
+                            myBill = [...bill, { barcode: entities[skuId[0]].Barcode, name: entities[skuId[0]].Name, qty: 1, mrp: myMrp, hsn: entities[skuId[0]].HSNCode, gst: myGst, return: 0 }]
 
                         } else {
-                            myBill = [...bill, { barcode: 'Not Found', name: 'NA', mrp: 0, hsn: 'NA', gst: 'NA' }]    // This needs to be removed
+                            myBill = [...bill, { barcode: 'NA', name: 'NA', mrp: 0, hsn: 'NA', gst: 'NA', return: 0 }]    // This needs to be removed
                         }
                     }
                     setBill(myBill)
@@ -484,7 +608,7 @@ const BillList = () => {
                             </div>
                         </form>
                         <p>Total: {total}</p>
-                        <button onClick={makeBill}>Make Bill</button>
+                        <button disabled={!validQty} onClick={makeBill}>Make Bill</button>
 
                     </div>
 
@@ -492,42 +616,43 @@ const BillList = () => {
 
                 content = bill.map(entry => { //JSON.stringify(skus)
                     return (
-
-                        <tbody>
-                            <tr className="table__row bill--row" >
-                                <td className="table__cell bill__entry">{entry.barcode}</td>
-                                <td className="table__cell bill__entry">{entry.name}</td>
-                                <td className="table__cell bill__entry">
-                                    <input
-                                        className='sku_edit_qty'
-                                        id='qty'
-                                        type='text'
-                                        //placeholder={entry.qty}
-                                        value={entry.qty}
-                                        onChange={(e) => updateQty(e.target.value, entry.barcode)}
-                                    />
-                                </td>
-                                {((isAdmin || isShopManager || isInventoryManager) && ((action === 'Billing' && store === 'Exhibition') || (action === 'Inventory' && (source === 'OS' || destination === 'OS'))))
-                                    ? <td className="table__cell bill__entry">
+                        <table>
+                            <tbody>
+                                <tr className="table__row bill--row" >
+                                    <td className="table__cell bill__entry">{entry.barcode}</td>
+                                    <td className="table__cell bill__entry">{entry.name}</td>
+                                    <td className="table__cell bill__entry">
                                         <input
-                                            className='sku_edit_num'
+                                            className='sku_edit_qty'
                                             id='qty'
                                             type='text'
-                                            value={entry.mrp}
-                                            onChange={(e) => updateMrp(e.target.value, entry.barcode)}
+                                            //placeholder={entry.qty}
+                                            value={entry.qty}
+                                            onChange={(e) => updateQty(e.target.value, entry.barcode)}
                                         />
-                                    </td> :
-                                    <td className="table__cell bill__entry-center">{entry.mrp}</td>
-                                }
-                                <td className="table__cell bill__entry-center">{entry.mrp * entry.qty * factor}</td>
-                                <td className="table__cell bill__entry-center">
-                                    <button className="trash" onClick={() => deleteEntry(entry.barcode)}>
-                                        <FontAwesomeIcon icon={faTrash} />
-                                    </button>
-                                </td>
+                                    </td>
+                                    {((isAdmin || isShopManager || isInventoryManager) && ((action === 'Billing' && store === 'Exhibition') || (action === 'Inventory' && (source === 'OS' || destination === 'OS'))))
+                                        ? <td className="table__cell bill__entry">
+                                            <input
+                                                className='sku_edit_num'
+                                                id='qty'
+                                                type='text'
+                                                value={entry.mrp}
+                                                onChange={(e) => updateMrp(e.target.value, entry.barcode)}
+                                            />
+                                        </td> :
+                                        <td className="table__cell bill__entry-center">{entry.mrp}</td>
+                                    }
+                                    <td className="table__cell bill__entry-center">{entry.mrp * entry.qty * factor}</td>
+                                    <td className="table__cell bill__entry-center">
+                                        <button className="trash" onClick={() => deleteEntry(entry.barcode)}>
+                                            <FontAwesomeIcon icon={faTrash} />
+                                        </button>
+                                    </td>
 
-                            </tr>
-                        </tbody>
+                                </tr>
+                            </tbody>
+                        </table>
 
                     )
                 })
@@ -562,11 +687,10 @@ const BillList = () => {
             {newItemSection}
             <br></br>
             <p className={validQty ? "offscreen" : "errmsg"}>{validQty ? '' : 'Quantity Check Failed'}</p>
-            <table>
-                {content}
-            </table>
+            {content}
             <br></br>
             <br></br>
+            {returnBillSection}
             <br></br>
             <br></br>
             <br></br>

@@ -8,7 +8,7 @@ const Welcome = () => {
     const date = new Date()
     const today = new Intl.DateTimeFormat('en-US', { dateStyle: 'full', timeStyle: 'long' }).format(date)
 
-    const billingText = (isAdInCharge || isBaInCharge || isPoInCharge) ? 'Billing' : 'Billing / Transfers'
+    const billingText = (isAdInCharge || isBaInCharge || isPoInCharge) ? 'Billing / Returns' : 'Billing / Transfers'
     const skuText = (isAdInCharge || isBaInCharge || isPoInCharge) ? 'View SKU List' : 'View / Edit SKUs'
 
     const content = (
