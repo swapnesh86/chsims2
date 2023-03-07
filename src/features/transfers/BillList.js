@@ -25,6 +25,7 @@ const BillList = () => {
     const [factor, setFactor] = useState(0)
     const [returnBillNo, setReturnBillNo] = useState('XYZ');
     const [returnBillContent, setReturnBillContent] = useState([]);
+    const [billNo, setBillNo] = useState([]);
     //const [returnBillTable, setReturnBillTable] = useState();
 
     const [action, setAction] = useState('')
@@ -177,10 +178,10 @@ const BillList = () => {
 
     useEffect(() => {
         if (addledgerSuccess) {
-            if (action === 'Billing') navigate('/dash/ledger')
+            if (action === 'Billing') navigate(`/dash/ledger/${billNo}`)
             else if (invGetSucecss) navigate('/dash/inventory')
         }
-    }, [addledgerSuccess, invGetSucecss, action, navigate])
+    }, [addledgerSuccess, invGetSucecss, action, navigate, billNo])
 
     useEffect(() => {
 
@@ -431,7 +432,7 @@ const BillList = () => {
                     } else {
                         mybillno = returnBillNo
                     }
-
+                    setBillNo(mybillno)
 
                     bill.forEach(async (entry) => {
 

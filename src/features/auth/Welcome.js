@@ -19,7 +19,7 @@ const Welcome = () => {
             <h1>Welcome to SIMS 2.0!</h1>
             <h3><Link to="/dash/billing">{billingText}</Link></h3>
             <h3><Link to="/dash/inventory">Inventory</Link></h3>
-            <h3><Link to="/dash/ledger">Accounts Summary</Link></h3>
+            <h3><Link to="/dash/ledger/all">Accounts Summary</Link></h3>
             <br></br>
             <h3>SKU Details</h3>
             <div className="indent">

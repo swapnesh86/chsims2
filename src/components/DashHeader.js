@@ -10,7 +10,7 @@ const DASH_REGEX = /^\/dash(\/)?$/
 const BILLING_REGEX = /^\/dash\/billing(\/)?$/
 const SKUS_REGEX = /^\/dash\/skus(\/)?$/
 const USERS_REGEX = /^\/dash\/users(\/)?$/
-const LEDGER_REGEX = /^\/dash\/ledger(\/)?$/
+const LEDGER_REGEX = /^\/dash\/ledger\/all(\/)?$/
 const INVENTORY_REGEX = /^\/dash\/inventory(\/)?$/
 
 const DashHeader = () => {
@@ -34,7 +34,7 @@ const DashHeader = () => {
     const onNewBillClicked = () => navigate('/dash/billing')
     const onNewUserClicked = () => navigate('/dash/users/new')
     const onSkuListClicked = () => navigate('/dash/skus')
-    const onLedgerClicked = () => navigate('/dash/ledger')
+    const onLedgerClicked = () => navigate('/dash/ledger/all')
     const onInventoryClicked = () => navigate('/dash/inventory')
 
     let dashClass = null

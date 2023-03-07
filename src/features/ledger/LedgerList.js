@@ -5,9 +5,14 @@ import Ledger from "./Ledger"
 import { useState, useEffect } from "react"
 
 import jsPDF from "jspdf";
+import "jspdf-autotable";
 import FileSaver from "file-saver"
 
+import { useParams } from 'react-router-dom'
+
 const LedgerList = () => {
+
+    const { id } = useParams()
 
     const {
         data: ledger,
@@ -32,7 +37,7 @@ const LedgerList = () => {
 
     const [dateBegin, setDateBegin] = useState((new Date()).setDate(0));
     const [dateEnd, setDateEnd] = useState(new Date());
-    const [orderType, setOrderType] = useState('');
+    const [orderType, setOrderType] = useState(id);
     const [tableContent, setTableContent] = useState([]);
     const [jsonContent, setJsonContent] = useState([]);
 
@@ -49,7 +54,7 @@ const LedgerList = () => {
             let filteredIds = ids.filter(entry => (
                 new Date(entities[entry].createdAt) >= new Date(dateBegin) &&
                 new Date(entities[entry].createdAt) <= new Date(dateEnd) &&
-                entities[entry].ordertype.toLowerCase().includes(orderType.toLowerCase())
+                ((orderType === 'all') ? 1 : entities[entry].billno.toLowerCase().includes(orderType.toLowerCase()))
             )
             )
 
@@ -63,7 +68,7 @@ const LedgerList = () => {
 
         }
 
-    }, [isSuccess, dateBegin, dateEnd, orderType, ledger, skuSuccess, skus])
+    }, [isSuccess, dateBegin, dateEnd, orderType, ledger, skuSuccess, skus, id])
 
 
     const exportExcel = () => {
