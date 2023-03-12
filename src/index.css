@@ -253,7 +253,7 @@ tr {
   position: sticky;
   top: 0;
   z-index: 1;
-  grid-template-columns: 5em 9em 8em 12em 9em 7em 8em 3em 4em 5em 4em;
+  grid-template-columns: 7em 9em 8em 12em 9em 7em 8em 3em 4em 5em 4em;
   color: #000;
 }
 
@@ -261,7 +261,31 @@ tr {
   font-size: 0.75rem;
   display: grid;
   color: #000;
-  grid-template-columns: 5em 9em 8em 12em 9em 7em 8em 3em 4em 5em 4em;
+  grid-template-columns: 7em 9em 8em 12em 9em 7em 8em 3em 4em 5em 4em;
+}
+
+.table__thead--summarytop {
+  display: grid;
+  font-size: 0.75rem;
+  grid-template-columns: 7em repeat(4, 20em);
+  color: #000;
+}
+
+.table__thead--summarysecond {
+  display: grid;
+  font-size: 0.75rem;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  grid-template-columns: 7em repeat(20, 4em);
+  color: #000;
+}
+
+.salessummary--row {
+  font-size: 0.75rem;
+  display: grid;
+  color: #000;
+  grid-template-columns: 7em repeat(20, 4em);
 }
 
 .ledger--returnrow {
