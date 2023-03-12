@@ -1,4 +1,203 @@
 export const encoding = {
+	"hsnDesc": [
+		{
+			"hsn": 409,
+			"Description": "Edibles"
+		},
+		{
+			"hsn": 810,
+			"Description": "Edibles"
+		},
+		{
+			"hsn": 901,
+			"Description": "Edibles"
+		},
+		{
+			"hsn": 904,
+			"Description": "Edibles"
+		},
+		{
+			"hsn": 906,
+			"Description": "Edibles"
+		},
+		{
+			"hsn": 907,
+			"Description": "Edibles"
+		},
+		{
+			"hsn": 908,
+			"Description": "Edibles"
+		},
+		{
+			"hsn": 909,
+			"Description": "Edibles"
+		},
+		{
+			"hsn": 910,
+			"Description": "Edibles"
+		},
+		{
+			"hsn": 1207,
+			"Description": "Edibles"
+		},
+		{
+			"hsn": 3304,
+			"Description": "Home Decor"
+		},
+		{
+			"hsn": 3401,
+			"Description": "Home Decor"
+		},
+		{
+			"hsn": 3406,
+			"Description": "Home Decor"
+		},
+		{
+			"hsn": 3924,
+			"Description": "Home Decor"
+		},
+		{
+			"hsn": 3926,
+			"Description": "Accessories"
+		},
+		{
+			"hsn": 4202,
+			"Description": "Accessories"
+		},
+		{
+			"hsn": 4421,
+			"Description": "Home Decor"
+		},
+		{
+			"hsn": 4820,
+			"Description": "Accessories"
+		},
+		{
+			"hsn": 4909,
+			"Description": "Accessories"
+		},
+		{
+			"hsn": 5208,
+			"Description": "Accessories"
+		},
+		{
+			"hsn": 5702,
+			"Description": "Home Decor"
+		},
+		{
+			"hsn": 6103,
+			"Description": "Womens Wear"
+		},
+		{
+			"hsn": 6104,
+			"Description": "Womens Wear"
+		},
+		{
+			"hsn": 6105,
+			"Description": "Womens Wear"
+		},
+		{
+			"hsn": 6106,
+			"Description": "Womens Wear"
+		},
+		{
+			"hsn": 6108,
+			"Description": "Womens Wear"
+		},
+		{
+			"hsn": 6109,
+			"Description": "Womens Wear"
+		},
+		{
+			"hsn": 6111,
+			"Description": "Toddler"
+		},
+		{
+			"hsn": 6203,
+			"Description": "Womens Wear"
+		},
+		{
+			"hsn": 6204,
+			"Description": "Womens Wear"
+		},
+		{
+			"hsn": 6205,
+			"Description": "Womens Wear"
+		},
+		{
+			"hsn": 6206,
+			"Description": "Womens Wear"
+		},
+		{
+			"hsn": 6208,
+			"Description": "Womens Wear"
+		},
+		{
+			"hsn": 6209,
+			"Description": "Toddler"
+		},
+		{
+			"hsn": 6211,
+			"Description": "Womens Wear"
+		},
+		{
+			"hsn": 6214,
+			"Description": "Womens Wear"
+		},
+		{
+			"hsn": 6302,
+			"Description": "Home Decor"
+		},
+		{
+			"hsn": 6304,
+			"Description": "Home Decor"
+		},
+		{
+			"hsn": 6505,
+			"Description": "Accessories"
+		},
+		{
+			"hsn": 6507,
+			"Description": "Accessories"
+		},
+		{
+			"hsn": 6912,
+			"Description": "Home Decor"
+		},
+		{
+			"hsn": 7117,
+			"Description": "Accessories"
+		},
+		{
+			"hsn": 9404,
+			"Description": "Home Decor"
+		},
+		{
+			"hsn": 9405,
+			"Description": "Home Decor"
+		},
+		{
+			"hsn": 9503,
+			"Description": "Home Decor"
+		},
+		{
+			"hsn": 9505,
+			"Description": "Home Decor"
+		},
+		{
+			"hsn": 9506,
+			"Description": "Accessories"
+		},
+		{
+			"hsn": 9995,
+			"Description": "Accessories"
+		},
+		{
+			"hsn": 420231,
+			"Description": "Accessories"
+		}
+	],
+
 	"membership": [
 		{
 			"ID": 1,

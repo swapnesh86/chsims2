@@ -5,7 +5,7 @@ const SalesSummary = ({ summaryrow }) => {
     //console.log(date, summaryrow[date])
     return (
         <tr className="table__row salessummary--row" >
-            <td className="table__cell ledger__primary">{summaryrow.date}</td>
+            <td className="table__cell ledger__primary">{summaryrow.Date}</td>
             <td className="table__cell ledger__primary">{summaryrow.adcash}</td>
             <td className="table__cell ledger__primary">{summaryrow.adcard}</td>
             <td className="table__cell ledger__primary">{summaryrow.adupi}</td>

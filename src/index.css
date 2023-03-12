@@ -257,6 +257,16 @@ tr {
   color: #000;
 }
 
+.table__thead--hsn {
+  display: grid;
+  font-size: 0.75rem;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  grid-template-columns: 5em 4em 11em repeat(5, 7em);
+  color: #000;
+}
+
 .ledger--row {
   font-size: 0.75rem;
   display: grid;
@@ -286,6 +296,30 @@ tr {
   display: grid;
   color: #000;
   grid-template-columns: 7em repeat(20, 4em);
+}
+
+.hsn--row {
+  font-size: 0.75rem;
+  display: grid;
+  color: #000;
+  grid-template-columns: 5em 4em 11em repeat(5, 7em);
+}
+
+.table__thead--gst {
+  display: grid;
+  font-size: 0.75rem;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  grid-template-columns: 7em 4em 9em 10em 12em repeat(4, 7em);
+  color: #000;
+}
+
+.gst--row {
+  font-size: 0.75rem;
+  display: grid;
+  color: #000;
+  grid-template-columns: 7em 4em 9em 10em 12em repeat(4, 7em);
 }
 
 .ledger--returnrow {
