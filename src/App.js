@@ -49,13 +49,13 @@ function App() {
                     <Route path="new" element={<NewUserForm />} />
                   </Route>
                 </Route>
-                <Route element={<RequireAuth allowedRoles={[ROLES.Admin, ROLES.ShopManager, ROLES.AdInCharge, ROLES.PoInCharge, ROLES.BaInCharge]} />}>
+                <Route element={<RequireAuth allowedRoles={[ROLES.Admin, ROLES.SkuManager, ROLES.ShopManager, ROLES.AdInCharge, ROLES.PoInCharge, ROLES.BaInCharge]} />}>
                   <Route path="ledger">
                     {/* <Route index element={<LedgerList />} /> */}
                     <Route path=":id" element={<LedgerList />} />
                   </Route>
                 </Route>
-                <Route element={<RequireAuth allowedRoles={[ROLES.Admin, ROLES.ShopManager, ROLES.AdInCharge, ROLES.PoInCharge, ROLES.BaInCharge, ROLES.InventoryManager]} />}>
+                <Route element={<RequireAuth allowedRoles={[ROLES.Admin, ROLES.SkuManager, ROLES.ShopManager, ROLES.AdInCharge, ROLES.PoInCharge, ROLES.BaInCharge, ROLES.InventoryManager]} />}>
                   <Route path="inventory">
                     <Route index element={<InventoryList />} />
                   </Route>

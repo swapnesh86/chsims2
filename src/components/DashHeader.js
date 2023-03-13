@@ -15,7 +15,7 @@ const INVENTORY_REGEX = /^\/dash\/inventory(\/)?$/
 
 const DashHeader = () => {
 
-    const { isAdmin } = useAuth()
+    const { isAdmin, isShopManager, isAdInCharge, isPoInCharge, isBaInCharge } = useAuth()
 
     const navigate = useNavigate()
     const { pathname } = useLocation()
@@ -43,16 +43,18 @@ const DashHeader = () => {
     }
 
     let newBillButton = null
-    if (!BILLING_REGEX.test(pathname) && !USERS_REGEX.test(pathname)) {
-        newBillButton = (
-            <button
-                className="icon-button"
-                title="New Bill"
-                onClick={onNewBillClicked}
-            >
-                <FontAwesomeIcon icon={faFileCirclePlus} />
-            </button>
-        )
+    if (isAdmin || isShopManager || isAdInCharge || isPoInCharge || isBaInCharge) {
+        if (!BILLING_REGEX.test(pathname) && !USERS_REGEX.test(pathname)) {
+            newBillButton = (
+                <button
+                    className="icon-button"
+                    title="New Bill"
+                    onClick={onNewBillClicked}
+                >
+                    <FontAwesomeIcon icon={faFileCirclePlus} />
+                </button>
+            )
+        }
     }
 
     let inventoryButton = null

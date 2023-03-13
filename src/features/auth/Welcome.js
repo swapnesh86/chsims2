@@ -4,12 +4,12 @@ import useAuth from "../../hooks/useAuth"
 
 const Welcome = () => {
 
-    const { isSkuManager, isAdmin, isPoInCharge, isAdInCharge, isBaInCharge } = useAuth()
+    const { isSkuManager, isAdmin, isPoInCharge, isAdInCharge, isBaInCharge, isShopManager } = useAuth()
     const date = new Date()
     const today = new Intl.DateTimeFormat('en-US', { dateStyle: 'full', timeStyle: 'long' }).format(date)
 
     const billingText = (isAdInCharge || isBaInCharge || isPoInCharge) ? 'Billing / Returns' : 'Billing / Transfers'
-    const skuText = (isAdInCharge || isBaInCharge || isPoInCharge) ? 'View SKU List' : 'View / Edit SKUs'
+    const skuText = (isAdInCharge || isBaInCharge || isPoInCharge || isShopManager) ? 'View SKU List' : 'View / Edit SKUs'
 
     const content = (
         <section className="welcome">
@@ -17,7 +17,11 @@ const Welcome = () => {
             <p>{today}</p>
 
             <h1>Welcome to SIMS 2.0!</h1>
-            <h3><Link to="/dash/billing">{billingText}</Link></h3>
+            {(isAdmin || isShopManager || isAdInCharge || isBaInCharge || isPoInCharge) &&
+                <>
+                    <h3><Link to="/dash/billing">{billingText}</Link></h3>
+                </>
+            }
             <h3><Link to="/dash/inventory">Inventory</Link></h3>
             <h3><Link to="/dash/ledger/all">Accounts Summary</Link></h3>
             <br></br>
@@ -35,14 +39,18 @@ const Welcome = () => {
                     </div>
                 </>
             }
-            <h3>Membership</h3>
-            <div className="indent">
-                <p><Link to="/dash/membership">Memberships</Link></p>
-                <p><Link to="/dash/membership/new">Create New Membership</Link></p>
-            </div>
+            {(isAdmin || isShopManager || isAdInCharge || isBaInCharge || isPoInCharge) &&
+                <>
+                    <h3>Membership</h3>
+                    <div className="indent">
+                        <p><Link to="/dash/membership">Memberships</Link></p>
+                        <p><Link to="/dash/membership/new">Create New Membership</Link></p>
+                    </div>
+                </>
+            }
 
 
-        </section>
+        </section >
     )
 
     return content
