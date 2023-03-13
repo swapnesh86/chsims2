@@ -49,6 +49,7 @@ const LedgerList = () => {
 
     const [saleTable, setSaleTable] = useState([]);
     const [jsonSalesContent, setJsonSalesContent] = useState([]);
+    const [saleTotals, setSaleTotals] = useState({});
 
     const [hsnTable, setHsnTable] = useState([]);
     const [jsonHsnContent, setJsonHsnContent] = useState([]);
@@ -125,6 +126,13 @@ const LedgerList = () => {
 
     useEffect(() => {
 
+        let mytotal = {
+            adcash: 0, adcard: 0, adupi: 0, adonline: 0, adtotal: 0,
+            bacash: 0, bacard: 0, baupi: 0, baonline: 0, batotal: 0,
+            pocash: 0, pocard: 0, poupi: 0, poonline: 0, pototal: 0,
+            excash: 0, excard: 0, exupi: 0, exonline: 0, extotal: 0,
+        }
+
         let mysalessummary = [...jsonContent.reduce((r, o) => {
             const key = o.Date
             const item = r.get(key) || Object.assign({}, o, {
@@ -134,46 +142,47 @@ const LedgerList = () => {
                 excash: 0, excard: 0, exupi: 0, exonline: 0, extotal: 0,
             })
             if (o.BillNo.match('CHAD')) {
-                if (o.PaymentType === 'Cash') item.adcash += o.Price
-                else if (o.PaymentType === 'Card') item.adcard += o.Price
-                else if (o.PaymentType === 'UPI') item.adupi += o.Price
-                else if (o.PaymentType === 'Online') item.adonline += o.Price
-                item.adtotal += o.Price
-
+                if (o.PaymentType === 'Cash') { item.adcash += o.Price; mytotal.adcash += o.Price; }
+                else if (o.PaymentType === 'Card') { item.adcard += o.Price; mytotal.adcard += o.Price; }
+                else if (o.PaymentType === 'UPI') { item.adupi += o.Price; mytotal.adupi += o.Price; }
+                else if (o.PaymentType === 'Online') { item.adonline += o.Price; mytotal.adonline += o.Price; }
+                item.adtotal += o.Price; mytotal.adtotal += o.Price;
             }
             else if (o.BillNo.match('CHBA')) {
-                if (o.PaymentType === 'Cash') item.bacash += o.Price
-                else if (o.PaymentType === 'Card') item.bacard += o.Price
-                else if (o.PaymentType === 'UPI') item.baupi += o.Price
-                else if (o.PaymentType === 'Online') item.baonline += o.Price
-                item.batotal += o.Price
+                if (o.PaymentType === 'Cash') { item.bacash += o.Price; mytotal.bacash += o.Price; }
+                else if (o.PaymentType === 'Card') { item.bacard += o.Price; mytotal.bacard += o.Price; }
+                else if (o.PaymentType === 'UPI') { item.baupi += o.Price; mytotal.baupi += o.Price; }
+                else if (o.PaymentType === 'Online') { item.baonline += o.Price; mytotal.baonline += o.Price; }
+                item.batotal += o.Price; mytotal.batotal += o.Price;
             }
             else if (o.BillNo.match('CHPO')) {
-                if (o.PaymentType === 'Cash') item.pocash += o.Price
-                else if (o.PaymentType === 'Card') item.pocard += o.Price
-                else if (o.PaymentType === 'UPI') item.poupi += o.Price
-                else if (o.PaymentType === 'Online') item.poonline += o.Price
-                item.pototal += o.Price
+                if (o.PaymentType === 'Cash') { item.pocash += o.Price; mytotal.pocash += o.Price; }
+                else if (o.PaymentType === 'Card') { item.pocard += o.Price; mytotal.pocard += o.Price; }
+                else if (o.PaymentType === 'UPI') { item.poupi += o.Price; mytotal.poupi += o.Price; }
+                else if (o.PaymentType === 'Online') { item.poonline += o.Price; mytotal.pototal += o.Price; }
+                item.pototal += o.Price; mytotal.pototal += o.Price;
             }
             else if (o.BillNo.match('CHEX')) {
-                if (o.PaymentType === 'Cash') item.excash += o.Price
-                else if (o.PaymentType === 'Card') item.excard += o.Price
-                else if (o.PaymentType === 'UPI') item.exupi += o.Price
-                else if (o.PaymentType === 'Online') item.exonline += o.Price
-                item.extotal += o.Price
+                if (o.PaymentType === 'Cash') { item.excash += o.Price; mytotal.excash += o.Price; }
+                else if (o.PaymentType === 'Card') { item.excard += o.Price; mytotal.excard += o.Price; }
+                else if (o.PaymentType === 'UPI') { item.exupi += o.Price; mytotal.exupi += o.Price; }
+                else if (o.PaymentType === 'Online') { item.exonline += o.Price; mytotal.extotal += o.Price; }
+                item.extotal += o.Price; mytotal.extotal += o.Price;
             }
 
             return r.set(key, item)
 
         }, new Map()).values()]
 
-        setJsonSalesContent(mysalessummary)
+        setJsonSalesContent([...mysalessummary, mytotal])
+        //setJsonSalesContent(mysalessummary)
 
         const mytable = mysalessummary?.length && mysalessummary.map(date => {
             return (<SalesSummary summaryrow={date} />)
         })
 
         setSaleTable(mytable)
+        setSaleTotals(mytotal)
 
     }, [jsonContent, dateBegin, dateEnd])
 
@@ -483,23 +492,23 @@ const LedgerList = () => {
                     <thead className="table__thead--summarysecond">
                         <tr>
                             <th scope="col" className="table__th ledger__ledgername">Date</th>
-                            <th scope="col" className="table__th ledger__ledgername">Card</th>
                             <th scope="col" className="table__th ledger__ledgername">Cash</th>
+                            <th scope="col" className="table__th ledger__ledgername">Card</th>
                             <th scope="col" className="table__th ledger__ledgername">UPI</th>
                             <th scope="col" className="table__th ledger__ledgername">Online</th>
                             <th scope="col" className="table__th ledger__ledgername">Total</th>
-                            <th scope="col" className="table__th ledger__ledgername">Card</th>
                             <th scope="col" className="table__th ledger__ledgername">Cash</th>
+                            <th scope="col" className="table__th ledger__ledgername">Card</th>
                             <th scope="col" className="table__th ledger__ledgername">UPI</th>
                             <th scope="col" className="table__th ledger__ledgername">Online</th>
                             <th scope="col" className="table__th ledger__ledgername">Total</th>
-                            <th scope="col" className="table__th ledger__ledgername">Card</th>
                             <th scope="col" className="table__th ledger__ledgername">Cash</th>
+                            <th scope="col" className="table__th ledger__ledgername">Card</th>
                             <th scope="col" className="table__th ledger__ledgername">UPI</th>
                             <th scope="col" className="table__th ledger__ledgername">Online</th>
                             <th scope="col" className="table__th ledger__ledgername">Total</th>
-                            <th scope="col" className="table__th ledger__ledgername">Card</th>
                             <th scope="col" className="table__th ledger__ledgername">Cash</th>
+                            <th scope="col" className="table__th ledger__ledgername">Card</th>
                             <th scope="col" className="table__th ledger__ledgername">UPI</th>
                             <th scope="col" className="table__th ledger__ledgername">Online</th>
                             <th scope="col" className="table__th ledger__ledgername">Total</th>
@@ -508,6 +517,32 @@ const LedgerList = () => {
                     <tbody>
                         {saleTable}
                     </tbody>
+                    <thead className="table__thead--summarysecond">
+                        <tr>
+                            <th scope="col" className="table__th ledger__ledgername">Total</th>
+                            <th scope="col" className="table__th ledger__ledgername">{saleTotals.adcash}</th>
+                            <th scope="col" className="table__th ledger__ledgername">{saleTotals.adcard}</th>
+                            <th scope="col" className="table__th ledger__ledgername">{saleTotals.adupi}</th>
+                            <th scope="col" className="table__th ledger__ledgername">{saleTotals.adonline}</th>
+                            <th scope="col" className="table__th ledger__ledgername">{saleTotals.adtotal}</th>
+                            <th scope="col" className="table__th ledger__ledgername">{saleTotals.becash}</th>
+                            <th scope="col" className="table__th ledger__ledgername">{saleTotals.bacard}</th>
+                            <th scope="col" className="table__th ledger__ledgername">{saleTotals.baupi}</th>
+                            <th scope="col" className="table__th ledger__ledgername">{saleTotals.baonline}</th>
+                            <th scope="col" className="table__th ledger__ledgername">{saleTotals.batotal}</th>
+                            <th scope="col" className="table__th ledger__ledgername">{saleTotals.pocash}</th>
+                            <th scope="col" className="table__th ledger__ledgername">{saleTotals.pocard}</th>
+                            <th scope="col" className="table__th ledger__ledgername">{saleTotals.poupi}</th>
+                            <th scope="col" className="table__th ledger__ledgername">{saleTotals.poonline}</th>
+                            <th scope="col" className="table__th ledger__ledgername">{saleTotals.pototal}</th>
+                            <th scope="col" className="table__th ledger__ledgername">{saleTotals.excash}</th>
+                            <th scope="col" className="table__th ledger__ledgername">{saleTotals.excard}</th>
+                            <th scope="col" className="table__th ledger__ledgername">{saleTotals.exupi}</th>
+                            <th scope="col" className="table__th ledger__ledgername">{saleTotals.exonline}</th>
+                            <th scope="col" className="table__th ledger__ledgername">{saleTotals.extotal}</th>
+
+                        </tr>
+                    </thead>
                 </table>
             </>
         )
