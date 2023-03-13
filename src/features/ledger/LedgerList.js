@@ -73,53 +73,57 @@ const LedgerList = () => {
 
     useEffect(() => {
 
-        let myGstSummary = [...jsonContent.reduce((r, o) => {
-            const key = o.Date + '-' + o.buyer + '-' + o.BillNo + '-' + o.name
-            const item = r.get(key) || Object.assign({}, o, {
-                Date: o.Date, Customer: o.buyer, BillNo: o.BillNo, Name: o.name,
-                Price: 0, gst: o.gst
+        if (jsonContent.length) {
+            let myGstSummary = [...jsonContent.reduce((r, o) => {
+                const key = o.Date + '-' + o.buyer + '-' + o.BillNo + '-' + o.name
+                const item = r.get(key) || Object.assign({}, o, {
+                    Date: o.Date, Customer: o.buyer, BillNo: o.BillNo, Name: o.name,
+                    Price: 0, gst: o.gst
+                })
+
+                item.Price += o.Price
+
+                return r.set(key, item)
+
+            }, new Map()).values()]
+
+            const myGstTable = myGstSummary?.length && myGstSummary.map(key => {
+                return (<GstSummary gstrow={key} />)
             })
 
-            item.Price += o.Price
-
-            return r.set(key, item)
-
-        }, new Map()).values()]
-
-        const myGstTable = myGstSummary?.length && myGstSummary.map(key => {
-            return (<GstSummary gstrow={key} />)
-        })
-
-        //console.log(myGstSummary)
-        setJsonGstContent(myGstSummary)
-        setGstTable(myGstTable)
+            //console.log(myGstSummary)
+            setJsonGstContent(myGstSummary)
+            setGstTable(myGstTable)
+        }
 
     }, [jsonContent, dateBegin, dateEnd])
 
 
     useEffect(() => {
 
-        let myHsnSummary = [...jsonContent.reduce((r, o) => {
-            const key = o.HSN + '-' + o.gst
-            const item = r.get(key) || Object.assign({}, o, {
-                description: encoding.hsnDesc.find(entry => entry.hsn === o.HSN).Description,
-                Qty: 0, Price: 0, HSN: o.HSN, gst: o.gst
+        if (jsonContent.length) {
+            let myHsnSummary = [...jsonContent.reduce((r, o) => {
+                const key = o.HSN + '-' + o.gst
+                const item = r.get(key) || Object.assign({}, o, {
+                    description: encoding.hsnDesc.find(entry => entry.hsn === o.HSN).Description,
+                    Qty: 0, Price: 0, HSN: o.HSN, gst: o.gst
+                })
+
+                item.Qty += o.Qty
+                item.Price += o.Price
+
+                return r.set(key, item)
+
+            }, new Map()).values()]
+
+            //console.log('HSN', myHsnSummary)
+            const myHsntable = myHsnSummary?.length && myHsnSummary.map(key => {
+                return (<HsnSummary hsnrow={key} />)
             })
 
-            item.Qty += o.Qty
-            item.Price += o.Price
-
-            return r.set(key, item)
-
-        }, new Map()).values()]
-
-        //console.log('HSN', myHsnSummary)
-        const myHsntable = myHsnSummary?.length && myHsnSummary.map(key => {
-            return (<HsnSummary hsnrow={key} />)
-        })
-
-        setJsonHsnContent(myHsnSummary)
-        setHsnTable(myHsntable)
+            setJsonHsnContent(myHsnSummary)
+            setHsnTable(myHsntable)
+        }
 
     }, [jsonContent, dateBegin, dateEnd])
 
@@ -133,56 +137,58 @@ const LedgerList = () => {
             excash: 0, excard: 0, exupi: 0, exonline: 0, extotal: 0,
         }
 
-        let mysalessummary = [...jsonContent.reduce((r, o) => {
-            const key = o.Date
-            const item = r.get(key) || Object.assign({}, o, {
-                adcash: 0, adcard: 0, adupi: 0, adonline: 0, adtotal: 0,
-                bacash: 0, bacard: 0, baupi: 0, baonline: 0, batotal: 0,
-                pocash: 0, pocard: 0, poupi: 0, poonline: 0, pototal: 0,
-                excash: 0, excard: 0, exupi: 0, exonline: 0, extotal: 0,
+        if (jsonContent.length) {
+            let mysalessummary = [...jsonContent.reduce((r, o) => {
+                const key = o.Date
+                const item = r.get(key) || Object.assign({}, o, {
+                    adcash: 0, adcard: 0, adupi: 0, adonline: 0, adtotal: 0,
+                    bacash: 0, bacard: 0, baupi: 0, baonline: 0, batotal: 0,
+                    pocash: 0, pocard: 0, poupi: 0, poonline: 0, pototal: 0,
+                    excash: 0, excard: 0, exupi: 0, exonline: 0, extotal: 0,
+                })
+                if (o.BillNo.match('CHAD')) {
+                    if (o.PaymentType === 'Cash') { item.adcash += o.Price; mytotal.adcash += o.Price; }
+                    else if (o.PaymentType === 'Card') { item.adcard += o.Price; mytotal.adcard += o.Price; }
+                    else if (o.PaymentType === 'UPI') { item.adupi += o.Price; mytotal.adupi += o.Price; }
+                    else if (o.PaymentType === 'Online') { item.adonline += o.Price; mytotal.adonline += o.Price; }
+                    item.adtotal += o.Price; mytotal.adtotal += o.Price;
+                }
+                else if (o.BillNo.match('CHBA')) {
+                    if (o.PaymentType === 'Cash') { item.bacash += o.Price; mytotal.bacash += o.Price; }
+                    else if (o.PaymentType === 'Card') { item.bacard += o.Price; mytotal.bacard += o.Price; }
+                    else if (o.PaymentType === 'UPI') { item.baupi += o.Price; mytotal.baupi += o.Price; }
+                    else if (o.PaymentType === 'Online') { item.baonline += o.Price; mytotal.baonline += o.Price; }
+                    item.batotal += o.Price; mytotal.batotal += o.Price;
+                }
+                else if (o.BillNo.match('CHPO')) {
+                    if (o.PaymentType === 'Cash') { item.pocash += o.Price; mytotal.pocash += o.Price; }
+                    else if (o.PaymentType === 'Card') { item.pocard += o.Price; mytotal.pocard += o.Price; }
+                    else if (o.PaymentType === 'UPI') { item.poupi += o.Price; mytotal.poupi += o.Price; }
+                    else if (o.PaymentType === 'Online') { item.poonline += o.Price; mytotal.pototal += o.Price; }
+                    item.pototal += o.Price; mytotal.pototal += o.Price;
+                }
+                else if (o.BillNo.match('CHEX')) {
+                    if (o.PaymentType === 'Cash') { item.excash += o.Price; mytotal.excash += o.Price; }
+                    else if (o.PaymentType === 'Card') { item.excard += o.Price; mytotal.excard += o.Price; }
+                    else if (o.PaymentType === 'UPI') { item.exupi += o.Price; mytotal.exupi += o.Price; }
+                    else if (o.PaymentType === 'Online') { item.exonline += o.Price; mytotal.extotal += o.Price; }
+                    item.extotal += o.Price; mytotal.extotal += o.Price;
+                }
+
+                return r.set(key, item)
+
+            }, new Map()).values()]
+
+            setJsonSalesContent([...mysalessummary, mytotal])
+            //setJsonSalesContent(mysalessummary)
+
+            const mytable = mysalessummary?.length && mysalessummary.map(date => {
+                return (<SalesSummary summaryrow={date} />)
             })
-            if (o.BillNo.match('CHAD')) {
-                if (o.PaymentType === 'Cash') { item.adcash += o.Price; mytotal.adcash += o.Price; }
-                else if (o.PaymentType === 'Card') { item.adcard += o.Price; mytotal.adcard += o.Price; }
-                else if (o.PaymentType === 'UPI') { item.adupi += o.Price; mytotal.adupi += o.Price; }
-                else if (o.PaymentType === 'Online') { item.adonline += o.Price; mytotal.adonline += o.Price; }
-                item.adtotal += o.Price; mytotal.adtotal += o.Price;
-            }
-            else if (o.BillNo.match('CHBA')) {
-                if (o.PaymentType === 'Cash') { item.bacash += o.Price; mytotal.bacash += o.Price; }
-                else if (o.PaymentType === 'Card') { item.bacard += o.Price; mytotal.bacard += o.Price; }
-                else if (o.PaymentType === 'UPI') { item.baupi += o.Price; mytotal.baupi += o.Price; }
-                else if (o.PaymentType === 'Online') { item.baonline += o.Price; mytotal.baonline += o.Price; }
-                item.batotal += o.Price; mytotal.batotal += o.Price;
-            }
-            else if (o.BillNo.match('CHPO')) {
-                if (o.PaymentType === 'Cash') { item.pocash += o.Price; mytotal.pocash += o.Price; }
-                else if (o.PaymentType === 'Card') { item.pocard += o.Price; mytotal.pocard += o.Price; }
-                else if (o.PaymentType === 'UPI') { item.poupi += o.Price; mytotal.poupi += o.Price; }
-                else if (o.PaymentType === 'Online') { item.poonline += o.Price; mytotal.pototal += o.Price; }
-                item.pototal += o.Price; mytotal.pototal += o.Price;
-            }
-            else if (o.BillNo.match('CHEX')) {
-                if (o.PaymentType === 'Cash') { item.excash += o.Price; mytotal.excash += o.Price; }
-                else if (o.PaymentType === 'Card') { item.excard += o.Price; mytotal.excard += o.Price; }
-                else if (o.PaymentType === 'UPI') { item.exupi += o.Price; mytotal.exupi += o.Price; }
-                else if (o.PaymentType === 'Online') { item.exonline += o.Price; mytotal.extotal += o.Price; }
-                item.extotal += o.Price; mytotal.extotal += o.Price;
-            }
 
-            return r.set(key, item)
-
-        }, new Map()).values()]
-
-        setJsonSalesContent([...mysalessummary, mytotal])
-        //setJsonSalesContent(mysalessummary)
-
-        const mytable = mysalessummary?.length && mysalessummary.map(date => {
-            return (<SalesSummary summaryrow={date} />)
-        })
-
-        setSaleTable(mytable)
-        setSaleTotals(mytotal)
+            setSaleTable(mytable)
+            setSaleTotals(mytotal)
+        }
 
     }, [jsonContent, dateBegin, dateEnd])
 
