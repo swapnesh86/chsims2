@@ -1,8 +1,11 @@
 import { useGetInventoryQuery } from "./inventoryApiSlice"
 import Inventory from "./Inventory"
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom'
 
 const InventoryList = () => {
+
+    const { id } = useParams()
 
     const {
         data: inventory,
@@ -16,7 +19,19 @@ const InventoryList = () => {
         refetchOnMountOrArgChange: true
     })
 
-    const [search, setSearch] = useState('.......22..');
+    const [search, setSearch] = useState('');
+
+    useEffect(() => {
+        if (id !== 'all') {
+            console.log(id)
+            const myArray = id.split("-");
+            let mysearch
+            myArray.forEach(entry => {
+                mysearch = mysearch ? (mysearch + '|' + entry) : entry
+            })
+            setSearch(mysearch)
+        }
+    }, [id])
 
     let content
     if (isLoading) content = <p>Loading...</p>

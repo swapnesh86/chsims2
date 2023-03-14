@@ -22,8 +22,8 @@ const Welcome = () => {
                     <h3><Link to="/dash/billing">{billingText}</Link></h3>
                 </>
             }
-            <h3><Link to="/dash/inventory">Inventory</Link></h3>
-            <h3><Link to="/dash/ledger/all">Accounts Summary</Link></h3>
+            <h3><Link to="/dash/inventory/all">Inventory</Link></h3>
+            <h3><Link to="/dash/shopaccounts/ledger">Accounts Summary</Link></h3>
             <br></br>
             <h3>SKU Details</h3>
             <div className="indent">
@@ -46,6 +46,7 @@ const Welcome = () => {
                         <p><Link to="/dash/membership">Memberships</Link></p>
                         <p><Link to="/dash/membership/new">Create New Membership</Link></p>
                     </div>
+                    <h3><Link to="/dash/attendance">Attendance</Link></h3>
                 </>
             }
 

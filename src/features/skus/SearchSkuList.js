@@ -76,7 +76,8 @@ const SearchSkuList = () => {
           <thead className="table__thead">
             <tr>
               <th scope="col" className="table__th sku__primary">Barcode</th>
-              <th scope="col" className="table__th sku__optional">SKU</th>
+              <th scope="col" className="table__th sku__optional">Colour</th>
+              <th scope="col" className="table__th sku__optional">Size</th>
               <th scope="col" className="table__th sku__primary">Name</th>
               <th scope="col" className="table__th sku__primary">MRP</th>
               <th scope="col" className={`table__th ${editClass}`}>MBR</th>

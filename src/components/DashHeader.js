@@ -10,7 +10,7 @@ const DASH_REGEX = /^\/dash(\/)?$/
 const BILLING_REGEX = /^\/dash\/billing(\/)?$/
 const SKUS_REGEX = /^\/dash\/skus(\/)?$/
 const USERS_REGEX = /^\/dash\/users(\/)?$/
-const LEDGER_REGEX = /^\/dash\/ledger\/all(\/)?$/
+const LEDGER_REGEX = /^\/dash\/shopaccounts\/ledger(\/)?$/
 const INVENTORY_REGEX = /^\/dash\/inventory(\/)?$/
 
 const DashHeader = () => {
@@ -34,8 +34,8 @@ const DashHeader = () => {
     const onNewBillClicked = () => navigate('/dash/billing')
     const onNewUserClicked = () => navigate('/dash/users/new')
     const onSkuListClicked = () => navigate('/dash/skus')
-    const onLedgerClicked = () => navigate('/dash/ledger/all')
-    const onInventoryClicked = () => navigate('/dash/inventory')
+    const onLedgerClicked = () => navigate('/dash/shopaccounts/ledger')
+    const onInventoryClicked = () => navigate('/dash/inventory/all')
 
     let dashClass = null
     if (!DASH_REGEX.test(pathname) && !SKUS_REGEX.test(pathname) && !USERS_REGEX.test(pathname)) {

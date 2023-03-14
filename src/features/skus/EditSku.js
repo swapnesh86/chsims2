@@ -8,6 +8,7 @@ import { faTrashCan, faSave } from "@fortawesome/free-solid-svg-icons"
 import { useDeleteSkuMutation, useUpdateSkuMutation } from "./skusApiSlice"
 
 import { useState, memo } from "react"
+import { encoding } from '../../data/encoding';
 
 const EditSku = ({ skuId }) => {
 
@@ -42,7 +43,8 @@ const EditSku = ({ skuId }) => {
         return (
             <tr className="table__row user" >
                 <td className="table__cell sku__primary">{sku.Barcode}</td>
-                <td className="table__cell sku__optional">{sku.SKU}</td>
+                <td className="table__cell sku__optional">{(sku.Barcode.length === 11 ? (encoding.colour.find(item => item.IDENTITY === sku.Barcode.substr(5, 1).toUpperCase()).COLOUR) : null)}</td>
+                <td className="table__cell sku__optional">{(sku.Barcode.length === 11 ? (encoding.sizes.find(item => item.IDENTITY === sku.Barcode.substr(4, 1).toUpperCase()).SIZE) : null)}</td>
                 <td className="table__cell sku__primary">
                     <input
                         id='barcode'

@@ -43,6 +43,8 @@ const BillList = () => {
     const [validQty, setValidQty] = useState(true)
     const [validMember, setValidMember] = useState(false)
 
+    const [addedSkus, setAddedSkus] = useState('')
+
     const navigate = useNavigate()
 
     const { isAdInCharge, isBaInCharge, isPoInCharge, isShopManager, isInventoryManager, isAdmin, status } = useAuth()
@@ -93,8 +95,14 @@ const BillList = () => {
         refetchOnFocus: true,
         refetchOnMountOrArgChange: true
     })
-    const [updateinventory] = useUpdateInventoryMutation()
-    const [addinventory] = useAddNewInventoryMutation()
+
+    const [updateinventory, {
+        isSuccess: updateInvSuccess
+    }] = useUpdateInventoryMutation()
+
+    const [addinventory, {
+        isSuccess: addInvSuccess
+    }] = useAddNewInventoryMutation()
 
     const {
         data: members,
@@ -177,11 +185,11 @@ const BillList = () => {
     }, [isAdmin, isShopManager, isInventoryManager, action, orderType, source, destination, bill])
 
     useEffect(() => {
-        if (addledgerSuccess) {
-            if (action === 'Billing') navigate(`/dash/ledger/${billNo}`)
-            else if (invGetSucecss) navigate('/dash/inventory')
+        if (addledgerSuccess && (updateInvSuccess || addInvSuccess)) {
+            if (action === 'Billing') navigate(`/dash/shopaccounts/${billNo}`)
+            else navigate(`/dash/inventory/${addedSkus}`)
         }
-    }, [addledgerSuccess, invGetSucecss, action, navigate, billNo])
+    }, [addledgerSuccess, addInvSuccess, updateInvSuccess, action, navigate, billNo, addedSkus])
 
     useEffect(() => {
 
@@ -407,6 +415,7 @@ const BillList = () => {
                     let myEmail = ''
                     let myPaymentType = ''
                     let myMembership = ''
+                    let myAddedSkus = ''
 
                     if (isAdmin || isShopManager || isInventoryManager) {
                         if (action === 'Inventory') {
@@ -434,6 +443,11 @@ const BillList = () => {
                     }
                     setBillNo(mybillno)
 
+                    bill.forEach(entry => {
+                        myAddedSkus = myAddedSkus ? (myAddedSkus + '-' + entry.barcode) : entry.barcode
+                    })
+                    setAddedSkus(myAddedSkus)
+
                     bill.forEach(async (entry) => {
 
                         const ledgerEntry = { billno: mybillno, barcode: entry.barcode, name: entry.name, ordertype: myorderType, buyer: (myBuyer ? myBuyer : buyerCode), seller: mySeller, phone: myPhone, email: myEmail, paymenttype: myPaymentType, membership: myMembership, qty: entry.qty, totalprice: (entry.qty * entry.mrp * factor), hsncode: entry.hsn, gst: entry.gst }
@@ -446,7 +460,6 @@ const BillList = () => {
 
                         if (canSave) {
                             await addledger(ledgerEntry)
-
                             await updateInv(sellerCode, buyerCode, entry.qty)
 
                             if (invId[0]) {
@@ -456,7 +469,6 @@ const BillList = () => {
                             }
                         }
                     })
-
 
                     //console.log(billHtml)
                     let myemail

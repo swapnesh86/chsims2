@@ -4,6 +4,7 @@ import Ledger from "./Ledger"
 import SalesSummary from "./SalesSummary"
 import HsnSummary from "./HsnSummary"
 import GstSummary from "./GstSummary"
+import StaffAttendance from "../attendance/StaffAttendance"
 
 import { useState, useEffect } from "react"
 
@@ -13,6 +14,9 @@ import FileSaver from "file-saver"
 
 import { useParams } from 'react-router-dom'
 import { encoding } from "../../data/encoding"
+
+import { useGetAttendanceQuery } from "../attendance/attendanceApiSlice"
+
 
 const LedgerList = () => {
 
@@ -39,6 +43,15 @@ const LedgerList = () => {
         refetchOnMountOrArgChange: true
     })
 
+    const {
+        data: attendance,
+        isSuccess: attendanceSuccess
+    } = useGetAttendanceQuery('attendanceList', {
+        pollingInterval: 120000,
+        refetchOnFocus: true,
+        refetchOnMountOrArgChange: true
+    })
+
     const [dateBegin, setDateBegin] = useState((new Date()).setDate(0));
     const [dateEnd, setDateEnd] = useState(new Date());
     const [billNoSearch, setBillNoSearch] = useState('');
@@ -57,6 +70,10 @@ const LedgerList = () => {
     const [gstTable, setGstTable] = useState([]);
     const [jsonGstContent, setJsonGstContent] = useState([]);
 
+    //const [jsonAttendance, setJsonAttendance] = useState([]);
+    const [attendanceTable, setAttendanceTable] = useState([]);
+    const [shopGirl, setShopGirl] = useState('');
+
     const [andheri, setAndheri] = useState(false)
     const [bandra, setBandra] = useState(false)
     const [powai, setPowai] = useState(false)
@@ -69,6 +86,15 @@ const LedgerList = () => {
     const [eighteen, setEighteen] = useState(false)
 
     const [reportType, setReportType] = useState('Ledger')
+
+    useEffect(() => {
+        if (id === 'ledger') setReportType('Ledger')
+        if (id.includes('attendance')) {
+            const myArray = id.split("-");
+            setReportType('Attendance')
+            setShopGirl(myArray[1])
+        }
+    }, [id])
 
 
     useEffect(() => {
@@ -204,7 +230,7 @@ const LedgerList = () => {
             let filteredIds = ids.filter(entry => (
                 new Date(entities[entry].createdAt) > tempDate &&
                 new Date(entities[entry].createdAt) <= new Date(dateEnd) &&
-                ((id === 'all' && billNoSearch === '') ? 1 : (id !== 'all') ? entities[entry].billno.toLowerCase().match(id.toLowerCase()) : entities[entry].billno.toLowerCase().match(billNoSearch.toLowerCase()))
+                ((id === 'ledger' && billNoSearch === '') ? 1 : (id !== 'ledger') ? entities[entry].billno.toLowerCase().match(id.toLowerCase()) : entities[entry].billno.toLowerCase().match(billNoSearch.toLowerCase()))
             )
             )
 
@@ -228,11 +254,60 @@ const LedgerList = () => {
     }, [isSuccess, dateBegin, dateEnd, billNoSearch, ledger, skuSuccess, skus, id, gstSearch, reportType])
 
     useEffect(() => {
+
+        if (attendanceSuccess) {
+
+            const { ids, entities } = attendance
+
+            let tempD = new Date(dateBegin)
+            let tempDate = new Date(tempD.setDate(tempD.getDate() - 1))
+
+            let filteredIds = ids.filter(entry => (
+                new Date(entities[entry].time) > tempDate &&
+                new Date(entities[entry].time) <= new Date(dateEnd)
+            )
+            )
+
+            const attendanceContent = filteredIds?.length && filteredIds.map(id => ({ name: entities[id].name, date: (new Intl.DateTimeFormat('en-US').format(new Date(entities[id].time))), time: (new Date(entities[id].time)).toLocaleTimeString(), in_out: entities[id].in_out, location: entities[id].location }))
+
+
+            if (attendanceContent.length) {
+                let myattendanceReformat = [...attendanceContent.reduce((r, o) => {
+                    const key = o.name + '-' + o.date
+                    const item = r.get(key) || Object.assign({}, o, {
+                        name: o.name, date: o.date, location: o.location,
+                        in: 0, out: 0
+                    })
+
+                    if (o.in_out === 'IN') item.in = o.time
+                    if (o.in_out === 'OUT') item.out = o.time
+
+                    return r.set(key, item)
+
+                }, new Map()).values()]
+
+                const myattendancetable = myattendanceReformat?.length && myattendanceReformat.map(key => {
+                    if (key.name === shopGirl) {
+                        return (<StaffAttendance entry={key} />)
+                    } else return null
+                })
+
+                setAttendanceTable(myattendancetable)
+                //setJsonAttendance(myattendanceReformat)
+
+            }
+
+        }
+
+    }, [attendanceSuccess, dateBegin, dateEnd, attendance, shopGirl])
+
+
+    useEffect(() => {
         let tempstr = ''
         if (andheri) tempstr = tempstr + 'CHAD'
         if (bandra) tempstr = tempstr + (tempstr !== '' ? '|CHBA' : 'CHBA')
         if (powai) tempstr = tempstr + (tempstr !== '' ? '|CHPO' : 'CHPO')
-        if (purchases) tempstr = tempstr + 'CHDB|CHOS|CHDN'
+        if (purchases) tempstr = tempstr + 'CHDB|CHOS|CHDN|CHIP'
         if (internal) tempstr = tempstr + 'CHIN'
 
         setBillNoSearch(tempstr)
@@ -370,30 +445,58 @@ const LedgerList = () => {
 
     let ledgerContent
     let salesSummary
-    let dateSelector
     let hsnSummary
     let gstSummary
+    let attendanceContent
     if (isLoading) ledgerContent = <p>Loading...</p>
     if (isError) ledgerContent = <p className="errmsg">{error?.data?.message}</p>
 
-    if (isSuccess) {
+    let dateSelector = (
+        <>
+            <br></br>
+            <div className="ledger--header">
+                <p>Begin Date: </p>
+                <input type="date" onChange={e => setDateBegin(e.target.value)} />
+                <p>End Date: </p>
+                <input type="date" onChange={e => setDateEnd(e.target.value)} />
+            </div>
+            <div className="ledger--header">
+                <button onClick={exportExcel}>GenExcel</button>
+                <button onClick={exportPDF}>GenPdf</button>
+            </div>
+            <br></br>
+        </>
+    )
 
-        dateSelector = (
+    if (attendanceSuccess) {
+        attendanceContent = (
             <>
+                <label className="form__label" htmlFor="report"> Shop Girl : </label>
+                <select id="staff" name="staff" size="1" value={shopGirl} onChange={(e) => setShopGirl(e.target.value)} >
+                    {[<option></option>, <option>Ankita</option>, <option>Poornima</option>, <option>Vaishnavi</option>]}
+                </select>
                 <br></br>
-                <div className="ledger--header">
-                    <p>Begin Date: </p>
-                    <input type="date" onChange={e => setDateBegin(e.target.value)} />
-                    <p>End Date: </p>
-                    <input type="date" onChange={e => setDateEnd(e.target.value)} />
-                </div>
-                <div className="ledger--header">
-                    <button onClick={exportExcel}>GenExcel</button>
-                    <button onClick={exportPDF}>GenPdf</button>
-                </div>
                 <br></br>
+                <table >
+                    <thead className="table__thead--staff--attendance">
+                        <tr>
+                            <th scope="col" className="table__th ledger__ledgername">Date</th>
+                            <th scope="col" className="table__th ledger__ledgername">Location</th>
+                            <th scope="col" className="table__th ledger__ledgername">Time In</th>
+                            <th scope="col" className="table__th ledger__ledgername">Time Out</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {attendanceTable}
+                    </tbody>
+                </table>
             </>
         )
+
+    }
+
+
+    if (isSuccess) {
 
         gstSummary = (
             <>
@@ -556,7 +659,7 @@ const LedgerList = () => {
         ledgerContent = (
             <>
                 <div className="ledger--selector">
-                    {(id === 'all') && <label htmlFor="persist" className="form__persist">
+                    <label htmlFor="persist" className="form__persist">
                         <input
                             type="checkbox"
                             className="form__checkbox"
@@ -565,8 +668,8 @@ const LedgerList = () => {
                             checked={andheri}
                         />
                         Andheri
-                    </label>}
-                    {(id === 'all') && <label htmlFor="persist" className="form__persist">
+                    </label>
+                    <label htmlFor="persist" className="form__persist">
                         <input
                             type="checkbox"
                             className="form__checkbox"
@@ -575,8 +678,8 @@ const LedgerList = () => {
                             checked={bandra}
                         />
                         Bandra
-                    </label>}
-                    {(id === 'all') && <label htmlFor="persist" className="form__persist">
+                    </label>
+                    <label htmlFor="persist" className="form__persist">
                         <input
                             type="checkbox"
                             className="form__checkbox"
@@ -585,8 +688,8 @@ const LedgerList = () => {
                             checked={powai}
                         />
                         Powai
-                    </label>}
-                    {(id === 'all') && <label htmlFor="persist" className="form__persist">
+                    </label>
+                    <label htmlFor="persist" className="form__persist">
                         <input
                             type="checkbox"
                             className="form__checkbox"
@@ -595,8 +698,8 @@ const LedgerList = () => {
                             checked={purchases}
                         />
                         Purchases
-                    </label>}
-                    {(id === 'all') && <label htmlFor="persist" className="form__persist">
+                    </label>
+                    <label htmlFor="persist" className="form__persist">
                         <input
                             type="checkbox"
                             className="form__checkbox"
@@ -605,7 +708,7 @@ const LedgerList = () => {
                             checked={internal}
                         />
                         Internal
-                    </label>}
+                    </label>
                 </div>
                 <br></br>
                 <p>Search: </p>
@@ -640,7 +743,7 @@ const LedgerList = () => {
         <>
             <label className="form__label" htmlFor="report"> Select Report : </label>
             <select id="report" name="report" size="1" value={reportType} onChange={(e) => setReportType(e.target.value)} >
-                {[<option></option>, <option>Ledger</option>, <option>Sales Summary</option>, <option>HSN Report</option>, <option>GST Summary</option>]}
+                {[<option></option>, <option>Ledger</option>, <option>Sales Summary</option>, <option>HSN Report</option>, <option>GST Summary</option>, <option>Attendance</option>]}
             </select>
             <br></br>
             {dateSelector}
@@ -648,6 +751,7 @@ const LedgerList = () => {
             {(reportType === 'Sales Summary') && salesSummary}
             {(reportType === 'HSN Report') && hsnSummary}
             {(reportType === 'GST Summary') && gstSummary}
+            {(reportType === 'Attendance') && attendanceContent}
 
         </>
     )

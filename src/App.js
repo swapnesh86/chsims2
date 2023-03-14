@@ -15,6 +15,7 @@ import InventoryList from './features/inventory/InventoryList';
 import BillList from './features/transfers/BillList';
 import MembershipList from './features/membership/MembershipList';
 import NewMemberForm from './features/membership/NewMemberForm';
+import Attendance from './features/attendance/Attendance';
 
 import Prefetch from './features/auth/Prefetch';
 import PersistLogin from './features/auth/PersistLogin';
@@ -50,14 +51,15 @@ function App() {
                   </Route>
                 </Route>
                 <Route element={<RequireAuth allowedRoles={[ROLES.Admin, ROLES.SkuManager, ROLES.ShopManager, ROLES.AdInCharge, ROLES.PoInCharge, ROLES.BaInCharge]} />}>
-                  <Route path="ledger">
+                  <Route path="shopaccounts">
                     {/* <Route index element={<LedgerList />} /> */}
                     <Route path=":id" element={<LedgerList />} />
                   </Route>
                 </Route>
                 <Route element={<RequireAuth allowedRoles={[ROLES.Admin, ROLES.SkuManager, ROLES.ShopManager, ROLES.AdInCharge, ROLES.PoInCharge, ROLES.BaInCharge, ROLES.InventoryManager]} />}>
                   <Route path="inventory">
-                    <Route index element={<InventoryList />} />
+                    {/* <Route index element={<InventoryList />} /> */}
+                    <Route path=":id" element={<InventoryList />} />
                   </Route>
                 </Route>
                 <Route element={<RequireAuth allowedRoles={[ROLES.Admin, ROLES.ShopManager, ROLES.AdInCharge, ROLES.PoInCharge, ROLES.BaInCharge]} />}>
@@ -69,6 +71,11 @@ function App() {
                   <Route path="membership">
                     <Route index element={<MembershipList />} />
                     <Route path="new" element={<NewMemberForm />} />
+                  </Route>
+                </Route>
+                <Route element={<RequireAuth allowedRoles={[ROLES.Admin, ROLES.ShopManager, ROLES.AdInCharge, ROLES.PoInCharge, ROLES.BaInCharge]} />}>
+                  <Route path="attendance">
+                    <Route index element={<Attendance />} />
                   </Route>
                 </Route>
               </Route>

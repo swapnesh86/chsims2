@@ -86,6 +86,14 @@ select {
   width: 4em;
 }
 
+.sku_edit_time {
+  width: 15em;
+}
+
+.sku_edit_location {
+  width: 6em;
+}
+
 .sku_edit_qty {
   text-align: center;
   width: 2em;
@@ -339,11 +347,52 @@ tr {
   color: #000;
 }
 
+.table__thead--staff--attendance {
+  display: grid;
+  font-size: 0.75rem;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  grid-template-columns: repeat(4, 7em);
+  color: #000;
+}
+
+.table__thead--skurow {
+  display: grid;
+  font-size: 0.75rem;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  grid-template-columns: repeat(9, 7em);
+  color: #000;
+}
+
+.sku--row {
+  font-size: 0.75rem;
+  display: grid;
+  color: #000;
+  grid-template-columns: repeat(9, 7em);
+}
+
 .inventory--row {
   font-size: 0.75rem;
   display: grid;
   color: #000;
   grid-template-columns: 9em 12em 4em 4em 8em 7em 7em 7em 8em 9em 8em 8em 3em 4em 5em 4em;
+}
+
+.editattendance--row {
+  font-size: 0.75rem;
+  display: grid;
+  color: #000;
+  grid-template-columns: 7em 16em 5em 7em 2em 2em;
+}
+
+.staff--attendance {
+  font-size: 0.75rem;
+  display: grid;
+  color: #000;
+  grid-template-columns: repeat(4, 7em);
 }
 
 .table__th,
@@ -617,6 +666,21 @@ tr {
   margin-left: 40px;
 }
 
+.table--skus {
+  display: grid;
+  grid-template-columns: 10em repeat(2, 7em) 14em repeat(3, 5em);
+}
+
+.table--skusedit {
+  display: grid;
+  grid-template-columns: 10em repeat(2, 7em) 14em repeat(4, 5em);
+}
+
+.table--skuseditdel {
+  display: grid;
+  grid-template-columns: 10em repeat(2, 7em) 14em repeat(5, 5em);
+}
+
 @media screen and (max-width: 600px) {
   h1 {
     font-size: 2rem;
@@ -632,18 +696,6 @@ tr {
 
   .icon-skudelbutton {
     font-size: 1rem;
-  }
-
-  .table--skus {
-    grid-template-columns: repeat(1, 1fr) 2.5fr repeat(1, 1fr);
-  }
-
-  .table--skusedit {
-    grid-template-columns: repeat(1, 1fr) 2.5fr repeat(4, 1fr);
-  }
-
-  .table--skuseditdel {
-    grid-template-columns: repeat(1, 1fr) 2.5fr repeat(5, 1fr);
   }
 
   .sku__primary {
@@ -672,18 +724,6 @@ tr {
   /*   .table {
     font-size: 1.5rem;
   } */
-
-  .table--skus {
-    grid-template-columns: repeat(2, 1fr) 2.5fr repeat(3, 1fr);
-  }
-
-  .table--skusedit {
-    grid-template-columns: repeat(2, 1fr) 2.5fr repeat(4, 1fr);
-  }
-
-  .table--skuseditdel {
-    grid-template-columns: repeat(2, 1fr) 2.5fr repeat(5, 1fr);
-  }
 
   .sku__primary {
     display: block
