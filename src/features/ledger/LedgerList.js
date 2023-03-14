@@ -55,6 +55,7 @@ const LedgerList = () => {
     const [dateBegin, setDateBegin] = useState((new Date()).setDate(0));
     const [dateEnd, setDateEnd] = useState(new Date());
     const [billNoSearch, setBillNoSearch] = useState('');
+    const [customerBill, setCustomerBill] = useState(true);
     const [gstSearch, setGstSearch] = useState('');
 
     const [ledgerTableContent, setLedgerTableContent] = useState([]);
@@ -246,7 +247,7 @@ const LedgerList = () => {
             })
             setLedgerTableContent(mytableContent)
 
-            const myjsonContent = filteredIds?.length && filteredIds.map(ledgerId => ({ Date: (new Intl.DateTimeFormat('en-US').format(new Date(entities[ledgerId].createdAt))), BillNo: entities[ledgerId].billno, Barcode: entities[ledgerId].barcode, Qty: entities[ledgerId].qty, Price: entities[ledgerId].totalprice, HSN: entities[ledgerId].hsncode, PaymentType: entities[ledgerId].paymenttype, gst: entities[ledgerId].gst, buyer: entities[ledgerId].buyer, name: entities[ledgerId].name }))
+            const myjsonContent = filteredIds?.length && filteredIds.map(ledgerId => ({ Date: (new Intl.DateTimeFormat('en-US').format(new Date(entities[ledgerId].createdAt))), time: (new Date(entities[ledgerId].createdAt)).toLocaleTimeString(), BillNo: entities[ledgerId].billno, Barcode: entities[ledgerId].barcode, Qty: entities[ledgerId].qty, Price: entities[ledgerId].totalprice, HSN: entities[ledgerId].hsncode, PaymentType: entities[ledgerId].paymenttype, gst: entities[ledgerId].gst, buyer: entities[ledgerId].buyer, name: entities[ledgerId].name }))
             setJsonContent(myjsonContent)
 
         }
@@ -384,15 +385,49 @@ const LedgerList = () => {
 
     const exportPDF = () => {
 
-        const marginLeft = 40;
+        const marginLeft = 4;
         let doc
 
         let headers
+        let topheader
         let data
+        let topdata
+        let footers
+        let sidemargin = 30
         if (reportType === 'Ledger') {
-            headers = [["Date", "BillNo", "Barcode", "Qty", "Price", "HSN"]]
-            data = jsonContent.map(entry => [entry.Date, entry.BillNo, entry.Barcode, entry.Qty, entry.Price, entry.HSN])
-            doc = new jsPDF('portrait', 'pt', 'A4');
+            if (!customerBill) {
+                headers = [["Date", "BillNo", "Barcode", "Name", "Qty", "Price", "HSN"]]
+                data = jsonContent.map(entry => [entry.Date, entry.BillNo, entry.Barcode, entry.name, entry.Qty, entry.Price, entry.HSN])
+                doc = new jsPDF('portrait', 'pt', 'A4');
+                doc.setFontSize(11);
+            } else {
+                let billlength = (jsonContent.length * 8.5 + 90)
+                doc = new jsPDF('p', 'mm', [billlength, 75]);
+                doc.setFontSize(8);
+                doc.text(`Bill No.: ${jsonContent[0].BillNo}`, marginLeft, 10);
+                doc.text(`Date: ${jsonContent[0].Date}`, marginLeft, 16);
+                doc.text("Conditions:", marginLeft, billlength - 20);
+                doc.text("  1. Non-Refundable", marginLeft, billlength - 14);
+                doc.text("  2. Exchange only within 7 days", marginLeft, billlength - 8);
+                headers = [[
+                    { content: "Barcode", styles: { fillColor: [255, 255, 255], textColor: [0, 0, 0] } },
+                    { content: "Name", styles: { fillColor: [255, 255, 255], textColor: [0, 0, 0] } },
+                    { content: "Qty", styles: { fillColor: [255, 255, 255], textColor: [0, 0, 0] } },
+                    { content: "Price", styles: { fillColor: [255, 255, 255], textColor: [0, 0, 0] } },
+                ]]
+                data = jsonContent.map(entry => [entry.Barcode, entry.name, entry.Qty, entry.Price])
+                let total = 0
+                jsonContent.forEach(item => {
+                    total += item.Price
+                })
+                footers = [[
+                    { content: "Total", colSpan: 3, styles: { fillColor: [255, 255, 255], textColor: [0, 0, 0] } },
+                    { content: total, styles: { fillColor: [255, 255, 255], textColor: [0, 0, 0] } }
+                ]]
+                topheader = [[{ content: "Creative Womens Empowerment Fund", colSpan: 2, styles: { halign: 'center', fillColor: [255, 255, 255], textColor: [0, 0, 0] } }]]
+                topdata = [["Date: ", jsonContent[0].Date], ["Time: ", jsonContent[0].time], ["Customer: ", jsonContent[0].buyer], ["Bill No.: ", jsonContent[0].BillNo]]
+                sidemargin = 4
+            }
         } else if (reportType === 'Sales Summary') {
             headers = [["Date", "Ad-Card", "Ad-Cash", "Ad-UPI", "Ad-Online", "Ad-Total",
                 "Ba-Card", "Ba-Cash", "Ba-UPI", "Ba-Online", "Ba-Total",
@@ -405,6 +440,7 @@ const LedgerList = () => {
             entry.excard, entry.excash, entry.exupi, entry.exonline, entry.extotal,
             ])
             doc = new jsPDF('landscape', 'pt', 'A4');
+            doc.setFontSize(11);
         } else if (reportType === 'HSN Report') {
             headers = [["HSN", "GST", "Description", "Quantity", "Price", "Taxable", "CGST", "SGST"
             ]]
@@ -412,6 +448,7 @@ const LedgerList = () => {
             (entry.Price * entry.gst / 200).toFixed(2), (entry.Price * entry.gst / 200).toFixed(2)
             ])
             doc = new jsPDF('portrait', 'pt', 'A4');
+            doc.setFontSize(11);
         } else if (reportType === 'GST Summary') {
             headers = [["Date", "GST", "Customer", "Bill No.", "Product", "Taxable", "CGST", "SGST", "Price"
             ]]
@@ -419,15 +456,29 @@ const LedgerList = () => {
             (entry.Price * entry.gst / 200).toFixed(2), (entry.Price * entry.gst / 200).toFixed(2), entry.Price
             ])
             doc = new jsPDF('portrait', 'pt', 'A4');
+            doc.setFontSize(11);
         }
 
-        doc.setFontSize(11);
+
         let content = {
-            startY: 50,
+            startY: 46,
             head: headers,
-            body: data
+            body: data,
+            foot: footers,
+            margin: { top: 10, right: sidemargin, bottom: 0, left: sidemargin },
+            styles: { fontSize: 8 },
         };
-        doc.text("Report", marginLeft, 40);
+
+        let topcontent = {
+            startY: 6,
+            head: topheader,
+            body: topdata,
+            margin: { top: 10, right: sidemargin, bottom: 0, left: sidemargin },
+            styles: { fontSize: 8 },
+        };
+
+        //doc.text("Report", marginLeft, 40);
+        if (customerBill) doc.autoTable(topcontent);
         doc.autoTable(content);
         doc.save("report.pdf")
 
@@ -442,6 +493,8 @@ const LedgerList = () => {
     const handleToggleFive = () => setFive(prev => !prev)
     const handleToggleTwelve = () => setTwelve(prev => !prev)
     const handleToggleEighteen = () => setEighteen(prev => !prev)
+
+    const handleToggleCustomerBill = () => setCustomerBill(prev => !prev)
 
     let ledgerContent
     let salesSummary
@@ -714,6 +767,17 @@ const LedgerList = () => {
                 <p>Search: </p>
                 <input type="text" placeholder="Bill Number" onChange={e => setBillNoSearch(e.target.value)} />
                 <br></br>
+                <br></br>
+                <label htmlFor="persist" className="form__persist">
+                    <input
+                        type="checkbox"
+                        className="form__checkbox"
+                        id="persist"
+                        onChange={handleToggleCustomerBill}
+                        checked={customerBill}
+                    />
+                    Customer Bill
+                </label>
                 <br></br>
                 <table >
                     <thead className="table__thead--ledger">
