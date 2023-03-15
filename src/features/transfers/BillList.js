@@ -10,12 +10,13 @@ import { useGetBillNosQuery, useUpdateBillNoMutation, categorySelect, finyearNow
 import { useGetLedgerQuery, useAddNewLedgerMutation } from "../ledger/ledgerApiSlice"
 
 import { useGetInventoryQuery, useAddNewInventoryMutation, useUpdateInventoryMutation } from "../inventory/inventoryApiSlice"
-import { useGetMembersQuery } from "../membership/membersApiSlice"
+import { useGetMembersQuery, useAddNewMemberMutation, useUpdateMemberMutation } from "../membership/membersApiSlice"
 
 import { useAddNewEmailMutation } from "./emailApiSlice"
 import ReturnLedger from "./ReturnLedger"
 
 import { useNavigate } from "react-router-dom"
+import Popup from "../../components/Popup"
 
 const BillList = () => {
     const [newEntry, setNewEntry] = useState('')
@@ -44,6 +45,9 @@ const BillList = () => {
     const [validMember, setValidMember] = useState(false)
 
     const [addedSkus, setAddedSkus] = useState('')
+    const [popupTrigger, setPopupTrigger] = useState(false)
+    const [newMembership, setNewMembership] = useState('')
+    const [existingMember, setExistingMember] = useState('')
 
     const navigate = useNavigate()
 
@@ -86,6 +90,8 @@ const BillList = () => {
         isSuccess: addledgerSuccess
     }] = useAddNewLedgerMutation()
 
+
+
     const {
         data: inventory,
         isLoading: invLoading,
@@ -113,6 +119,11 @@ const BillList = () => {
         refetchOnMountOrArgChange: true
     })
 
+    const [addMember] = useAddNewMemberMutation()
+
+    const [updateMember] = useUpdateMemberMutation()
+
+
     const [sendEmail] = useAddNewEmailMutation()
 
     useEffect(() => {
@@ -128,6 +139,7 @@ const BillList = () => {
         getTotal()
 
     }, [bill, factor])
+
 
     useEffect(() => {
 
@@ -197,7 +209,8 @@ const BillList = () => {
             if (memberSuccess) {
                 const { ids: memberIds, entities: memberEntities } = members
 
-                const mId = memberIds?.filter(id => (
+                // Thi block is to check if an entered membership exists and has validity
+                let mId = memberIds?.filter(id => (
                     memberEntities[id].barcode.toLowerCase() === membership?.toLowerCase() ||
                     memberEntities[id].phone.toLowerCase() === membership?.toLowerCase()
                 ))
@@ -207,14 +220,22 @@ const BillList = () => {
                     else setValidMember(true)
                 } else setValidMember(false)
 
+                // This block is to check if membership purchase should create a NEW one or renew an older membership
+                mId = memberIds?.filter(id => (
+                    memberEntities[id].barcode.toLowerCase() === newMembership?.toLowerCase() ||
+                    memberEntities[id].phone.toLowerCase() === newMembership?.toLowerCase()
+                ))
+                if (mId[0]) {
+                    console.log(memberEntities[mId[0]])
+                    setExistingMember(mId[0])
+                } else setExistingMember('')
+
             }
         }
 
-
-
         checkMembersip()
 
-    }, [membership, memberSuccess, members])
+    }, [membership, memberSuccess, members, newMembership])
 
     useEffect(() => {
 
@@ -312,7 +333,7 @@ const BillList = () => {
                         }
                     }
                     if (!found) consolidatedReturn.push(returnBilljson[i])
-                    //console.log(consolidatedReturn)
+
                 }
 
                 setReturnBillContent(consolidatedReturn)
@@ -352,7 +373,7 @@ const BillList = () => {
                 </>
         }
 
-        if (billSucecss) {
+        if (billSucecss && memberSuccess) {
 
             const { ids: billids, entities: billentities } = billnos
             let myUpdateStr = { id: billids[0], ad: 0, ba: 0, po: 0, ex: 0, db: 0, dn: 0, rs: 0, int: 0, os: 0, ip: 0 }
@@ -450,6 +471,18 @@ const BillList = () => {
 
                     bill.forEach(async (entry) => {
 
+                        if (entry.barcode.toUpperCase().match('FBFSBIA2001|FBFSCIA2001|FBFSDIA2001') && action === 'Billing') {
+                            let membershipDuration = encoding.membership.find(temp => temp.barcode === entry.barcode).duration
+                            if (newMembership) {
+                                if (existingMember) {
+                                    const { entities: memberentities } = members
+                                    await updateMember({ id: existingMember, barcode: memberentities[existingMember].barcode, phone: phone, duration: membershipDuration, billno: mybillno, time: new Date() })
+                                } else {
+                                    await addMember({ barcode: newMembership, phone: phone, duration: membershipDuration, billno: mybillno, time: new Date() })
+                                }
+                            }
+                        }
+
                         const ledgerEntry = { billno: mybillno, barcode: entry.barcode, name: entry.name, ordertype: myorderType, buyer: (myBuyer ? myBuyer : buyerCode), seller: mySeller, phone: myPhone, email: myEmail, paymenttype: myPaymentType, membership: myMembership, qty: entry.qty, totalprice: (entry.qty * entry.mrp * factor), hsncode: entry.hsn, gst: entry.gst }
 
                         let canSave = [mybillno, entry.barcode, myorderType, (myBuyer || buyerCode), mySeller, myPaymentType, entry.qty, entry.hsn, entry.gst].every(Boolean)
@@ -492,12 +525,14 @@ const BillList = () => {
                     let myBill = [...bill]
                     const index = myBill.findIndex((obj) => obj.barcode === newEntry)
 
-
                     if (index !== -1) {
                         myBill[index].qty++
                     }
                     else {
                         let skuId = ids.filter(sku => (entities[sku].Barcode.toLowerCase().includes(newEntry.toLowerCase())))
+                        if (entities[skuId[0]].Barcode.toUpperCase().match('FBFSBIA2001|FBFSCIA2001|FBFSDIA2001') && action === 'Billing') {
+                            setPopupTrigger(true)
+                        }
                         const myMrp = validMember ? entities[skuId[0]].MBR : entities[skuId[0]].MRP
                         const myGst = getGst(entities[skuId[0]].HSNCode, myMrp)
                         //console.log(skuId)
@@ -638,6 +673,8 @@ const BillList = () => {
                                 <tr className="table__row bill--row" >
                                     <td className="table__cell bill__entry">{entry.barcode}</td>
                                     <td className="table__cell bill__entry">{entry.name}</td>
+                                    <td className="table__cell bill__entry">{(entry.barcode.length === 11 ? (encoding.colour.find(item => item.IDENTITY === entry.barcode.substr(5, 1).toUpperCase()).COLOUR) : null)}</td>
+                                    <td className="table__cell bill__entry">{(entry.barcode.length === 11 ? (encoding.sizes.find(item => item.IDENTITY === entry.barcode.substr(4, 1).toUpperCase()).SIZE) : null)}</td>
                                     <td className="table__cell bill__entry">
                                         <input
                                             className='sku_edit_qty'
@@ -693,8 +730,20 @@ const BillList = () => {
         }
     }
 
+
+
     return (
         <>
+            <Popup trigger={popupTrigger} >
+                <h3>Scan Membership Card</h3>
+                <input
+                    type="text"
+                    id="new-membership"
+                    value={newMembership}
+                    onChange={(e) => setNewMembership(e.target.value)}
+                />
+                <button className="close-btn" onClick={() => setPopupTrigger(false)}>Continue</button>
+            </Popup>
             <h2>{status} Billing: </h2>
             <br></br>
             {(isAdmin || isShopManager || isInventoryManager) && newInvHeaderSection}

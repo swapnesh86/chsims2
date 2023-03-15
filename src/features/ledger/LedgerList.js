@@ -505,27 +505,28 @@ const LedgerList = () => {
                 doc = new jsPDF('portrait', 'pt', 'A4');
                 doc.setFontSize(11);
             } else {
-                let billlength = (jsonContent.length * 8.5 + 90)
-                doc = new jsPDF('p', 'mm', [billlength, 75]);
-                doc.setFontSize(8);
+                let billlength = (jsonContent.length * 16.5 + 90)
+                doc = new jsPDF('p', 'mm', [billlength, 90]);
+                doc.setFontSize(16);
                 doc.text(`Bill No.: ${jsonContent[0].BillNo}`, marginLeft, 10);
                 doc.text(`Date: ${jsonContent[0].Date}`, marginLeft, 16);
                 doc.text("Conditions:", marginLeft, billlength - 20);
                 doc.text("  1. Non-Refundable", marginLeft, billlength - 14);
                 doc.text("  2. Exchange only within 7 days", marginLeft, billlength - 8);
                 headers = [[
-                    { content: "Barcode", styles: { fillColor: [255, 255, 255], textColor: [0, 0, 0] } },
+                    //{ content: "Barcode", styles: { fillColor: [255, 255, 255], textColor: [0, 0, 0] } },
                     { content: "Name", styles: { fillColor: [255, 255, 255], textColor: [0, 0, 0] } },
                     { content: "Qty", styles: { fillColor: [255, 255, 255], textColor: [0, 0, 0] } },
                     { content: "Price", styles: { fillColor: [255, 255, 255], textColor: [0, 0, 0] } },
                 ]]
-                data = jsonContent.map(entry => [entry.Barcode, entry.name, entry.Qty, entry.Price])
+                //data = jsonContent.map(entry => [entry.Barcode, entry.name, entry.Qty, entry.Price])
+                data = jsonContent.map(entry => [entry.name, entry.Qty, entry.Price])
                 let total = 0
                 jsonContent.forEach(item => {
                     total += item.Price
                 })
                 footers = [[
-                    { content: "Total", colSpan: 3, styles: { fillColor: [255, 255, 255], textColor: [0, 0, 0] } },
+                    { content: "Total", colSpan: 2, styles: { fillColor: [255, 255, 255], textColor: [0, 0, 0] } },
                     { content: total, styles: { fillColor: [255, 255, 255], textColor: [0, 0, 0] } }
                 ]]
                 topheader = [[{ content: "Creative Womens Empowerment Foundation", colSpan: 2, styles: { halign: 'center', fillColor: [255, 255, 255], textColor: [0, 0, 0] } }]]
@@ -565,12 +566,12 @@ const LedgerList = () => {
 
 
         let content = {
-            startY: 46,
+            startY: 70,
             head: headers,
             body: data,
             foot: footers,
             margin: { top: 10, right: sidemargin, bottom: 0, left: sidemargin },
-            styles: { fontSize: 8 },
+            styles: { fontSize: 16 },
         };
 
         let topcontent = {
@@ -578,7 +579,7 @@ const LedgerList = () => {
             head: topheader,
             body: topdata,
             margin: { top: 10, right: sidemargin, bottom: 0, left: sidemargin },
-            styles: { fontSize: 8 },
+            styles: { fontSize: 16 },
         };
 
         //doc.text("Report", marginLeft, 40);

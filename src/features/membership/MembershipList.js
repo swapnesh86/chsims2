@@ -28,6 +28,7 @@ const MembersList = () => {
             duration={entities[id].duration}
             billno={entities[id].billno}
             prevbillnos={entities[id].prevbillnos}
+            time={entities[id].time}
         />)
 
         content = (
@@ -39,7 +40,7 @@ const MembersList = () => {
                         <th scope="col" className="table__th member__membername">Duration</th>
                         <th scope="col" className="table__th member__membername">Bill No.</th>
                         <th scope="col" className="table__th member__roles">Prev Bills</th>
-                        <th scope="col" className="table__th member__edit">Edit</th>
+                        <th scope="col" className="table__th member__roles">Last Renewal</th>
                     </tr>
                 </thead>
                 <tbody>

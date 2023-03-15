@@ -23,7 +23,7 @@ const InventoryList = () => {
 
     useEffect(() => {
         if (id !== 'all') {
-            console.log(id)
+            //console.log(id)
             const myArray = id.split("-");
             let mysearch
             myArray.forEach(entry => {

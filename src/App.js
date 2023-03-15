@@ -14,7 +14,6 @@ import LedgerList from './features/ledger/LedgerList';
 import InventoryList from './features/inventory/InventoryList';
 import BillList from './features/transfers/BillList';
 import MembershipList from './features/membership/MembershipList';
-import NewMemberForm from './features/membership/NewMemberForm';
 import Attendance from './features/attendance/Attendance';
 
 import Prefetch from './features/auth/Prefetch';
@@ -70,7 +69,6 @@ function App() {
                 <Route element={<RequireAuth allowedRoles={[ROLES.Admin, ROLES.ShopManager, ROLES.AdInCharge, ROLES.PoInCharge, ROLES.BaInCharge]} />}>
                   <Route path="membership">
                     <Route index element={<MembershipList />} />
-                    <Route path="new" element={<NewMemberForm />} />
                   </Route>
                 </Route>
                 <Route element={<RequireAuth allowedRoles={[ROLES.Admin, ROLES.ShopManager, ROLES.AdInCharge, ROLES.PoInCharge, ROLES.BaInCharge]} />}>

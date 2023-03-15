@@ -246,13 +246,13 @@ tr {
   position: sticky;
   top: 0;
   z-index: 1;
-  grid-template-columns: 8em 8em 6em 12em 12em 3em;
+  grid-template-columns: 8em 8em 6em 12em 12em 8em;
   color: #000;
 }
 
 .member--row {
   display: grid;
-  grid-template-columns: 8em 8em 6em 12em 12em 3em;
+  grid-template-columns: 8em 8em 6em 12em 12em 8em;
 }
 
 .table__thead--ledger {
@@ -546,7 +546,7 @@ tr {
 
 .add-bill-entry {
   display: grid;
-  grid-template-columns: 20em 12em 6em;
+  grid-template-columns: 20em 10em 5em;
   align-items: center;
   border-radius: 15px;
   padding: 0.25em;
@@ -640,12 +640,14 @@ tr {
 
 .bill--row {
   display: grid;
-  grid-template-columns: 9em 13em 3em 5em 6em 2em;
+  font-size: 1rem;
+  grid-template-columns: 9em 13em 4em 4em 3em 4em 5em 2em;
 }
 
 .bill--searchrow {
   display: grid;
-  grid-template-columns: 10em 15em 4em 9em;
+  font-size: 1rem;
+  grid-template-columns: 12em 17em 5em 10em;
 }
 
 

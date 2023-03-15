@@ -41,11 +41,8 @@ const Welcome = () => {
             }
             {(isAdmin || isShopManager || isAdInCharge || isBaInCharge || isPoInCharge) &&
                 <>
-                    <h3>Membership</h3>
-                    <div className="indent">
-                        <p><Link to="/dash/membership">Memberships</Link></p>
-                        <p><Link to="/dash/membership/new">Create New Membership</Link></p>
-                    </div>
+                    <h3><Link to="/dash/membership">View Memberships</Link></h3>
+                    {/* <p><Link to="/dash/membership/new">Create New Membership</Link></p> */}
                     <h3><Link to="/dash/attendance">Attendance</Link></h3>
                 </>
             }
