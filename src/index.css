@@ -671,6 +671,18 @@ tr {
   grid-template-columns: 10em repeat(2, 7em) 14em repeat(3, 5em);
 }
 
+.table--commission--table {
+  display: grid;
+  color: #000;
+  grid-template-columns: repeat(5, 7em);
+}
+
+.table--commission--values {
+  display: grid;
+  color: #000;
+  grid-template-columns: repeat(4, 7em);
+}
+
 .table--skusedit {
   display: grid;
   grid-template-columns: 10em repeat(2, 7em) 14em repeat(4, 5em);

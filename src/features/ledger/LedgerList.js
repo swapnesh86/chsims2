@@ -5,6 +5,7 @@ import SalesSummary from "./SalesSummary"
 import HsnSummary from "./HsnSummary"
 import GstSummary from "./GstSummary"
 import StaffAttendance from "../attendance/StaffAttendance"
+import Commission from "./Commission"
 
 import { useState, useEffect } from "react"
 
@@ -16,11 +17,16 @@ import { useParams } from 'react-router-dom'
 import { encoding } from "../../data/encoding"
 
 import { useGetAttendanceQuery } from "../attendance/attendanceApiSlice"
+import useAuth from "../../hooks/useAuth";
+import { useGetCommissionQuery, useUpdateCommissionMutation } from "./commissionApiSlice"
+import { useNavigate } from "react-router-dom"
 
 
 const LedgerList = () => {
 
     const { id } = useParams()
+    const { isAdmin, isShopManager } = useAuth()
+    const navigate = useNavigate()
 
     const {
         data: ledger,
@@ -52,6 +58,19 @@ const LedgerList = () => {
         refetchOnMountOrArgChange: true
     })
 
+    const {
+        data: commission,
+        isSuccess: commissionSuccess
+    } = useGetCommissionQuery('commissionList', {
+        pollingInterval: (15 * 60000),
+        refetchOnFocus: true,
+        refetchOnMountOrArgChange: true
+    })
+
+    const [updatecommission, {
+        isSuccess: updateCommissionSuccess
+    }] = useUpdateCommissionMutation()
+
     const [dateBegin, setDateBegin] = useState((new Date()).setDate(0));
     const [dateEnd, setDateEnd] = useState(new Date());
     const [billNoSearch, setBillNoSearch] = useState('');
@@ -71,7 +90,7 @@ const LedgerList = () => {
     const [gstTable, setGstTable] = useState([]);
     const [jsonGstContent, setJsonGstContent] = useState([]);
 
-    //const [jsonAttendance, setJsonAttendance] = useState([]);
+    const [jsonAttendance, setJsonAttendance] = useState([]);
     const [attendanceTable, setAttendanceTable] = useState([]);
     const [shopGirl, setShopGirl] = useState('');
 
@@ -87,6 +106,27 @@ const LedgerList = () => {
     const [eighteen, setEighteen] = useState(false)
 
     const [reportType, setReportType] = useState('Ledger')
+
+    const [adlow, setAdLow] = useState(7000)
+    const [admid, setAdMid] = useState(13000)
+    const [adhigh, setAdHigh] = useState(25000)
+    const [balow, setBaLow] = useState(7000)
+    const [bamid, setBaMid] = useState(13000)
+    const [bahigh, setBaHigh] = useState(25000)
+    const [polow, setPoLow] = useState(7000)
+    const [pomid, setPoMid] = useState(13000)
+    const [pohigh, setPoHigh] = useState(25000)
+    const [exlow, setExLow] = useState(15000)
+    const [exmid, setExMid] = useState(25000)
+    const [exhigh, setExHigh] = useState(45000)
+    const [commissionTable, setCommisionTable] = useState([]);
+
+    useEffect(() => {
+        if (updateCommissionSuccess) {
+            navigate(`/dash/`)
+        }
+    }, [updateCommissionSuccess, navigate])
+
 
     useEffect(() => {
         if (id === 'ledger') setReportType('Ledger')
@@ -207,7 +247,6 @@ const LedgerList = () => {
             }, new Map()).values()]
 
             setJsonSalesContent([...mysalessummary, mytotal])
-            //setJsonSalesContent(mysalessummary)
 
             const mytable = mysalessummary?.length && mysalessummary.map(date => {
                 return (<SalesSummary summaryrow={date} />)
@@ -294,13 +333,61 @@ const LedgerList = () => {
                 })
 
                 setAttendanceTable(myattendancetable)
-                //setJsonAttendance(myattendanceReformat)
+                setJsonAttendance(myattendanceReformat)
 
             }
 
         }
 
     }, [attendanceSuccess, dateBegin, dateEnd, attendance, shopGirl])
+
+    useEffect(() => {
+
+        if (jsonAttendance.length && jsonSalesContent.length) {
+            let mycommissionData = [...jsonAttendance.reduce((r, o) => {
+                const key = o.name
+                const item = r.get(key) || Object.assign({}, o, {
+                    name: o.name,
+                    low: 0, mid: 0, high: 0, tot: 0
+                })
+
+                const index = jsonSalesContent.findIndex((obj) => obj.Date === o.date)
+                //console.log(jsonSalesContent)
+
+                if (index !== -1) {
+                    if (o.location === 'Andheri') {
+                        if (jsonSalesContent[index].adtotal > adhigh) { item.high++; item.tot++ }
+                        else if (jsonSalesContent[index].adtotal > admid) { item.mid++; item.tot++ }
+                        else if (jsonSalesContent[index].adtotal > adlow) { item.low++; item.tot++ }
+                    } else if (o.location === 'Bandra') {
+                        if (jsonSalesContent[index].batotal > bahigh) { item.high++; item.tot++ }
+                        else if (jsonSalesContent[index].batotal > bamid) { item.mid++; item.tot++ }
+                        else if (jsonSalesContent[index].batotal > balow) { item.low++; item.tot++ }
+                    } else if (o.location === 'Powai') {
+                        if (jsonSalesContent[index].pototal > pohigh) { item.high++; item.tot++ }
+                        else if (jsonSalesContent[index].pototal > pomid) { item.mid++; item.tot++ }
+                        else if (jsonSalesContent[index].pototal > polow) { item.low++; item.tot++ }
+                    } else if (o.location === 'Exhibition') {
+                        if (jsonSalesContent[index].extotal > exhigh) { item.high++; item.tot++ }
+                        else if (jsonSalesContent[index].extotal > exmid) { item.mid++; item.tot++ }
+                        else if (jsonSalesContent[index].extotal > exlow) { item.low++; item.tot++ }
+                    }
+                }
+                return r.set(key, item)
+
+            }, new Map()).values()]
+
+            const mycommissiontable = mycommissionData?.length && mycommissionData.map(key => {
+                return (<Commission entry={key} />)
+            })
+            setCommisionTable(mycommissiontable)
+            //console.log(mycommissionData)
+
+        }
+
+
+
+    }, [jsonAttendance, jsonSalesContent, adhigh, admid, adlow, bahigh, bamid, balow, pohigh, pomid, polow, exlow, exmid, exhigh])
 
 
     useEffect(() => {
@@ -326,6 +413,23 @@ const LedgerList = () => {
 
     }, [three, five, twelve, eighteen])
 
+    useEffect(() => {
+        if (commissionSuccess) {
+            const { ids, entities } = commission
+            setAdHigh(entities[ids[0]].adhigh)
+            setAdMid(entities[ids[0]].admid)
+            setAdLow(entities[ids[0]].adlow)
+            setBaHigh(entities[ids[0]].bahigh)
+            setBaMid(entities[ids[0]].bamid)
+            setBaLow(entities[ids[0]].balow)
+            setPoHigh(entities[ids[0]].pohigh)
+            setPoMid(entities[ids[0]].pomid)
+            setPoLow(entities[ids[0]].polow)
+            setExHigh(entities[ids[0]].exhigh)
+            setExMid(entities[ids[0]].exmid)
+            setExLow(entities[ids[0]].exlow)
+        }
+    }, [commission, commissionSuccess])
 
     const exportExcel = () => {
         import("xlsx").then((xlsx) => {
@@ -424,7 +528,7 @@ const LedgerList = () => {
                     { content: "Total", colSpan: 3, styles: { fillColor: [255, 255, 255], textColor: [0, 0, 0] } },
                     { content: total, styles: { fillColor: [255, 255, 255], textColor: [0, 0, 0] } }
                 ]]
-                topheader = [[{ content: "Creative Womens Empowerment Fund", colSpan: 2, styles: { halign: 'center', fillColor: [255, 255, 255], textColor: [0, 0, 0] } }]]
+                topheader = [[{ content: "Creative Womens Empowerment Foundation", colSpan: 2, styles: { halign: 'center', fillColor: [255, 255, 255], textColor: [0, 0, 0] } }]]
                 topdata = [["Date: ", jsonContent[0].Date], ["Time: ", jsonContent[0].time], ["Customer: ", jsonContent[0].buyer], ["Bill No.: ", jsonContent[0].BillNo]]
                 sidemargin = 4
             }
@@ -484,6 +588,14 @@ const LedgerList = () => {
 
     };
 
+    const updateCommissionTargets = async () => {
+        if (commissionSuccess) {
+            const { ids } = commission
+            await updatecommission({ id: ids[0], adlow, admid, adhigh, balow, bamid, bahigh, polow, pomid, pohigh, exlow, exmid, exhigh })
+        }
+
+    }
+
     const handleToggleAndheri = () => setAndheri(prev => !prev)
     const handleToggleBandra = () => setBandra(prev => !prev)
     const handleTogglePowai = () => setPowai(prev => !prev)
@@ -501,6 +613,7 @@ const LedgerList = () => {
     let hsnSummary
     let gstSummary
     let attendanceContent
+    let commissionContent
     if (isLoading) ledgerContent = <p>Loading...</p>
     if (isError) ledgerContent = <p className="errmsg">{error?.data?.message}</p>
 
@@ -513,10 +626,16 @@ const LedgerList = () => {
                 <p>End Date: </p>
                 <input type="date" onChange={e => setDateEnd(e.target.value)} />
             </div>
-            <div className="ledger--header">
-                <button onClick={exportExcel}>GenExcel</button>
-                <button onClick={exportPDF}>GenPdf</button>
-            </div>
+            {(reportType !== 'Attendance' && reportType !== 'Commission') &&
+                <div className="ledger--header">
+
+
+                    <button onClick={exportExcel}>GenExcel</button>
+                    <button onClick={exportPDF}>GenPdf</button>
+
+
+                </div>
+            }
             <br></br>
         </>
     )
@@ -526,7 +645,7 @@ const LedgerList = () => {
             <>
                 <label className="form__label" htmlFor="report"> Shop Girl : </label>
                 <select id="staff" name="staff" size="1" value={shopGirl} onChange={(e) => setShopGirl(e.target.value)} >
-                    {[<option></option>, <option>Ankita</option>, <option>Poornima</option>, <option>Vaishnavi</option>]}
+                    {[<option></option>, <option>Ankita</option>, <option>Poonam</option>, <option>Vaishnavi</option>, <option>Pratima</option>, <option>Neha</option>]}
                 </select>
                 <br></br>
                 <br></br>
@@ -541,6 +660,95 @@ const LedgerList = () => {
                     </thead>
                     <tbody>
                         {attendanceTable}
+                    </tbody>
+                </table>
+            </>
+        )
+
+        commissionContent = (
+            <>
+
+                {(isAdmin || isShopManager) &&
+                    <>
+                        <table className="table--commission--values">
+                            <thead className="table__thead">
+                                <tr>
+                                    <th scope="col" className="table__th ledger__ledgername">Location</th>
+                                    <th scope="col" className="table__th ledger__ledgername">Low</th>
+                                    <th scope="col" className="table__th ledger__ledgername">Medium</th>
+                                    <th scope="col" className="table__th ledger__ledgername">High</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr className="table__row user" >
+                                    <td className="table__cell sku__primary">Andheri</td>
+                                    <td className="table__cell sku__primary">
+                                        <input className='sku_edit_location' type='text' value={adlow} onChange={(e) => setAdLow(e.target.value)} />
+                                    </td>
+                                    <td className="table__cell sku__primary">
+                                        <input className='sku_edit_location' type='text' value={admid} onChange={(e) => setAdMid(e.target.value)} />
+                                    </td>
+                                    <td className="table__cell sku__primary">
+                                        <input className='sku_edit_location' type='text' value={adhigh} onChange={(e) => setAdHigh(e.target.value)} />
+                                    </td>
+                                </tr>
+                                <tr className="table__row user" >
+                                    <td className="table__cell sku__primary">Bandra</td>
+                                    <td className="table__cell sku__primary">
+                                        <input className='sku_edit_location' type='text' value={balow} onChange={(e) => setBaLow(e.target.value)} />
+                                    </td>
+                                    <td className="table__cell sku__primary">
+                                        <input className='sku_edit_location' type='text' value={bamid} onChange={(e) => setBaMid(e.target.value)} />
+                                    </td>
+                                    <td className="table__cell sku__primary">
+                                        <input className='sku_edit_location' type='text' value={bahigh} onChange={(e) => setBaHigh(e.target.value)} />
+                                    </td>
+                                </tr>
+                                <tr className="table__row user" >
+                                    <td className="table__cell sku__primary">Powai</td>
+                                    <td className="table__cell sku__primary">
+                                        <input className='sku_edit_location' type='text' value={polow} onChange={(e) => setPoLow(e.target.value)} />
+                                    </td>
+                                    <td className="table__cell sku__primary">
+                                        <input className='sku_edit_location' type='text' value={pomid} onChange={(e) => setPoMid(e.target.value)} />
+                                    </td>
+                                    <td className="table__cell sku__primary">
+                                        <input className='sku_edit_location' type='text' value={pohigh} onChange={(e) => setPoHigh(e.target.value)} />
+                                    </td>
+                                </tr>
+                                <tr className="table__row user" >
+                                    <td className="table__cell sku__primary">Exhibition</td>
+                                    <td className="table__cell sku__primary">
+                                        <input className='sku_edit_location' type='text' value={exlow} onChange={(e) => setExLow(e.target.value)} />
+                                    </td>
+                                    <td className="table__cell sku__primary">
+                                        <input className='sku_edit_location' type='text' value={exmid} onChange={(e) => setExMid(e.target.value)} />
+                                    </td>
+                                    <td className="table__cell sku__primary">
+                                        <input className='sku_edit_location' type='text' value={exhigh} onChange={(e) => setExHigh(e.target.value)} />
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <br></br>
+                        <button onClick={updateCommissionTargets}>Update Commission Targets</button>
+                        <br></br>
+                    </>
+                }
+
+                <br></br>
+                <table className="table--commission--table">
+                    <thead className="table__thead">
+                        <tr>
+                            <th scope="col" className="table__th ledger__ledgername">Name</th>
+                            <th scope="col" className="table__th ledger__ledgername">Low</th>
+                            <th scope="col" className="table__th ledger__ledgername">Medium</th>
+                            <th scope="col" className="table__th ledger__ledgername">High</th>
+                            <th scope="col" className="table__th ledger__ledgername">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {commissionTable}
                     </tbody>
                 </table>
             </>
@@ -807,7 +1015,7 @@ const LedgerList = () => {
         <>
             <label className="form__label" htmlFor="report"> Select Report : </label>
             <select id="report" name="report" size="1" value={reportType} onChange={(e) => setReportType(e.target.value)} >
-                {[<option></option>, <option>Ledger</option>, <option>Sales Summary</option>, <option>HSN Report</option>, <option>GST Summary</option>, <option>Attendance</option>]}
+                {[<option></option>, <option>Ledger</option>, <option>Sales Summary</option>, <option>HSN Report</option>, <option>GST Summary</option>, <option>Attendance</option>, <option>Commission</option>]}
             </select>
             <br></br>
             {dateSelector}
@@ -816,6 +1024,7 @@ const LedgerList = () => {
             {(reportType === 'HSN Report') && hsnSummary}
             {(reportType === 'GST Summary') && gstSummary}
             {(reportType === 'Attendance') && attendanceContent}
+            {(reportType === 'Commission') && commissionContent}
 
         </>
     )
