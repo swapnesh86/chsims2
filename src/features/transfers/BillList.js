@@ -50,6 +50,9 @@ const BillList = () => {
     const [newMembership, setNewMembership] = useState('')
     const [existingMember, setExistingMember] = useState('')
 
+    const [updateError, setUpdateError] = useState('')
+    const [errorPopup, setErrorPopup] = useState(false)
+
     const navigate = useNavigate()
 
     const { isAdInCharge, isBaInCharge, isPoInCharge, isShopManager, isInventoryManager, isAdmin, status } = useAuth()
@@ -88,7 +91,9 @@ const BillList = () => {
     })
 
     const [addledger, {
-        isSuccess: addledgerSuccess
+        isSuccess: addledgerSuccess,
+        isError: addledgerisError,
+        error: addledgerError
     }] = useAddNewLedgerMutation()
 
 
@@ -104,11 +109,15 @@ const BillList = () => {
     })
 
     const [updateinventory, {
-        isSuccess: updateInvSuccess
+        isSuccess: updateInvSuccess,
+        isError: updateinvisError,
+        error: updateinvError
     }] = useUpdateInventoryMutation()
 
     const [addinventory, {
-        isSuccess: addInvSuccess
+        isSuccess: addInvSuccess,
+        isError: addinvisError,
+        error: addinvError
     }] = useAddNewInventoryMutation()
 
     const {
@@ -203,6 +212,14 @@ const BillList = () => {
             else navigate(`/dash/inventory/${addedSkus}`)
         }
     }, [addledgerSuccess, addInvSuccess, updateInvSuccess, action, navigate, billNo, addedSkus])
+
+    useEffect(() => {
+        if (addledgerisError || addinvisError || updateinvisError) {
+            let errStr = "Bill No: " + billNo + " --- Added SKUs: " + addedSkus + " --- Ledger: " + addledgerError?.data?.message + " --- Update Inventory: " + updateinvError?.data?.message + " --- Add Inventory: " + addinvError?.data?.message
+            setUpdateError(errStr)
+            setErrorPopup(true)
+        }
+    }, [addledgerisError, addinvisError, updateinvisError, billNo, addledgerError, updateinvError, addinvError, addedSkus])
 
     useEffect(() => {
 
@@ -493,7 +510,7 @@ const BillList = () => {
                         ))
 
                         if (canSave) {
-                            await addledger(ledgerEntry)
+
                             await updateInv(sellerCode, buyerCode, entry.qty)
 
                             if (invId[0]) {
@@ -501,6 +518,7 @@ const BillList = () => {
                             } else {
                                 await addinventory({ barcode: entry.barcode, name: entry.name, size: entry.size, colour: entry.colour, source: updateInvStr.source, cwefstore: updateInvStr.cwefstore, andheri: updateInvStr.andheri, bandra: updateInvStr.bandra, powai: updateInvStr.powai, exhibition: updateInvStr.exhibition, sales: updateInvStr.sales })
                             }
+                            await addledger(ledgerEntry)
                         }
                     })
 
@@ -754,6 +772,11 @@ const BillList = () => {
                     onChange={(e) => setNewMembership(e.target.value)}
                 />
                 <button className="close-btn" onClick={() => setPopupTrigger(false)}>Continue</button>
+            </Popup>
+            <Popup trigger={errorPopup} >
+                <h3>ERROR!! - Please report this to admin</h3>
+                <p>{updateError}</p>
+                <button className="close-btn" onClick={() => setErrorPopup(false)}>Close</button>
             </Popup>
             <h2>{status} Billing: </h2>
             <br></br>
