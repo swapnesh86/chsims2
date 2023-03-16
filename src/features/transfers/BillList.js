@@ -20,6 +20,7 @@ import Popup from "../../components/Popup"
 
 const BillList = () => {
     const [newEntry, setNewEntry] = useState('')
+    const [editPrice, setEditPrice] = useState(false)
     const [newSearch, setNewSearch] = useState('')
     const [bill, setBill] = useState([])
     const [total, setTotal] = useState(0)
@@ -226,7 +227,7 @@ const BillList = () => {
                     memberEntities[id].phone.toLowerCase() === newMembership?.toLowerCase()
                 ))
                 if (mId[0]) {
-                    console.log(memberEntities[mId[0]])
+                    //console.log(memberEntities[mId[0]])
                     setExistingMember(mId[0])
                 } else setExistingMember('')
 
@@ -243,7 +244,7 @@ const BillList = () => {
 
             if (bill.length) {
 
-                if (isSuccess) {
+                if (isSuccess && !editPrice) {
                     const { ids: skuIds, entities: skuEntities } = skus
                     bill.forEach(entry => {
                         if (!entry.return) {
@@ -260,7 +261,7 @@ const BillList = () => {
         }
         updatePrice()
 
-    }, [bill, isSuccess, skus, validMember])
+    }, [bill, isSuccess, skus, validMember, editPrice])
 
 
     useEffect(() => {
@@ -471,7 +472,7 @@ const BillList = () => {
 
                     bill.forEach(async (entry) => {
 
-                        if (entry.barcode.toUpperCase().match('FBFSBIA2001|FBFSCIA2001|FBFSDIA2001') && action === 'Billing') {
+                        if (entry.barcode.toUpperCase().match('FBFSBIA2001|FBFSCIA2001|FBFSDIA2001') && (isAdInCharge || isBaInCharge || isPoInCharge || (action === 'Billing'))) {
                             let membershipDuration = encoding.membership.find(temp => temp.barcode === entry.barcode).duration
                             if (newMembership) {
                                 if (existingMember) {
@@ -523,14 +524,14 @@ const BillList = () => {
                 const handleSubmit = (e) => {
                     e.preventDefault();
                     let myBill = [...bill]
-                    const index = myBill.findIndex((obj) => obj.barcode === newEntry)
+                    const index = myBill.findIndex((obj) => obj.barcode.toLowerCase() === newEntry.toLowerCase())
 
                     if (index !== -1) {
                         myBill[index].qty++
                     }
                     else {
                         let skuId = ids.filter(sku => (entities[sku].Barcode.toLowerCase().includes(newEntry.toLowerCase())))
-                        if (entities[skuId[0]].Barcode.toUpperCase().match('FBFSBIA2001|FBFSCIA2001|FBFSDIA2001') && action === 'Billing') {
+                        if (entities[skuId[0]].Barcode.toUpperCase().match('FBFSBIA2001|FBFSCIA2001|FBFSDIA2001') && (isAdInCharge || isBaInCharge || isPoInCharge || (action === 'Billing'))) {
                             setPopupTrigger(true)
                         }
                         const myMrp = validMember ? entities[skuId[0]].MBR : entities[skuId[0]].MRP
@@ -538,7 +539,7 @@ const BillList = () => {
                         //console.log(skuId)
                         if (skuId[0]) {
                             myBill = [...bill, {
-                                barcode: entities[skuId[0]].Barcode, name: entities[skuId[0]].Name,
+                                barcode: entities[skuId[0]].Barcode.toUpperCase(), name: entities[skuId[0]].Name,
                                 colour: (entities[skuId[0]].Barcode.length === 11 ? (encoding.colour.find(item => item.IDENTITY === entities[skuId[0]].Barcode.substr(5, 1).toUpperCase()).COLOUR) : ""),
                                 size: (entities[skuId[0]].Barcode.length === 11 ? (encoding.sizes.find(item => item.IDENTITY === entities[skuId[0]].Barcode.substr(4, 1).toUpperCase()).SIZE) : ""),
                                 qty: 1, mrp: myMrp, hsn: entities[skuId[0]].HSNCode, gst: myGst, return: 0
@@ -565,7 +566,7 @@ const BillList = () => {
                     setBill(myBill)
                 }
 
-
+                const handleToggleEditPrice = () => setEditPrice(prev => !prev)
 
                 newInvHeaderSection =
                     <form>
@@ -646,7 +647,7 @@ const BillList = () => {
 
 
                 newItemSection =
-                    <div className="add-bill-entry" >
+                    <div className={((isAdmin || isShopManager) && store === 'Exhibition') ? "addedit-bill-entry" : "add-bill-entry"} >
                         <form onSubmit={handleSubmit}>
                             <div className="new-sku">
                                 <input
@@ -659,8 +660,18 @@ const BillList = () => {
 
                             </div>
                         </form>
+                        {((isAdmin || isShopManager) && store === 'Exhibition') && <label htmlFor="persist" className="form__persist">
+                            <input
+                                type="checkbox"
+                                className="form__checkbox"
+                                id="persist"
+                                onChange={handleToggleEditPrice}
+                                checked={editPrice}
+                            />
+                            Edit Price
+                        </label>}
                         <p>Total: {total}</p>
-                        <button disabled={!validQty} onClick={makeBill}>Make Bill</button>
+                        <button disabled={(!validQty || ((isAdInCharge || isBaInCharge || isPoInCharge || (action === 'Billing')) && (!paymentType || !orderType)))} onClick={makeBill}>Make Bill</button>
 
                     </div>
 
@@ -685,10 +696,10 @@ const BillList = () => {
                                             onChange={(e) => updateQty(e.target.value, entry.barcode)}
                                         />
                                     </td>
-                                    {((isAdmin || isShopManager || isInventoryManager) && ((action === 'Billing' && store === 'Exhibition') || (action === 'Inventory' && (source === 'OS' || destination === 'OS'))))
+                                    {((isAdmin || isShopManager || isInventoryManager) && editPrice && ((action === 'Billing' && store === 'Exhibition') || (action === 'Inventory' && (source === 'OS' || destination === 'OS'))))
                                         ? <td className="table__cell bill__entry">
                                             <input
-                                                className='sku_edit_num'
+                                                className='bill_edit_mrp'
                                                 id='qty'
                                                 type='text'
                                                 value={entry.mrp}

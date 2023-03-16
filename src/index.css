@@ -86,6 +86,10 @@ select {
   width: 4em;
 }
 
+.bill_edit_mrp {
+  width: 3.5em;
+}
+
 .sku_edit_time {
   width: 15em;
 }
@@ -547,6 +551,14 @@ tr {
 .add-bill-entry {
   display: grid;
   grid-template-columns: 20em 10em 5em;
+  align-items: center;
+  border-radius: 15px;
+  padding: 0.25em;
+}
+
+.addedit-bill-entry {
+  display: grid;
+  grid-template-columns: 13em 8em 9em 5em;
   align-items: center;
   border-radius: 15px;
   padding: 0.25em;
