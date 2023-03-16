@@ -79,6 +79,7 @@ const LedgerList = () => {
 
     const [ledgerTableContent, setLedgerTableContent] = useState([]);
     const [jsonContent, setJsonContent] = useState([]);
+    const [gstTotals, setGstTotals] = useState();
 
     const [saleTable, setSaleTable] = useState([]);
     const [jsonSalesContent, setJsonSalesContent] = useState([]);
@@ -97,8 +98,12 @@ const LedgerList = () => {
     const [andheri, setAndheri] = useState(false)
     const [bandra, setBandra] = useState(false)
     const [powai, setPowai] = useState(false)
-    const [purchases, setPurchases] = useState(false)
     const [internal, setInternal] = useState(false)
+    const [otherSellers, setOtherSellers] = useState(false)
+    const [internalProduction, setInternalProduction] = useState(false)
+    const [chpurchases, setChPurchases] = useState(false)
+    const [chreturns, setChReturns] = useState(false)
+
 
     const [three, setThree] = useState(false)
     const [five, setFive] = useState(false)
@@ -294,6 +299,28 @@ const LedgerList = () => {
     }, [isSuccess, dateBegin, dateEnd, billNoSearch, ledger, skuSuccess, skus, id, gstSearch, reportType])
 
     useEffect(() => {
+        if (jsonContent.length) {
+            let myGstTotals = [...jsonContent.reduce((r, o) => {
+                const key = 'total'
+                const item = r.get(key) || Object.assign({}, o, {
+                    gst3tot: 0, gst5tot: 0, gst12tot: 0, gst18tot: 0,
+                })
+
+                if (o.gst === 3) item.gst3tot += o.Price
+                if (o.gst === 5) item.gst5tot += o.Price
+                if (o.gst === 12) item.gst12tot += o.Price
+                if (o.gst === 18) item.gst18tot += o.Price
+
+                return r.set(key, item)
+
+            }, new Map()).values()]
+
+            setGstTotals(myGstTotals[0])
+
+        }
+    }, [jsonContent])
+
+    useEffect(() => {
 
         if (attendanceSuccess) {
 
@@ -392,15 +419,18 @@ const LedgerList = () => {
 
     useEffect(() => {
         let tempstr = ''
-        if (andheri) tempstr = tempstr + 'CHAD'
+        if (andheri) tempstr = 'CHAD'
         if (bandra) tempstr = tempstr + (tempstr !== '' ? '|CHBA' : 'CHBA')
         if (powai) tempstr = tempstr + (tempstr !== '' ? '|CHPO' : 'CHPO')
-        if (purchases) tempstr = tempstr + 'CHDB|CHOS|CHDN|CHIP'
-        if (internal) tempstr = tempstr + 'CHIN'
+        if (chpurchases) tempstr = tempstr + (tempstr !== '' ? '|CHDB' : 'CHDB')
+        if (chreturns) tempstr = tempstr + (tempstr !== '' ? '|CHDN' : 'CHDN')
+        if (otherSellers) tempstr = tempstr + (tempstr !== '' ? '|CHOS' : 'CHOS')
+        if (internalProduction) tempstr = tempstr + (tempstr !== '' ? '|CHIP' : 'CHIP')
+        if (internal) tempstr = tempstr + (tempstr !== '' ? '|CHIN' : 'CHIN')
 
         setBillNoSearch(tempstr)
 
-    }, [andheri, bandra, powai, purchases, internal])
+    }, [andheri, bandra, powai, chpurchases, chreturns, otherSellers, internalProduction, internal])
 
     useEffect(() => {
         let tempstr = ''
@@ -491,99 +521,161 @@ const LedgerList = () => {
 
         const marginLeft = 4;
         let doc
+        let topcontent
+        let content
+        const chregaddress = "D1, Achanak Colony,\nMahakali Caves Road,\nAndheri East, Mumbai 400 093."
+        const chaddress = "D.P. Road No. 11, MIDC,\nOff Mahakali Caves Road,\nAndheri East, Mumbai 400 093.\nPh: 2832 4692 / 2837 3096\njohnyjoseph@creativehandicrafts.org"
+        const chgst = "27AAATC0086C1Z7"
+        const cwefaddress = "D.P. Road No. 11, MIDC,\nOff Mahakali Caves Road,\nAndheri East, Mumbai 400 093.\n"
+        const cwefgst = "27AAICC4194N1Z2"
 
-        let headers
-        let topheader
-        let data
-        let topdata
-        let footers
         let sidemargin = 30
+
         if (reportType === 'Ledger') {
             if (!customerBill) {
-                headers = [["Date", "BillNo", "Barcode", "Name", "Qty", "Price", "HSN"]]
-                data = jsonContent.map(entry => [entry.Date, entry.BillNo, entry.Barcode, entry.name, entry.Qty, entry.Price, entry.HSN])
                 doc = new jsPDF('portrait', 'pt', 'A4');
-                doc.setFontSize(11);
+                doc.setFontSize(9);
+                const tempArr = [andheri, bandra, powai, internal, chpurchases, chreturns, otherSellers, internalProduction]
+                const count = tempArr.filter(Boolean).length
+                let headstr = "NA"
+                let billtype = "NA"
+                let sellerRegaddr = "NA"
+                let sellerAddr = "NA"
+                let sellerGst = "NA"
+                let buyerAddr = "NA"
+                let buyerGst = "NA"
+                if (count === 1) {
+                    if (chpurchases) {
+                        headstr = "Creative Handicrafts"; billtype = "TAX INVOICE: CH to CWEF"; sellerRegaddr = chregaddress;
+                        sellerAddr = chaddress; buyerAddr = cwefaddress; sellerGst = chgst; buyerGst = cwefgst;
+                    }
+                    else if (chreturns) {
+                        headstr = "Creative Women's Empowerment Foundation"; billtype = "Debit Note: CWEF to CH"; sellerRegaddr = cwefaddress; sellerAddr = cwefaddress;
+                        buyerAddr = chaddress; sellerGst = cwefgst; buyerGst = chgst;
+                    }
+                    topcontent = {
+                        startY: 30,
+                        head: [
+                            [{ content: headstr, colSpan: 3, styles: { halign: 'center' } }],
+                            [{ content: `GSTIN: ${sellerGst}`, colSpan: 3, styles: { halign: 'center', fillColor: [255, 255, 255], textColor: [0, 0, 0] } }],
+                            [{ content: billtype, colSpan: 3, styles: { halign: 'center', fillColor: [255, 255, 255], textColor: [0, 0, 0] } }],
+                            ["Registered Address", "Correspondence Address", "Bill to Party"]
+                        ],
+                        body: [
+                            [sellerRegaddr, sellerAddr, `${buyerAddr}\nGSTIN: ${buyerGst}`]
+                        ],
+                        margin: { top: 10, right: sidemargin, bottom: 0, left: sidemargin },
+                        styles: { fontSize: 9 },
+                        headStyles: { lineWidth: 0.2, lineColor: [73, 138, 159] },
+                    };
+                }
+
+                content = {
+                    startY: 190,
+                    head: [["Date", "BillNo", "Barcode", "Name", "HSN", "Rate", "Qty", "GST", "Taxable", "CGST", "SGST", "Price",]],
+                    body: jsonContent.map(entry => [entry.Date, entry.BillNo, entry.Barcode, entry.name, entry.HSN, (entry.Price / entry.Qty), entry.Qty, entry.gst, (entry.Price * (1 - entry.gst / 100)).toFixed(2), (entry.Price * entry.gst / 200).toFixed(2), (entry.Price * entry.gst / 200).toFixed(2), entry.Price]),
+                    foot: [
+                        [{ content: "Total @3", colSpan: 8 }, { content: (gstTotals.gst3tot * 0.97).toFixed(2) }, { content: (gstTotals.gst3tot * 0.015).toFixed(2) }, { content: (gstTotals.gst3tot * 0.015).toFixed(2) }, { content: gstTotals.gst3tot }],
+                        [{ content: "Total @5", colSpan: 8 }, { content: (gstTotals.gst5tot * 0.95).toFixed(2) }, { content: (gstTotals.gst5tot * 0.025).toFixed(2) }, { content: (gstTotals.gst5tot * 0.025).toFixed(2) }, { content: gstTotals.gst5tot }],
+                        [{ content: "Total @12", colSpan: 8 }, { content: (gstTotals.gst12tot * 0.88).toFixed(2) }, { content: (gstTotals.gst12tot * 0.06).toFixed(2) }, { content: (gstTotals.gst12tot * 0.06).toFixed(2) }, { content: gstTotals.gst12tot }],
+                        [{ content: "Total @18", colSpan: 8 }, { content: (gstTotals.gst18tot * 0.82).toFixed(2) }, { content: (gstTotals.gst18tot * 0.09).toFixed(2) }, { content: (gstTotals.gst18tot * 0.09).toFixed(2) }, { content: gstTotals.gst18tot }],
+                        [{ content: "Total", colSpan: 8 },
+                        { content: ((gstTotals.gst18tot * 0.82) + (gstTotals.gst3tot * 0.97) + (gstTotals.gst5tot * 0.95) + (gstTotals.gst12tot * 0.88)).toFixed(2) },
+                        { content: ((gstTotals.gst18tot * 0.09) + (gstTotals.gst3tot * 0.015) + (gstTotals.gst5tot * 0.025) + (gstTotals.gst12tot * 0.06)).toFixed(2) },
+                        { content: ((gstTotals.gst18tot * 0.09) + (gstTotals.gst3tot * 0.015) + (gstTotals.gst5tot * 0.025) + (gstTotals.gst12tot * 0.06)).toFixed(2) },
+                        { content: (gstTotals.gst18tot + gstTotals.gst3tot + gstTotals.gst5tot + gstTotals.gst12tot) }],
+                    ],
+                    margin: { top: 10, right: sidemargin, bottom: 0, left: sidemargin },
+                    styles: { fontSize: 9, fillColor: [255, 255, 255], textColor: [0, 0, 0], lineWidth: 0.1, lineColor: [125, 125, 125] },
+                    //bodyStyles: { lineWidth: 0.2, lineColor: [73, 138, 159] },
+                    showFoot: "lastPage",
+                };
             } else {
                 let billlength = (jsonContent.length * 16.5 + 90)
                 doc = new jsPDF('p', 'mm', [billlength, 90]);
+                let sidemargin = 4
+                topcontent = {
+                    startY: 6,
+                    head: [[{ content: "Creative Womens Empowerment Foundation", colSpan: 2, styles: { halign: 'center', fillColor: [255, 255, 255], textColor: [0, 0, 0] } }]],
+                    body: [["Date: ", jsonContent[0].Date], ["Time: ", jsonContent[0].time], ["Customer: ", jsonContent[0].buyer], ["Bill No.: ", jsonContent[0].BillNo]],
+                    margin: { top: 10, right: sidemargin, bottom: 0, left: sidemargin },
+                    styles: { fontSize: 16 },
+                };
+                let total = 0
+                jsonContent.forEach(item => { total += item.Price })
+                content = {
+                    startY: 70,
+                    head: [[
+                        { content: "Name", styles: { fillColor: [255, 255, 255], textColor: [0, 0, 0] } },
+                        { content: "Qty", styles: { fillColor: [255, 255, 255], textColor: [0, 0, 0] } },
+                        { content: "Price", styles: { fillColor: [255, 255, 255], textColor: [0, 0, 0] } },
+                    ]],
+                    body: jsonContent.map(entry => [entry.name, entry.Qty, entry.Price]),
+                    foot: [[
+                        { content: "Total", colSpan: 2, styles: { fillColor: [255, 255, 255], textColor: [0, 0, 0] } },
+                        { content: total, styles: { fillColor: [255, 255, 255], textColor: [0, 0, 0] } }
+                    ]],
+                    margin: { top: 10, right: sidemargin, bottom: 0, left: sidemargin },
+                    styles: { fontSize: 16 },
+                };
                 doc.setFontSize(16);
-                doc.text(`Bill No.: ${jsonContent[0].BillNo}`, marginLeft, 10);
-                doc.text(`Date: ${jsonContent[0].Date}`, marginLeft, 16);
                 doc.text("Conditions:", marginLeft, billlength - 20);
                 doc.text("  1. Non-Refundable", marginLeft, billlength - 14);
                 doc.text("  2. Exchange only within 7 days", marginLeft, billlength - 8);
-                headers = [[
-                    //{ content: "Barcode", styles: { fillColor: [255, 255, 255], textColor: [0, 0, 0] } },
-                    { content: "Name", styles: { fillColor: [255, 255, 255], textColor: [0, 0, 0] } },
-                    { content: "Qty", styles: { fillColor: [255, 255, 255], textColor: [0, 0, 0] } },
-                    { content: "Price", styles: { fillColor: [255, 255, 255], textColor: [0, 0, 0] } },
-                ]]
-                //data = jsonContent.map(entry => [entry.Barcode, entry.name, entry.Qty, entry.Price])
-                data = jsonContent.map(entry => [entry.name, entry.Qty, entry.Price])
-                let total = 0
-                jsonContent.forEach(item => {
-                    total += item.Price
-                })
-                footers = [[
-                    { content: "Total", colSpan: 2, styles: { fillColor: [255, 255, 255], textColor: [0, 0, 0] } },
-                    { content: total, styles: { fillColor: [255, 255, 255], textColor: [0, 0, 0] } }
-                ]]
-                topheader = [[{ content: "Creative Womens Empowerment Foundation", colSpan: 2, styles: { halign: 'center', fillColor: [255, 255, 255], textColor: [0, 0, 0] } }]]
-                topdata = [["Date: ", jsonContent[0].Date], ["Time: ", jsonContent[0].time], ["Customer: ", jsonContent[0].buyer], ["Bill No.: ", jsonContent[0].BillNo]]
-                sidemargin = 4
+
             }
         } else if (reportType === 'Sales Summary') {
-            headers = [["Date", "Ad-Card", "Ad-Cash", "Ad-UPI", "Ad-Online", "Ad-Total",
-                "Ba-Card", "Ba-Cash", "Ba-UPI", "Ba-Online", "Ba-Total",
-                "Po-Card", "Po-Cash", "Po-UPI", "Po-Online", "Po-Total",
-                "Ex-Card", "Ex-Cash", "Ex-UPI", "Ex-Online", "Ex-Total",
-            ]]
-            data = jsonSalesContent.map(entry => [entry.date, entry.adcard, entry.adcash, entry.adupi, entry.adonline, entry.adtotal,
-            entry.bacard, entry.bacash, entry.baupi, entry.baonline, entry.batotal,
-            entry.pocard, entry.pocash, entry.poupi, entry.poonline, entry.pototal,
-            entry.excard, entry.excash, entry.exupi, entry.exonline, entry.extotal,
-            ])
             doc = new jsPDF('landscape', 'pt', 'A4');
-            doc.setFontSize(11);
+            content = {
+                startY: 70,
+                head: [
+                    [{ content: "" }, { content: "Andheri", colSpan: 5 }, { content: "Bandra", colSpan: 5 }, { content: "Powai", colSpan: 5 }, { content: "Exhibition", colSpan: 5 }],
+                    ["Date", "Card", "Cash", "UPI", "Online", "Total",
+                        "Card", "Cash", "UPI", "Online", "Total",
+                        "Card", "Cash", "UPI", "Online", "Total",
+                        "Card", "Cash", "UPI", "Online", "Total",
+                    ]
+                ],
+                body: jsonSalesContent.map(entry => [entry.Date, entry.adcard, entry.adcash, entry.adupi, entry.adonline, entry.adtotal,
+                entry.bacard, entry.bacash, entry.baupi, entry.baonline, entry.batotal,
+                entry.pocard, entry.pocash, entry.poupi, entry.poonline, entry.pototal,
+                entry.excard, entry.excash, entry.exupi, entry.exonline, entry.extotal,
+                ]),
+                margin: { top: 10, right: sidemargin, bottom: 0, left: sidemargin },
+                styles: { fontSize: 9 },
+                bodyStyles: { lineWidth: 0.2, lineColor: [73, 138, 159] },
+            };
         } else if (reportType === 'HSN Report') {
-            headers = [["HSN", "GST", "Description", "Quantity", "Price", "Taxable", "CGST", "SGST"
+            let headers = [["HSN", "GST", "Description", "Quantity", "Price", "Taxable", "CGST", "SGST"
             ]]
-            data = jsonHsnContent.map(entry => [entry.HSN, entry.gst, entry.description, entry.Qty, entry.Price, (entry.Price * (1 - entry.gst / 100)).toFixed(2),
+            let data = jsonHsnContent.map(entry => [entry.HSN, entry.gst, entry.description, entry.Qty, entry.Price, (entry.Price * (1 - entry.gst / 100)).toFixed(2),
             (entry.Price * entry.gst / 200).toFixed(2), (entry.Price * entry.gst / 200).toFixed(2)
             ])
             doc = new jsPDF('portrait', 'pt', 'A4');
             doc.setFontSize(11);
+            content = {
+                startY: 70, head: headers, body: data,
+                margin: { top: 10, right: sidemargin, bottom: 0, left: sidemargin },
+                styles: { fontSize: 11 },
+                bodyStyles: { lineWidth: 0.2, lineColor: [73, 138, 159] },
+            };
         } else if (reportType === 'GST Summary') {
-            headers = [["Date", "GST", "Customer", "Bill No.", "Product", "Taxable", "CGST", "SGST", "Price"
+            let headers = [["Date", "GST", "Customer", "Bill No.", "Product", "Taxable", "CGST", "SGST", "Price"
             ]]
-            data = jsonGstContent.map(entry => [entry.Date, entry.gst, entry.Customer, entry.BillNo, entry.name, (entry.Price * (1 - entry.gst / 100)).toFixed(2),
+            let data = jsonGstContent.map(entry => [entry.Date, entry.gst, entry.Customer, entry.BillNo, entry.name, (entry.Price * (1 - entry.gst / 100)).toFixed(2),
             (entry.Price * entry.gst / 200).toFixed(2), (entry.Price * entry.gst / 200).toFixed(2), entry.Price
             ])
             doc = new jsPDF('portrait', 'pt', 'A4');
             doc.setFontSize(11);
+            content = {
+                startY: 70, head: headers, body: data,
+                margin: { top: 10, right: sidemargin, bottom: 0, left: sidemargin },
+                styles: { fontSize: 11 },
+                bodyStyles: { lineWidth: 0.2, lineColor: [73, 138, 159] },
+            };
         }
 
-
-        let content = {
-            startY: 70,
-            head: headers,
-            body: data,
-            foot: footers,
-            margin: { top: 10, right: sidemargin, bottom: 0, left: sidemargin },
-            styles: { fontSize: 16 },
-        };
-
-        let topcontent = {
-            startY: 6,
-            head: topheader,
-            body: topdata,
-            margin: { top: 10, right: sidemargin, bottom: 0, left: sidemargin },
-            styles: { fontSize: 16 },
-        };
-
-        //doc.text("Report", marginLeft, 40);
-        if (customerBill) doc.autoTable(topcontent);
+        if (topcontent) doc.autoTable(topcontent);
         doc.autoTable(content);
         doc.save("report.pdf")
 
@@ -600,8 +692,11 @@ const LedgerList = () => {
     const handleToggleAndheri = () => setAndheri(prev => !prev)
     const handleToggleBandra = () => setBandra(prev => !prev)
     const handleTogglePowai = () => setPowai(prev => !prev)
-    const handleTogglePurchases = () => setPurchases(prev => !prev)
+    const handleToggleOtherSellers = () => setOtherSellers(prev => !prev)
+    const handleToggleChPurchases = () => setChPurchases(prev => !prev)
+    const handleToggleChReturns = () => setChReturns(prev => !prev)
     const handleToggleInternal = () => setInternal(prev => !prev)
+    const handleToggleInternalProduction = () => setInternalProduction(prev => !prev)
     const handleToggleThree = () => setThree(prev => !prev)
     const handleToggleFive = () => setFive(prev => !prev)
     const handleToggleTwelve = () => setTwelve(prev => !prev)
@@ -956,21 +1051,52 @@ const LedgerList = () => {
                             type="checkbox"
                             className="form__checkbox"
                             id="persist"
-                            onChange={handleTogglePurchases}
-                            checked={purchases}
+                            onChange={handleToggleInternal}
+                            checked={internal}
                         />
-                        Purchases
+                        Internal
                     </label>
                     <label htmlFor="persist" className="form__persist">
                         <input
                             type="checkbox"
                             className="form__checkbox"
                             id="persist"
-                            onChange={handleToggleInternal}
-                            checked={internal}
+                            onChange={handleToggleChPurchases}
+                            checked={chpurchases}
                         />
-                        Internal
+                        CH Purchases
                     </label>
+                    <label htmlFor="persist" className="form__persist">
+                        <input
+                            type="checkbox"
+                            className="form__checkbox"
+                            id="persist"
+                            onChange={handleToggleChReturns}
+                            checked={chreturns}
+                        />
+                        CH Returns
+                    </label>
+                    <label htmlFor="persist" className="form__persist">
+                        <input
+                            type="checkbox"
+                            className="form__checkbox"
+                            id="persist"
+                            onChange={handleToggleOtherSellers}
+                            checked={otherSellers}
+                        />
+                        Other Sellers
+                    </label>
+                    <label htmlFor="persist" className="form__persist">
+                        <input
+                            type="checkbox"
+                            className="form__checkbox"
+                            id="persist"
+                            onChange={handleToggleInternalProduction}
+                            checked={internalProduction}
+                        />
+                        Internal Production
+                    </label>
+
                 </div>
                 <br></br>
                 <p>Search: </p>

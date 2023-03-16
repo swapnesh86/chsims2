@@ -574,7 +574,7 @@ tr {
 
 .ledger--selector {
   display: grid;
-  grid-template-columns: 8em 8em 8em 9em 8em;
+  grid-template-columns: 11em 11em 11em 11em;
   align-items: center;
   border-radius: 15px;
   padding: 0.25em;
