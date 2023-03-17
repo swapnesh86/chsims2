@@ -218,7 +218,7 @@ const BillList = () => {
                     memberEntities[id].phone.toLowerCase() === membership?.toLowerCase()
                 ))
                 if (mId[0]) {
-                    const dayspast = (new Date() - new Date(memberEntities[mId].updatedAt)) / 86400000
+                    const dayspast = Number((new Date() - new Date(memberEntities[mId].time)) / 86400000)
                     if (dayspast > memberEntities[mId].duration) setValidMember(false)
                     else setValidMember(true)
                 } else setValidMember(false)
