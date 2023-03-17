@@ -37,7 +37,7 @@ function App() {
               <Route path="dash" element={<DashLayout />}>
                 <Route index element={<Welcome />} />
                 <Route path="skus">
-                  <Route index element={<SearchSkuList />} />
+                  <Route path=":id" element={<SearchSkuList />} />
                   <Route element={<RequireAuth allowedRoles={[ROLES.Admin, ROLES.SkuManager]} />}>
                     <Route path="new" element={<NewSku />} />
                   </Route>

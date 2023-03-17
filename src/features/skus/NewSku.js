@@ -2,7 +2,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faSave } from "@fortawesome/free-solid-svg-icons"
 import { useState, useEffect } from "react"
 import { encoding } from '../../data/encoding'
-import { useAddNewSkuMutation, useGetSkusQuery } from './skusApiSlice'
+import { useAddNewSkuinvMutation, useGetSkuinvQuery } from '../skuinv/skuinvApiSlice'
 import { useNavigate } from "react-router-dom"
 
 const NAME_REGEX = /^[0-9A-z ]{6,20}$/
@@ -15,11 +15,11 @@ const NewSku = () => {
     isSuccess,
     isError,
     error
-  }] = useAddNewSkuMutation()
+  }] = useAddNewSkuinvMutation()
 
   const {
     data: skus,
-  } = useGetSkusQuery(undefined, {
+  } = useGetSkuinvQuery(undefined, {
     pollingInterval: 30000,
     refetchOnFocus: true,
     refetchOnMountOrArgChange: true
@@ -39,6 +39,8 @@ const NewSku = () => {
   const [name, setName] = useState('')
   const [mrp, setMrp] = useState(0)
   const [mbr, setMbr] = useState(0)
+  const [addedskus, setAddedSkus] = useState('')
+
 
   const [maxDid, setmaxDid] = useState('NA')
   const [maxScid, setmaxScid] = useState('NA')
@@ -63,9 +65,9 @@ const NewSku = () => {
     if (isSuccess) {
       setMrp(0)
       setMbr()
-      navigate('/dash/skus')
+      navigate(`/dash/skus/${addedskus}`)
     }
-  }, [isSuccess, navigate])
+  }, [isSuccess, navigate, addedskus])
 
   const brandoptions = [<option></option>, Object.values(encoding.brands).map(brand => {
     return (<option key={brand.IDENTITY} value={brand.BRAND} > {brand.BRAND}</option >)
@@ -102,12 +104,13 @@ const NewSku = () => {
 
       const didRegex = `${encoding.brands.find(temp => { return temp.BRAND === brand[0]; }).IDENTITY}${encoding.segments.find(temp => { return temp.SEGMENT === segment[0]; }).IDENTITY}${encoding.categories.find(temp => { return temp.CATEGORY === category[0]; }).IDENTITY}...${encoding.collections.find(temp => { return temp.COLLECTION === collection; }).IDENTITY}..`
 
-      let filteredIds = ids.filter(sku => entities[sku].SKU.match(didRegex))
+      let filteredIds = ids.filter(sku => entities[sku].barcode.match(didRegex))
 
       let maxdid = 0
 
       filteredIds.forEach(id => {
-        let tempmaxdid = Number(entities[id].SKU.substr(9, 2))
+        //let tempmaxdid = Number(entities[id].SKU.substr(9, 2))
+        let tempmaxdid = (entities[id].barcode.length === 11) ? Number(entities[id].barcode.substr(9, 2)) : 0
         maxdid = (maxdid < tempmaxdid) ? tempmaxdid : maxdid
       })
 
@@ -120,12 +123,13 @@ const NewSku = () => {
 
       const scidRegex = `${encoding.brands.find(temp => { return temp.BRAND === brand[0]; }).IDENTITY}${encoding.segments.find(temp => { return temp.SEGMENT === segment[0]; }).IDENTITY}${encoding.categories.find(temp => { return temp.CATEGORY === category[0]; }).IDENTITY}.${encoding.colour.find(temp => { return temp.COLOUR === colour; }).IDENTITY}.${encoding.collections.find(temp => { return temp.COLLECTION === collection; }).IDENTITY}${did}`
 
-      let filteredIds = ids.filter(sku => entities[sku].SKU.match(scidRegex))
+      let filteredIds = ids.filter(sku => entities[sku].barcode.match(scidRegex))
 
       let maxscid = 64
 
       filteredIds.forEach(id => {
-        let tempmaxscid = entities[id].SKU.charCodeAt(6)
+        //let tempmaxscid = entities[id].barcode.charCodeAt(6)
+        let tempmaxscid = (entities[id].barcode.length === 11) ? (entities[id].barcode.charCodeAt(6)) : 64
         maxscid = (maxscid < tempmaxscid) ? tempmaxscid : maxscid
       })
 
@@ -196,14 +200,19 @@ const NewSku = () => {
   const onAddSkuClicked = async (e) => {
     e.preventDefault()
 
+    let myaddedskus = ''
+    size.forEach(element => {
+      const barcode = `${encoding.brands.find(temp => { return temp.BRAND === brand[0]; }).IDENTITY}${encoding.segments.find(temp => { return temp.SEGMENT === segment[0]; }).IDENTITY}${encoding.categories.find(temp => { return temp.CATEGORY === category[0]; }).IDENTITY}${encoding.sizes.find(temp => { return temp.SIZE === element; }).IDENTITY}${encoding.colour.find(temp => { return temp.COLOUR === colour; }).IDENTITY}${subcolour}${encoding.collections.find(temp => { return temp.COLLECTION === collection; }).IDENTITY}${did}`
+      myaddedskus = myaddedskus ? (myaddedskus + '-' + barcode) : barcode
+    });
+    setAddedSkus(myaddedskus)
+
     size.forEach(async element => {
 
       const barcode = `${encoding.brands.find(temp => { return temp.BRAND === brand[0]; }).IDENTITY}${encoding.segments.find(temp => { return temp.SEGMENT === segment[0]; }).IDENTITY}${encoding.categories.find(temp => { return temp.CATEGORY === category[0]; }).IDENTITY}${encoding.sizes.find(temp => { return temp.SIZE === element; }).IDENTITY}${encoding.colour.find(temp => { return temp.COLOUR === colour; }).IDENTITY}${subcolour}${encoding.collections.find(temp => { return temp.COLLECTION === collection; }).IDENTITY}${did}`
 
-      const sku = barcode
-
       if (canSave) {
-        await addNewSku({ Barcode: barcode, SKU: sku, Name: name, MRP: mrp, MBR: mbr, HSNCode: Number(HSNCode) })
+        await addNewSku({ barcode: barcode, name: name, MRP: mrp, MBR: mbr, HSNCode: Number(HSNCode) })
       }
     });
 

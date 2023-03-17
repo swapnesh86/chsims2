@@ -1,5 +1,4 @@
 import { useGetLedgerQuery } from "./ledgerApiSlice"
-import { useGetSkusQuery } from "../skus/skusApiSlice"
 import Ledger from "./Ledger"
 import SalesSummary from "./SalesSummary"
 import HsnSummary from "./HsnSummary"
@@ -36,15 +35,6 @@ const LedgerList = () => {
         error
     } = useGetLedgerQuery('ledgerList', {
         pollingInterval: 60000,
-        refetchOnFocus: true,
-        refetchOnMountOrArgChange: true
-    })
-
-    const {
-        data: skus,
-        isSuccess: skuSuccess
-    } = useGetSkusQuery('skuList', {
-        pollingInterval: 120000,
         refetchOnFocus: true,
         refetchOnMountOrArgChange: true
     })
@@ -296,7 +286,7 @@ const LedgerList = () => {
 
         }
 
-    }, [isSuccess, dateBegin, dateEnd, billNoSearch, ledger, skuSuccess, skus, id, gstSearch, reportType])
+    }, [isSuccess, dateBegin, dateEnd, billNoSearch, ledger, id, gstSearch, reportType])
 
     useEffect(() => {
         if (jsonContent.length) {
@@ -593,30 +583,26 @@ const LedgerList = () => {
             } else {
                 let billlength = (jsonContent.length * 16.5 + 90)
                 doc = new jsPDF('p', 'mm', [billlength, 90]);
+                doc.setFillColor(255, 255, 255);
                 let sidemargin = 4
                 topcontent = {
                     startY: 6,
-                    head: [[{ content: "Creative Womens Empowerment Foundation", colSpan: 2, styles: { halign: 'center', fillColor: [255, 255, 255], textColor: [0, 0, 0] } }]],
+                    head: [[{ content: "Creative Womens Empowerment Foundation", colSpan: 2, styles: { halign: 'center', } }]],
                     body: [["Date: ", jsonContent[0].Date], ["Time: ", jsonContent[0].time], ["Customer: ", jsonContent[0].buyer], ["Bill No.: ", jsonContent[0].BillNo]],
                     margin: { top: 10, right: sidemargin, bottom: 0, left: sidemargin },
-                    styles: { fontSize: 16 },
+                    styles: { fontSize: 16, fontStyle: 'bold', fillColor: [255, 255, 255], textColor: [0, 0, 0], lineWidth: 0.2, lineColor: [0, 0, 0] },
+                    theme: 'grid'
                 };
                 let total = 0
                 jsonContent.forEach(item => { total += item.Price })
                 content = {
                     startY: 70,
-                    head: [[
-                        { content: "Name", styles: { fillColor: [255, 255, 255], textColor: [0, 0, 0] } },
-                        { content: "Qty", styles: { fillColor: [255, 255, 255], textColor: [0, 0, 0] } },
-                        { content: "Price", styles: { fillColor: [255, 255, 255], textColor: [0, 0, 0] } },
-                    ]],
+                    head: [["Name", "Qty", "Price"]],
                     body: jsonContent.map(entry => [entry.name, entry.Qty, entry.Price]),
-                    foot: [[
-                        { content: "Total", colSpan: 2, styles: { fillColor: [255, 255, 255], textColor: [0, 0, 0] } },
-                        { content: total, styles: { fillColor: [255, 255, 255], textColor: [0, 0, 0] } }
-                    ]],
+                    foot: [[{ content: "Total", colSpan: 2 }, { content: total }]],
                     margin: { top: 10, right: sidemargin, bottom: 0, left: sidemargin },
-                    styles: { fontSize: 16 },
+                    styles: { fontSize: 16, fontStyle: 'bold', fillColor: [255, 255, 255], textColor: [0, 0, 0], lineWidth: 0.2, lineColor: [0, 0, 0] },
+                    theme: 'grid'
                 };
                 doc.setFontSize(16);
                 doc.text("Conditions:", marginLeft, billlength - 20);

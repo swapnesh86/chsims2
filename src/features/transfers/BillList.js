@@ -1,4 +1,3 @@
-import { useGetSkusQuery } from "../skus/skusApiSlice"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faTrash } from '@fortawesome/free-solid-svg-icons'
 import { useState, useEffect } from "react"
@@ -6,11 +5,14 @@ import { encoding } from "../../data/encoding"
 import useAuth from "../../hooks/useAuth";
 import { getGst } from "../utilities/GstCalc"
 
-import { useGetBillNosQuery, useUpdateBillNoMutation, categorySelect, finyearNow, pad } from "./billNoApiSlice"
 import { useGetLedgerQuery, useAddNewLedgerMutation } from "../ledger/ledgerApiSlice"
-
-import { useGetInventoryQuery, useAddNewInventoryMutation, useUpdateInventoryMutation } from "../inventory/inventoryApiSlice"
+import { useGetBillNosQuery, useUpdateBillNoMutation, categorySelect, finyearNow, pad } from "./billNoApiSlice"
 import { useGetMembersQuery, useAddNewMemberMutation, useUpdateMemberMutation } from "../membership/membersApiSlice"
+
+//import { useGetSkusQuery } from "../skus/skusApiSlice"
+//import { useGetInventoryQuery, useAddNewInventoryMutation, useUpdateInventoryMutation } from "../inventory/inventoryApiSlice"
+import { useGetSkuinvQuery, useUpdateSkuinvMutation } from '../skuinv/skuinvApiSlice';
+
 
 import { useAddNewEmailMutation } from "./emailApiSlice"
 import ReturnLedger from "./ReturnLedger"
@@ -58,18 +60,6 @@ const BillList = () => {
     const { isAdInCharge, isBaInCharge, isPoInCharge, isShopManager, isInventoryManager, isAdmin, status } = useAuth()
 
     const {
-        data: skus,
-        isLoading,
-        isSuccess,
-        isError,
-        error
-    } = useGetSkusQuery('skuList', {
-        pollingInterval: 60000,
-        refetchOnFocus: true,
-        refetchOnMountOrArgChange: true
-    })
-
-    const {
         data: billnos,
         isLoading: billLoading,
         isSuccess: billSucecss
@@ -96,29 +86,23 @@ const BillList = () => {
         error: addledgerError
     }] = useAddNewLedgerMutation()
 
-
-
     const {
-        data: inventory,
-        isLoading: invLoading,
-        isSuccess: invGetSucecss
-    } = useGetInventoryQuery('inventoryList', {
+        data: skuinv,
+        isLoading: SkuinvisLoading,
+        isSuccess: SkuinvisSuccess,
+        isError: SkuinvisError,
+        error: SkuinvError
+    } = useGetSkuinvQuery('skuinvList', {
         pollingInterval: 60000,
         refetchOnFocus: true,
         refetchOnMountOrArgChange: true
     })
 
-    const [updateinventory, {
-        isSuccess: updateInvSuccess,
-        isError: updateinvisError,
-        error: updateinvError
-    }] = useUpdateInventoryMutation()
-
-    const [addinventory, {
-        isSuccess: addInvSuccess,
-        isError: addinvisError,
-        error: addinvError
-    }] = useAddNewInventoryMutation()
+    const [updateskuinv, {
+        isSuccess: updateSkuinvSuccess,
+        isError: updateSkuinvisError,
+        error: updateSkuinvError
+    }] = useUpdateSkuinvMutation()
 
     const {
         data: members,
@@ -157,7 +141,7 @@ const BillList = () => {
             let localSource
             if (isAdInCharge || isPoInCharge || isBaInCharge) localSource = status.toLowerCase()
             else if (isAdmin || isShopManager || isInventoryManager) {
-                if (action === 'Billing' && orderType !== 'Exchange') localSource = store.toLowerCase()
+                if (action === 'Billing') localSource = store.toLowerCase()
                 else if (action === 'Internal') localSource = source.toLowerCase()
                 else if (action === 'Inventory' && source === 'CWEFStore') localSource = 'cwefstore'
                 else if (action === 'Inventory') localSource = 'source'
@@ -166,15 +150,16 @@ const BillList = () => {
         }
 
         const checkQty = () => {
-            const source = identifySource()
-            if (invGetSucecss) {
 
-                const { ids: invIds, entities: invEntities } = inventory
+            if (SkuinvisSuccess) {
+
+                const { ids: invIds, entities: invEntities } = skuinv
 
                 let qtyArr = []
                 if (bill.length) {
                     bill.forEach(entry => {
-                        let id = invIds.find(temp => invEntities[temp].barcode.toLowerCase() === entry.barcode.toLowerCase())
+                        let source = (entry.return === 1) ? 'sales' : identifySource()
+                        const id = invIds.find(temp => invEntities[temp].barcode.toLowerCase() === entry.barcode.toLowerCase())
                         if (source === 'source') setValidQty(true)
                         else {
                             if (id) {
@@ -191,7 +176,7 @@ const BillList = () => {
         }
         checkQty()
 
-    }, [bill, inventory, action, isAdInCharge, isBaInCharge, isPoInCharge, isAdmin, isInventoryManager, isShopManager, orderType, source, status, store, invGetSucecss])
+    }, [bill, skuinv, action, isAdInCharge, isBaInCharge, isPoInCharge, isAdmin, isInventoryManager, isShopManager, orderType, source, status, store, SkuinvisSuccess])
 
     useEffect(() => {
         let myfactor = 1
@@ -207,19 +192,19 @@ const BillList = () => {
     }, [isAdmin, isShopManager, isInventoryManager, action, orderType, source, destination, bill])
 
     useEffect(() => {
-        if (addledgerSuccess && (updateInvSuccess || addInvSuccess)) {
+        if (addledgerSuccess && updateSkuinvSuccess) {
             if (action === 'Billing') navigate(`/dash/shopaccounts/${billNo}`)
             else navigate(`/dash/inventory/${addedSkus}`)
         }
-    }, [addledgerSuccess, addInvSuccess, updateInvSuccess, action, navigate, billNo, addedSkus])
+    }, [addledgerSuccess, updateSkuinvSuccess, action, navigate, billNo, addedSkus])
 
     useEffect(() => {
-        if (addledgerisError || addinvisError || updateinvisError) {
-            let errStr = "Bill No: " + billNo + " --- Added SKUs: " + addedSkus + " --- Ledger: " + addledgerError?.data?.message + " --- Update Inventory: " + updateinvError?.data?.message + " --- Add Inventory: " + addinvError?.data?.message
+        if (addledgerisError || updateSkuinvisError) {
+            let errStr = "Bill No: " + billNo + " --- Added SKUs: " + addedSkus + " --- Ledger: " + addledgerError?.data?.message + " --- Update Inventory: " + updateSkuinvError?.data?.message
             setUpdateError(errStr)
             setErrorPopup(true)
         }
-    }, [addledgerisError, addinvisError, updateinvisError, billNo, addledgerError, updateinvError, addinvError, addedSkus])
+    }, [addledgerisError, updateSkuinvisError, billNo, addledgerError, updateSkuinvError, addedSkus])
 
     useEffect(() => {
 
@@ -261,13 +246,19 @@ const BillList = () => {
 
             if (bill.length) {
 
-                if (isSuccess && !editPrice) {
-                    const { ids: skuIds, entities: skuEntities } = skus
+                if (SkuinvisSuccess && !editPrice) {
+                    const { ids: skuIds, entities: skuEntities } = skuinv
                     bill.forEach(entry => {
-                        if (!entry.return) {
-                            let skuid = skuIds.find(temp => skuEntities[temp].Barcode.toLowerCase() === entry.barcode.toLowerCase())
-                            if (validMember) entry.mrp = skuEntities[skuid].MBR
-                            else entry.mrp = skuEntities[skuid].MRP
+                        if (!entry.return && entry.name !== 'NA') {
+                            let skuid = skuIds.find(temp => skuEntities[temp].barcode.toLowerCase() === entry.barcode.toLowerCase())
+                            if (validMember) {
+                                entry.mrp = skuEntities[skuid].MBR
+                                entry.gst = getGst(entry.hsn, skuEntities[skuid].MBR)
+                            }
+                            else {
+                                entry.mrp = skuEntities[skuid].MRP
+                                entry.gst = getGst(entry.hsn, skuEntities[skuid].MRP)
+                            }
                         }
                     })
                 }
@@ -278,7 +269,7 @@ const BillList = () => {
         }
         updatePrice()
 
-    }, [bill, isSuccess, skus, validMember, editPrice])
+    }, [bill, SkuinvisSuccess, skuinv, validMember, editPrice])
 
 
     useEffect(() => {
@@ -315,13 +306,13 @@ const BillList = () => {
     let searchtableContent
     let returnBillSection
 
-    if (isLoading) content = <p>Loading...</p>
-    if (isError) content = <p className="errmsg">{error?.data?.message}</p>
+    if (SkuinvisLoading) content = <p>Loading...</p>
+    if (SkuinvisError) content = <p className="errmsg">{SkuinvError?.data?.message}</p>
 
-    if (isSuccess) {
+    if (SkuinvisSuccess) {
 
-        const { ids, entities } = skus
-        let skuIds = ids.filter(sku => (entities[sku].Name.toLowerCase().includes(newSearch.toLowerCase())))
+        const { ids, entities } = skuinv
+        let skuIds = ids.filter(sku => (entities[sku].name.toLowerCase().includes(newSearch.toLowerCase())))
 
         if (billLoading) content = <p>Loading...</p>
 
@@ -331,7 +322,7 @@ const BillList = () => {
 
                 const { ids: ledgerIds, entities: ledgerEntities } = ledger
                 let returnBillIds = ledgerIds.filter(ledger => (
-                    ledgerEntities[ledger].billno.toLowerCase().includes(returnBillNo.toLowerCase()) && returnBillNo.length === 12   // remove the previous comment before deployment
+                    (ledgerEntities[ledger].billno.toLowerCase() === returnBillNo.toLowerCase()) && returnBillNo.length === 12   // remove the previous comment before deployment
                 ))
                 const returnBilljson = returnBillIds?.length ? returnBillIds.map(ledgerId => {
                     return (
@@ -396,11 +387,11 @@ const BillList = () => {
             const { ids: billids, entities: billentities } = billnos
             let myUpdateStr = { id: billids[0], ad: 0, ba: 0, po: 0, ex: 0, db: 0, dn: 0, rs: 0, int: 0, os: 0, ip: 0 }
 
-            if (invLoading) content = <p>Loading...</p>
+            if (SkuinvisLoading) content = <p>Loading...</p>
 
-            if (invGetSucecss) {
+            if (SkuinvisSuccess) {
 
-                const { ids: invids, entities: inventities } = inventory
+                const { ids: invids, entities: inventities } = skuinv
 
                 let updateInvStr
 
@@ -503,22 +494,21 @@ const BillList = () => {
 
                         const ledgerEntry = { billno: mybillno, barcode: entry.barcode, name: entry.name, ordertype: myorderType, buyer: (myBuyer ? myBuyer : buyerCode), seller: mySeller, phone: myPhone, email: myEmail, paymenttype: myPaymentType, membership: myMembership, qty: entry.qty, totalprice: (entry.qty * entry.mrp * factor), hsncode: entry.hsn, gst: entry.gst }
 
-                        let canSave = [mybillno, entry.barcode, myorderType, (myBuyer || buyerCode), mySeller, myPaymentType, entry.qty, entry.hsn, entry.gst].every(Boolean)
+
 
                         const invId = invids.filter(id => (
                             inventities[id].barcode.toLowerCase() === entry.barcode.toLowerCase()
                         ))
 
+                        let canSave = [invId[0], mybillno, entry.barcode, myorderType, (myBuyer || buyerCode), mySeller, myPaymentType, entry.qty, entry.hsn, entry.gst].every(Boolean)
+
                         if (canSave) {
-
                             await updateInv(sellerCode, buyerCode, entry.qty)
-
-                            if (invId[0]) {
-                                await updateinventory({ id: invId[0], source: updateInvStr.source, cwefstore: updateInvStr.cwefstore, andheri: updateInvStr.andheri, bandra: updateInvStr.bandra, powai: updateInvStr.powai, exhibition: updateInvStr.exhibition, sales: updateInvStr.sales })
-                            } else {
-                                await addinventory({ barcode: entry.barcode, name: entry.name, size: entry.size, colour: entry.colour, source: updateInvStr.source, cwefstore: updateInvStr.cwefstore, andheri: updateInvStr.andheri, bandra: updateInvStr.bandra, powai: updateInvStr.powai, exhibition: updateInvStr.exhibition, sales: updateInvStr.sales })
-                            }
+                            await updateskuinv({ id: invId[0], source: updateInvStr.source, cwefstore: updateInvStr.cwefstore, andheri: updateInvStr.andheri, bandra: updateInvStr.bandra, powai: updateInvStr.powai, exhibition: updateInvStr.exhibition, sales: updateInvStr.sales })
                             await addledger(ledgerEntry)
+                        }
+                        else {
+                            console.log("Should never see this - ERROR - Swapnesh")
                         }
                     })
 
@@ -541,30 +531,33 @@ const BillList = () => {
 
                 const handleSubmit = (e) => {
                     e.preventDefault();
-                    let myBill = [...bill]
-                    const index = myBill.findIndex((obj) => obj.barcode.toLowerCase() === newEntry.toLowerCase())
 
-                    if (index !== -1) {
-                        myBill[index].qty++
-                    }
+                    let myBill = [...bill]
+                    let index
+
+                    let skuId = ids.filter(sku => (entities[sku].barcode.toLowerCase() === newEntry.toLowerCase()))
+                    if (skuId[0]) index = myBill.findIndex((obj) => obj.barcode.toLowerCase() === newEntry.toLowerCase())
+                    else index = myBill.findIndex((obj) => obj.barcode === 'NA')
+
+                    if (index !== -1) myBill[index].qty++
                     else {
-                        let skuId = ids.filter(sku => (entities[sku].Barcode.toLowerCase().includes(newEntry.toLowerCase())))
-                        if (entities[skuId[0]].Barcode.toUpperCase().match('FBFSBIA2001|FBFSCIA2001|FBFSDIA2001') && (isAdInCharge || isBaInCharge || isPoInCharge || (action === 'Billing'))) {
-                            setPopupTrigger(true)
-                        }
-                        const myMrp = validMember ? entities[skuId[0]].MBR : entities[skuId[0]].MRP
-                        const myGst = getGst(entities[skuId[0]].HSNCode, myMrp)
+
                         //console.log(skuId)
                         if (skuId[0]) {
+                            if (entities[skuId[0]].barcode.toUpperCase().match('FBFSBIA2001|FBFSCIA2001|FBFSDIA2001') && (isAdInCharge || isBaInCharge || isPoInCharge || (action === 'Billing'))) {
+                                setPopupTrigger(true)
+                            }
+                            const myMrp = validMember ? entities[skuId[0]].MBR : entities[skuId[0]].MRP
+                            const myGst = getGst(entities[skuId[0]].HSNCode, myMrp)
                             myBill = [...bill, {
-                                barcode: entities[skuId[0]].Barcode.toUpperCase(), name: entities[skuId[0]].Name,
-                                colour: (entities[skuId[0]].Barcode.length === 11 ? (encoding.colour.find(item => item.IDENTITY === entities[skuId[0]].Barcode.substr(5, 1).toUpperCase()).COLOUR) : ""),
-                                size: (entities[skuId[0]].Barcode.length === 11 ? (encoding.sizes.find(item => item.IDENTITY === entities[skuId[0]].Barcode.substr(4, 1).toUpperCase()).SIZE) : ""),
+                                barcode: entities[skuId[0]].barcode.toUpperCase(), name: entities[skuId[0]].name,
+                                colour: (entities[skuId[0]].barcode.length === 11 ? (encoding.colour.find(item => item.IDENTITY === entities[skuId[0]].barcode.substr(5, 1).toUpperCase()).COLOUR) : ""),
+                                size: (entities[skuId[0]].barcode.length === 11 ? (encoding.sizes.find(item => item.IDENTITY === entities[skuId[0]].barcode.substr(4, 1).toUpperCase()).SIZE) : ""),
                                 qty: 1, mrp: myMrp, hsn: entities[skuId[0]].HSNCode, gst: myGst, return: 0
                             }]
 
                         } else {
-                            myBill = [...bill, { barcode: 'NA', name: 'NA', mrp: 0, hsn: 'NA', gst: 'NA', return: 0 }]    // This needs to be removed
+                            myBill = [...bill, { barcode: 'NA', name: 'NA', colour: 'NA', size: 'NA', qty: 1, mrp: 0, hsn: 0, gst: 0, return: 0 }]    // This needs to be removed
                         }
                     }
                     setBill(myBill)
@@ -581,6 +574,7 @@ const BillList = () => {
                     let myBill = [...bill]
                     const index = myBill.findIndex((obj) => obj.barcode === barcode)
                     myBill[index].mrp = value
+                    myBill[index].gst = getGst(myBill[index].hsn, value)
                     setBill(myBill)
                 }
 
@@ -689,7 +683,7 @@ const BillList = () => {
                             Edit Price
                         </label>}
                         <p>Total: {total}</p>
-                        <button disabled={(!validQty || ((isAdInCharge || isBaInCharge || isPoInCharge || (action === 'Billing')) && (!paymentType || !orderType)))} onClick={makeBill}>Make Bill</button>
+                        <button disabled={(!validQty || !bill.length || ((isAdInCharge || isBaInCharge || isPoInCharge || (action === 'Billing')) && (!paymentType || !orderType)))} onClick={makeBill}>Make Bill</button>
 
                     </div>
 
@@ -746,10 +740,10 @@ const BillList = () => {
                         return (
 
                             <tr className="table__row bill--searchrow" >
-                                <td className="table__cell bill__entry">{entities[skuid].Barcode}</td>
-                                <td className="table__cell bill__entry">{entities[skuid].Name}</td>
-                                <td className="table__cell bill__entry">{entities[skuid].Barcode.length === 11 ? encoding.sizes.find(temp => { return temp.IDENTITY === entities[skuid].Barcode.substr(4, 1) }).SIZE : ""}</td>
-                                <td className="table__cell bill__entry">{entities[skuid].Barcode.length === 11 ? encoding.colour.find(temp => { return temp.IDENTITY === entities[skuid].Barcode.substr(5, 1) }).COLOUR : ""}</td>
+                                <td className="table__cell bill__entry">{entities[skuid].barcode}</td>
+                                <td className="table__cell bill__entry">{entities[skuid].name}</td>
+                                <td className="table__cell bill__entry">{entities[skuid].barcode.length === 11 ? encoding.sizes.find(temp => { return temp.IDENTITY === entities[skuid].barcode.substr(4, 1) }).SIZE : ""}</td>
+                                <td className="table__cell bill__entry">{entities[skuid].barcode.length === 11 ? encoding.colour.find(temp => { return temp.IDENTITY === entities[skuid].barcode.substr(5, 1) }).COLOUR : ""}</td>
                             </tr>
 
                         )

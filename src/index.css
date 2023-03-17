@@ -341,13 +341,13 @@ tr {
   grid-template-columns: 6em 9em 12em 6em 3em 4em 2em;
 }
 
-.table__thead--inventory {
+.table__thead--skuinv {
   display: grid;
   font-size: 0.75rem;
   position: sticky;
   top: 0;
   z-index: 1;
-  grid-template-columns: 9em 12em 4em 4em 8em 7em 7em 7em 8em 9em 8em 8em 3em 4em 5em 4em;
+  grid-template-columns: 9em 12em 4em 4em 6em 6em 8em 7em 7em 7em 8em 9em 8em 8em 3em 4em 5em 4em;
   color: #000;
 }
 
@@ -378,11 +378,11 @@ tr {
   grid-template-columns: repeat(9, 7em);
 }
 
-.inventory--row {
+.skuinv--row {
   font-size: 0.75rem;
   display: grid;
   color: #000;
-  grid-template-columns: 9em 12em 4em 4em 8em 7em 7em 7em 8em 9em 8em 8em 3em 4em 5em 4em;
+  grid-template-columns: 9em 12em 4em 4em 6em 6em 8em 7em 7em 7em 8em 9em 8em 8em 3em 4em 5em 4em;
 }
 
 .editattendance--row {
@@ -521,7 +521,7 @@ tr {
   padding: 0.25em;
 }
 
-.inventory--header {
+.skuinv--header {
   display: grid;
   grid-template-columns: 3em 6em 5em 6em 10em;
   align-items: center;

@@ -1,4 +1,4 @@
-import { useGetInventoryQuery } from "./inventoryApiSlice"
+import { useGetSkuinvQuery } from "../skuinv/skuinvApiSlice";
 import Inventory from "./Inventory"
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom'
@@ -8,12 +8,12 @@ const InventoryList = () => {
     const { id } = useParams()
 
     const {
-        data: inventory,
+        data: skuinv,
         isLoading,
         isSuccess,
         isError,
         error
-    } = useGetInventoryQuery('inventory', {
+    } = useGetSkuinvQuery('skuinv', {
         pollingInterval: 60000,
         refetchOnFocus: true,
         refetchOnMountOrArgChange: true
@@ -38,7 +38,7 @@ const InventoryList = () => {
     if (isError) content = <p className="errmsg">{error?.data?.message}</p>
 
     if (isSuccess) {
-        const { ids, entities } = inventory
+        const { ids, entities } = skuinv
 
         let filteredIds = ids.filter(sku => (
             entities[sku].name.toLowerCase().match(search.toLowerCase()) ||
@@ -46,9 +46,9 @@ const InventoryList = () => {
         )
         )
 
-        const tableContent = filteredIds?.length && filteredIds.map(inventoryId => {
+        const tableContent = filteredIds?.length && filteredIds.map(skuinvId => {
             return (
-                <Inventory key={inventoryId} inventoryId={inventoryId} />
+                <Inventory key={skuinvId} skuinvId={skuinvId} />
             )
         })
 
@@ -67,19 +67,21 @@ const InventoryList = () => {
                 </div>
                 <br></br>
                 <table >
-                    <thead className="table__thead--inventory">
+                    <thead className="table__thead--skuinv">
                         <tr>
-                            <th scope="col" className="table__th inventory__inventoryname">Barcode</th>
-                            <th scope="col" className="table__th inventory__inventoryname">Name</th>
-                            <th scope="col" className="table__th inventory__inventoryname">Colour</th>
-                            <th scope="col" className="table__th inventory__inventoryname">Size</th>
-                            <th scope="col" className="table__th inventory__inventoryname">Sourced</th>
-                            <th scope="col" className="table__th inventory__inventoryname">CWEFStore</th>
-                            <th scope="col" className="table__th inventory__inventoryname">Andheri</th>
-                            <th scope="col" className="table__th inventory__inventoryname">Bandra</th>
-                            <th scope="col" className="table__th inventory__inventoryname">Powai</th>
-                            <th scope="col" className="table__th inventory__inventoryname">Exhibition</th>
-                            <th scope="col" className="table__th inventory__inventoryname">Sales</th>
+                            <th scope="col" className="table__th skuinv__skuinvname">Barcode</th>
+                            <th scope="col" className="table__th skuinv__skuinvname">Name</th>
+                            <th scope="col" className="table__th skuinv__skuinvname">Colour</th>
+                            <th scope="col" className="table__th skuinv__skuinvname">Size</th>
+                            <th scope="col" className="table__th skuinv__skuinvname">MRP</th>
+                            <th scope="col" className="table__th skuinv__skuinvname">MBR</th>
+                            <th scope="col" className="table__th skuinv__skuinvname">Sourced</th>
+                            <th scope="col" className="table__th skuinv__skuinvname">CWEFStore</th>
+                            <th scope="col" className="table__th skuinv__skuinvname">Andheri</th>
+                            <th scope="col" className="table__th skuinv__skuinvname">Bandra</th>
+                            <th scope="col" className="table__th skuinv__skuinvname">Powai</th>
+                            <th scope="col" className="table__th skuinv__skuinvname">Exhibition</th>
+                            <th scope="col" className="table__th skuinv__skuinvname">Sales</th>
                         </tr>
                     </thead>
                     <tbody>

@@ -28,7 +28,7 @@ const Welcome = () => {
             <h3>SKU Details</h3>
             <div className="indent">
                 {(isSkuManager || isAdmin) && <p><Link to="/dash/skus/new">Generate SKUs</Link></p>}
-                <p><Link to="/dash/skus">{skuText}</Link></p>
+                <p><Link to="/dash/skus/all">{skuText}</Link></p>
             </div>
             {isAdmin &&
                 <>

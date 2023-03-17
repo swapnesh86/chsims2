@@ -1,40 +1,34 @@
 import { useSelector } from 'react-redux'
-import { selectSkuById } from './skusApiSlice'
-//import { useGetSkusQuery } from "./skusApiSlice"
+import { selectSkuinvById, useDeleteSkuinvMutation, useUpdateSkuinvMutation } from '../skuinv/skuinvApiSlice';
+
 
 import useAuth from "../../hooks/useAuth";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faTrashCan, faSave } from "@fortawesome/free-solid-svg-icons"
-import { useDeleteSkuMutation, useUpdateSkuMutation } from "./skusApiSlice"
 
 import { useState, memo } from "react"
 import { encoding } from '../../data/encoding';
 
+
 const EditSku = ({ skuId }) => {
 
-    const sku = useSelector(state => selectSkuById(state, skuId))
+    const sku = useSelector(state => selectSkuinvById(state, skuId))
 
-    /* const { sku } = useGetSkusQuery("skuList", {
-        selectFromResult: ({ data }) => ({
-            sku: data?.entities[skuId]
-        }),
-    }) */
-
-    const [name, setName] = useState(sku.Name)
-    const [mrp, setMrp] = useState(sku.MRP)
-    const [mbr, setMbr] = useState(sku.MBR)
-    const [hsn, setHsn] = useState(sku.HSNCode)
+    const [name, setName] = useState(sku?.name)
+    const [mrp, setMrp] = useState(sku?.MRP)
+    const [mbr, setMbr] = useState(sku?.MBR)
+    const [hsn, setHsn] = useState(sku?.HSNCode)
 
     const { isAdmin, isSkuManager } = useAuth()
-    const [deleteSku] = useDeleteSkuMutation()
-    const [updateSku] = useUpdateSkuMutation()
+    const [deleteSku] = useDeleteSkuinvMutation()
+    const [updateSku] = useUpdateSkuinvMutation()
 
     const onDeleteSkuClicked = async (e) => {
-        await deleteSku({ id: skuId, })
+        await deleteSku({ id: skuId })
     }
 
     const onSaveClicked = async (e) => {
-        await updateSku({ id: skuId, Barcode: sku.Barcode, Name: name, MRP: mrp, MBR: mbr, HSNCode: hsn })
+        await updateSku({ id: skuId, name: name, MRP: mrp, MBR: mbr, HSNCode: hsn })
     }
 
 
@@ -42,14 +36,13 @@ const EditSku = ({ skuId }) => {
 
         return (
             <tr className="table__row user" >
-                <td className="table__cell sku__primary">{sku.Barcode}</td>
-                <td className="table__cell sku__optional">{(sku.Barcode.length === 11 ? (encoding.colour.find(item => item.IDENTITY === sku.Barcode.substr(5, 1).toUpperCase()).COLOUR) : null)}</td>
-                <td className="table__cell sku__optional">{(sku.Barcode.length === 11 ? (encoding.sizes.find(item => item.IDENTITY === sku.Barcode.substr(4, 1).toUpperCase()).SIZE) : null)}</td>
+                <td className="table__cell sku__primary">{sku?.barcode}</td>
+                <td className="table__cell sku__optional">{(sku?.barcode.length === 11 ? (encoding.colour.find(item => item.IDENTITY === sku?.barcode.substr(5, 1).toUpperCase()).COLOUR) : null)}</td>
+                <td className="table__cell sku__optional">{(sku?.barcode.length === 11 ? (encoding.sizes.find(item => item.IDENTITY === sku?.barcode.substr(4, 1).toUpperCase()).SIZE) : null)}</td>
                 <td className="table__cell sku__primary">
                     <input
                         id='barcode'
                         type='text'
-                        placeholder={sku.Name}
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                     />
@@ -59,7 +52,6 @@ const EditSku = ({ skuId }) => {
                         className='sku_edit_num'
                         id='mrp'
                         type='text'
-                        placeholder={sku.MRP}
                         value={mrp}
                         onChange={(e) => setMrp(e.target.value)}
                     />
@@ -69,7 +61,6 @@ const EditSku = ({ skuId }) => {
                         className='sku_edit_num'
                         id='mbr'
                         type='text'
-                        placeholder={sku.MBR}
                         value={mbr}
                         onChange={(e) => setMbr(e.target.value)}
                     />
@@ -79,7 +70,6 @@ const EditSku = ({ skuId }) => {
                         className='sku_edit_num'
                         id='hsn'
                         type='text'
-                        placeholder={sku.HSNCode}
                         value={hsn}
                         onChange={(e) => setHsn(e.target.value)}
                     />

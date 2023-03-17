@@ -8,7 +8,7 @@ import useAuth from '../hooks/useAuth'
 
 const DASH_REGEX = /^\/dash(\/)?$/
 const BILLING_REGEX = /^\/dash\/billing(\/)?$/
-const SKUS_REGEX = /^\/dash\/skus(\/)?$/
+const SKUS_REGEX = /^\/dash\/skus\/all(\/)?$/
 const USERS_REGEX = /^\/dash\/users(\/)?$/
 const LEDGER_REGEX = /^\/dash\/shopaccounts\/ledger(\/)?$/
 const INVENTORY_REGEX = /^\/dash\/inventory(\/)?$/
@@ -33,7 +33,7 @@ const DashHeader = () => {
 
     const onNewBillClicked = () => navigate('/dash/billing')
     const onNewUserClicked = () => navigate('/dash/users/new')
-    const onSkuListClicked = () => navigate('/dash/skus')
+    const onSkuListClicked = () => navigate('/dash/skus/all')
     const onLedgerClicked = () => navigate('/dash/shopaccounts/ledger')
     const onInventoryClicked = () => navigate('/dash/inventory/all')
 
