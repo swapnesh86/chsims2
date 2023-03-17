@@ -707,8 +707,32 @@ tr {
   grid-template-columns: 10em repeat(2, 7em) 14em repeat(5, 5em);
 }
 
+body {
+  font-size: 1.25rem;
+}
+
+.dash-header {
+  padding: 0 1em;
+}
+
+.dash-container {
+  padding: 1em;
+}
+
+.sku__primary {
+  display: block
+}
+
+.sku__optional {
+  display: block
+}
+
+.form__action-buttons {
+  position: static;
+}
+
 @media screen and (max-width: 600px) {
-  h1 {
+  /*   h1 {
     font-size: 2rem;
   }
 
@@ -730,12 +754,12 @@ tr {
 
   .sku__optional {
     display: none;
-  }
+  } */
 }
 
 @media screen and (min-width: 600px) {
 
-  body {
+  /*   body {
     font-size: 1.25rem;
   }
 
@@ -747,10 +771,6 @@ tr {
     padding: 1em;
   }
 
-  /*   .table {
-    font-size: 1.5rem;
-  } */
-
   .sku__primary {
     display: block
   }
@@ -761,5 +781,5 @@ tr {
 
   .form__action-buttons {
     position: static;
-  }
+  } */
 }
