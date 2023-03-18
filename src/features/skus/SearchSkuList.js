@@ -11,7 +11,7 @@ const SearchSkuList = () => {
   const { id } = useParams()
 
   const { isAdmin, isSkuManager } = useAuth()
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState('.......22..');
   const [edit, setEdit] = useState(false)
 
   const {

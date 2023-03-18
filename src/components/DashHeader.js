@@ -11,7 +11,7 @@ const BILLING_REGEX = /^\/dash\/billing(\/)?$/
 const SKUS_REGEX = /^\/dash\/skus\/all(\/)?$/
 const USERS_REGEX = /^\/dash\/users(\/)?$/
 const LEDGER_REGEX = /^\/dash\/shopaccounts\/ledger(\/)?$/
-const INVENTORY_REGEX = /^\/dash\/inventory(\/)?$/
+const INVENTORY_REGEX = /^\/dash\/inventory\/all(\/)?$/
 
 const DashHeader = () => {
 

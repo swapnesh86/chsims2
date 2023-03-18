@@ -14,12 +14,12 @@ const InventoryList = () => {
         isError,
         error
     } = useGetSkuinvQuery('skuinv', {
-        pollingInterval: 60000,
+        pollingInterval: 10 * 60000,
         refetchOnFocus: true,
         refetchOnMountOrArgChange: true
     })
 
-    const [search, setSearch] = useState('');
+    const [search, setSearch] = useState('.......22..');
 
     useEffect(() => {
         if (id !== 'all') {
