@@ -581,8 +581,8 @@ const LedgerList = () => {
                     showFoot: "lastPage",
                 };
             } else {
-                let billlength = (jsonContent.length * 16.5 + 90)
-                doc = new jsPDF('p', 'mm', [billlength, 90]);
+                let billlength = (jsonContent.length * 16.5 + 120)
+                doc = new jsPDF('p', 'mm', [billlength, 95]);
                 doc.setFillColor(255, 255, 255);
                 let sidemargin = 4
                 topcontent = {
@@ -599,7 +599,10 @@ const LedgerList = () => {
                     startY: 70,
                     head: [["Name", "Qty", "Price"]],
                     body: jsonContent.map(entry => [entry.name, entry.Qty, entry.Price]),
-                    foot: [[{ content: "Total", colSpan: 2 }, { content: total }]],
+                    foot: [
+                        [{ content: "GST", colSpan: 2 }, { content: ((gstTotals.gst18tot * 0.18) + (gstTotals.gst3tot * 0.03) + (gstTotals.gst5tot * 0.05) + (gstTotals.gst12tot * 0.12)).toFixed(2) }],
+                        [{ content: "Total", colSpan: 2 }, { content: total }]
+                    ],
                     margin: { top: 10, right: sidemargin, bottom: 0, left: sidemargin },
                     styles: { fontSize: 16, fontStyle: 'bold', fillColor: [255, 255, 255], textColor: [0, 0, 0], lineWidth: 0.2, lineColor: [0, 0, 0] },
                     theme: 'grid'
