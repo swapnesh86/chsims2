@@ -14,7 +14,7 @@ const InventoryList = () => {
         isError,
         error
     } = useGetSkuinvQuery('skuinv', {
-        pollingInterval: 10 * 60000,
+        pollingInterval: 60000,
         refetchOnFocus: true,
         refetchOnMountOrArgChange: true
     })

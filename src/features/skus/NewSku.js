@@ -20,7 +20,7 @@ const NewSku = () => {
   const {
     data: skus,
   } = useGetSkuinvQuery(undefined, {
-    pollingInterval: 30000,
+    pollingInterval: 60000,
     refetchOnFocus: true,
     refetchOnMountOrArgChange: true
   })

@@ -75,7 +75,7 @@ const BillList = () => {
         data: ledger,
         isSuccess: ledgerSuccess
     } = useGetLedgerQuery('ledgerList', {
-        pollingInterval: 120000,
+        pollingInterval: 60000,
         refetchOnFocus: true,
         refetchOnMountOrArgChange: true
     })

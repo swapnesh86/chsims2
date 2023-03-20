@@ -14,7 +14,7 @@ const Attendance = () => {
         data: attendance,
         isSuccess: attendanceSuccess
     } = useGetAttendanceQuery('attendanceList', {
-        pollingInterval: 120000,
+        pollingInterval: 60000,
         refetchOnFocus: true,
         refetchOnMountOrArgChange: true
     })

@@ -43,7 +43,7 @@ const LedgerList = () => {
         data: attendance,
         isSuccess: attendanceSuccess
     } = useGetAttendanceQuery('attendanceList', {
-        pollingInterval: 120000,
+        pollingInterval: 60000,
         refetchOnFocus: true,
         refetchOnMountOrArgChange: true
     })
@@ -52,7 +52,7 @@ const LedgerList = () => {
         data: commission,
         isSuccess: commissionSuccess
     } = useGetCommissionQuery('commissionList', {
-        pollingInterval: (15 * 60000),
+        pollingInterval: 60000,
         refetchOnFocus: true,
         refetchOnMountOrArgChange: true
     })
