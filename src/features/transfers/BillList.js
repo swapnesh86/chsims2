@@ -193,10 +193,10 @@ const BillList = () => {
 
     useEffect(() => {
         if (addledgerSuccess && updateSkuinvSuccess) {
-            if (action === 'Billing') navigate(`/dash/shopaccounts/${billNo}`)
+            if ((isAdInCharge || isBaInCharge || isPoInCharge) || (action === 'Billing')) navigate(`/dash/shopaccounts/${billNo}`)
             else navigate(`/dash/inventory/${addedSkus}`)
         }
-    }, [addledgerSuccess, updateSkuinvSuccess, action, navigate, billNo, addedSkus])
+    }, [addledgerSuccess, updateSkuinvSuccess, action, navigate, billNo, addedSkus, isAdInCharge, isBaInCharge, isPoInCharge])
 
     useEffect(() => {
         if (addledgerisError || updateSkuinvisError) {
@@ -619,11 +619,11 @@ const BillList = () => {
                                 <div className="inventory--header">
                                     <label className="form__label" htmlFor="source"> Source: </label>
                                     <select id="source" name="source" size="1" value={source} onChange={(e) => setSource(e.target.value)} >
-                                        {[<option></option>, <option>CWEFStore</option>, <option>Andheri</option>, <option>Bandra</option>, <option>Powai</option>]}
+                                        {[<option></option>, <option>CWEFStore</option>, <option>Andheri</option>, <option>Bandra</option>, <option>Powai</option>, <option>Exhibition</option>]}
                                     </select>
                                     <label className="form__label" htmlFor="destination"> Destination: </label>
                                     <select id="destination" name="destination" size="1" value={destination} onChange={(e) => setDestination(e.target.value)} >
-                                        {[<option></option>, <option>CWEFStore</option>, <option>Andheri</option>, <option>Bandra</option>, <option>Powai</option>]}
+                                        {[<option></option>, <option>CWEFStore</option>, <option>Andheri</option>, <option>Bandra</option>, <option>Powai</option>, <option>Exhibition</option>]}
                                     </select>
                                 </div>
                             }
@@ -683,7 +683,7 @@ const BillList = () => {
                             Edit Price
                         </label>}
                         <p>Total: {total}</p>
-                        <button disabled={(!validQty || !bill.length || ((isAdInCharge || isBaInCharge || isPoInCharge || (action === 'Billing')) && (!paymentType || !orderType)))} onClick={makeBill}>Make Bill</button>
+                        <button disabled={(!validQty || !bill.length || ((isAdInCharge || isBaInCharge || isPoInCharge || (action === 'Billing')) && (!paymentType || !orderType)) || (newMembership && !phone))} onClick={makeBill}>Make Bill</button>
 
                     </div>
 
@@ -759,6 +759,7 @@ const BillList = () => {
         <>
             <Popup trigger={popupTrigger} >
                 <h3>Scan Membership Card</h3>
+                <p>(Phone number is mandatory for Membership purchases)</p>
                 <input
                     type="text"
                     id="new-membership"

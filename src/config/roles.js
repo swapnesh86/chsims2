@@ -6,5 +6,6 @@ export const ROLES = {
     ShopManager: 'ShopManager',
     InventoryManager: 'InventoryManager',
     SkuManager: 'SkuManager',
+    AccountsManager: 'AccountsManager',
     Admin: 'Admin'
 }

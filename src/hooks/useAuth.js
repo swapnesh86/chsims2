@@ -10,6 +10,7 @@ const useAuth = () => {
     let isShopManager = false
     let isInventoryManager = false
     let isSkuManager = false
+    let isAccountsManager = false
     let isAdmin = false
     let status = "Employee"
 
@@ -23,6 +24,7 @@ const useAuth = () => {
         isShopManager = roles.includes('ShopManager')
         isInventoryManager = roles.includes('InventoryManager')
         isSkuManager = roles.includes('SkuManager')
+        isAccountsManager = roles.includes('AccountsManager')
         isAdmin = roles.includes('Admin')
 
         if (isAdInCharge) status = "Andheri"
@@ -31,11 +33,12 @@ const useAuth = () => {
         if (isShopManager) status = "ShopManager"
         if (isInventoryManager) status = "InventoryManager"
         if (isSkuManager) status = "SkuManager"
+        if (isAccountsManager) status = "AccountsManager"
         if (isAdmin) status = "Admin"
 
-        return { username, roles, status, isAdInCharge, isBaInCharge, isPoInCharge, isShopManager, isInventoryManager, isSkuManager, isAdmin }
+        return { username, roles, status, isAdInCharge, isBaInCharge, isPoInCharge, isShopManager, isInventoryManager, isSkuManager, isAccountsManager, isAdmin }
     }
 
-    return { username: '', roles: [], isAdInCharge, isBaInCharge, isPoInCharge, isShopManager, isInventoryManager, isSkuManager, isAdmin, status }
+    return { username: '', roles: [], isAdInCharge, isBaInCharge, isPoInCharge, isShopManager, isInventoryManager, isSkuManager, isAccountsManager, isAdmin, status }
 }
 export default useAuth
