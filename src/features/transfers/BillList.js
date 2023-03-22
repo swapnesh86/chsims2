@@ -385,7 +385,11 @@ const BillList = () => {
         if (billSucecss && memberSuccess) {
 
             const { ids: billids, entities: billentities } = billnos
-            let myUpdateStr = { id: billids[0], ad: 0, ba: 0, po: 0, ex: 0, db: 0, dn: 0, rs: 0, int: 0, os: 0, ip: 0 }
+            //console.log(finyearNow('1/1/2022'))
+            //console.log(new Date())
+            //console.log(finyearNow(0))
+
+            let myUpdateBillStr = { id: billids[0], ad: 0, ba: 0, po: 0, ex: 0, db: 0, dn: 0, rs: 0, int: 0, os: 0, ip: 0, date: 0 }
 
             if (SkuinvisLoading) content = <p>Loading...</p>
 
@@ -393,44 +397,21 @@ const BillList = () => {
 
                 const { ids: invids, entities: inventities } = skuinv
 
-                let updateInvStr
-
-                const updateInv = async (tseller, tbuyer, qty) => {
-
-                    const tqty = Number(qty)
-                    updateInvStr = { source: 0, cwefstore: 0, andheri: 0, bandra: 0, powai: 0, exhibition: 0, sales: 0 }
-                    if (['CH', 'CWEF', 'OS'].includes(tseller)) { updateInvStr.source = -tqty }
-                    else if (tseller === 'CWEFStore') { updateInvStr.cwefstore = -tqty }
-                    else if (tseller === 'Andheri') { updateInvStr.andheri = -tqty }
-                    else if (tseller === 'Bandra') { updateInvStr.bandra = -tqty }
-                    else if (tseller === 'Powai') { updateInvStr.powai = -tqty }
-                    else if (tseller === 'Exhibition') { updateInvStr.exhibition = -tqty }
-
-                    if (['CH', 'CWEF', 'OS'].includes(tbuyer)) { updateInvStr.source = tqty }
-                    else if (tbuyer === 'CWEFStore') { updateInvStr.cwefstore = tqty }
-                    else if (tbuyer === 'Andheri') { updateInvStr.andheri = tqty }
-                    else if (tbuyer === 'Bandra') { updateInvStr.bandra = tqty }
-                    else if (tbuyer === 'Powai') { updateInvStr.powai = tqty }
-                    else if (tbuyer === 'Exhibition') { updateInvStr.exhibition = tqty }
-                    else { updateInvStr.sales = tqty }
-
-                }
-
                 const getbillno = (seller, buyer) => {
 
-                    if (seller === 'CH' && buyer === 'CWEFStore') { (myUpdateStr.db = 1); return (billentities[billids[0]].db); }
-                    if (seller === 'OS' && buyer === 'CWEFStore') { (myUpdateStr.os = 1); return (billentities[billids[0]].os); }
-                    if (seller === 'CWEF' && buyer === 'CWEFStore') { (myUpdateStr.ip = 1); return (billentities[billids[0]].ip); }
-                    if (seller === 'CWEFStore' && buyer === 'CH') { (myUpdateStr.dn = 1); return (billentities[billids[0]].dn); }
-                    if (seller === 'CWEFStore' && buyer === 'OS') { (myUpdateStr.rs = 1); return (billentities[billids[0]].rs); }
+                    if (seller === 'CH' && buyer === 'CWEFStore') { (myUpdateBillStr.db = 1); return (billentities[billids[0]].db); }
+                    if (seller === 'OS' && buyer === 'CWEFStore') { (myUpdateBillStr.os = 1); return (billentities[billids[0]].os); }
+                    if (seller === 'CWEF' && buyer === 'CWEFStore') { (myUpdateBillStr.ip = 1); return (billentities[billids[0]].ip); }
+                    if (seller === 'CWEFStore' && buyer === 'CH') { (myUpdateBillStr.dn = 1); return (billentities[billids[0]].dn); }
+                    if (seller === 'CWEFStore' && buyer === 'OS') { (myUpdateBillStr.rs = 1); return (billentities[billids[0]].rs); }
                     if ((seller === 'CWEFStore' || seller === 'Andheri' || seller === 'Bandra' || seller === 'Powai' || seller === 'Exhibition')
                         && (buyer === 'CWEFStore' || buyer === 'Andheri' || buyer === 'Bandra' || buyer === 'Powai' || buyer === 'Exhibition')) {
-                        (myUpdateStr.int = 1); return (billentities[billids[0]].int);
+                        (myUpdateBillStr.int = 1); return (billentities[billids[0]].int);
                     }
-                    if (seller === 'Andheri') { (myUpdateStr.ad = 1); return (billentities[billids[0]].ad); }
-                    if (seller === 'Bandra') { (myUpdateStr.ba = 1); return (billentities[billids[0]].ba); }
-                    if (seller === 'Powai') { (myUpdateStr.po = 1); return (billentities[billids[0]].po); }
-                    if (seller === 'Exhibition') { (myUpdateStr.ex = 1); return (billentities[billids[0]].ex); }
+                    if (seller === 'Andheri') { (myUpdateBillStr.ad = 1); return (billentities[billids[0]].ad); }
+                    if (seller === 'Bandra') { (myUpdateBillStr.ba = 1); return (billentities[billids[0]].ba); }
+                    if (seller === 'Powai') { (myUpdateBillStr.po = 1); return (billentities[billids[0]].po); }
+                    if (seller === 'Exhibition') { (myUpdateBillStr.ex = 1); return (billentities[billids[0]].ex); }
                 }
 
                 const makeBill = async (e) => {
@@ -465,9 +446,13 @@ const BillList = () => {
 
                     let mybillno
                     if (orderType !== 'Exchange') {
-                        const billdigits = pad(getbillno(sellerCode, buyerCode))
+                        let billdigits = pad(getbillno(sellerCode, buyerCode))
+                        if (finyearNow(billentities[billids[0]].date) !== finyearNow()) {
+                            myUpdateBillStr.date = new Date()
+                            billdigits = pad(1)
+                        }
                         mybillno = `CH${categorySelect(sellerCode, buyerCode)}${finyearNow()}-${billdigits}`
-                        await updatebillnos(myUpdateStr)
+                        await updatebillnos(myUpdateBillStr)
                     } else {
                         mybillno = returnBillNo
                     }
@@ -494,8 +479,6 @@ const BillList = () => {
 
                         const ledgerEntry = { billno: mybillno, barcode: entry.barcode, name: entry.name, ordertype: myorderType, buyer: (myBuyer ? myBuyer : buyerCode), seller: mySeller, phone: myPhone, email: myEmail, paymenttype: myPaymentType, membership: myMembership, qty: entry.qty, totalprice: (entry.qty * entry.mrp * factor), hsncode: entry.hsn, gst: entry.gst }
 
-
-
                         const invId = invids.filter(id => (
                             inventities[id].barcode.toLowerCase() === entry.barcode.toLowerCase()
                         ))
@@ -503,7 +486,23 @@ const BillList = () => {
                         let canSave = [invId[0], mybillno, entry.barcode, myorderType, (myBuyer || buyerCode), mySeller, myPaymentType, entry.qty, entry.hsn, entry.gst].every(Boolean)
 
                         if (canSave) {
-                            await updateInv(sellerCode, buyerCode, entry.qty)
+                            const tqty = Number(entry.qty)
+                            let updateInvStr = { source: 0, cwefstore: 0, andheri: 0, bandra: 0, powai: 0, exhibition: 0, sales: 0 }
+                            if (['CH', 'CWEF', 'OS'].includes(sellerCode)) { updateInvStr.source = -tqty }
+                            else if (sellerCode === 'CWEFStore') { updateInvStr.cwefstore = -tqty }
+                            else if (sellerCode === 'Andheri') { updateInvStr.andheri = -tqty }
+                            else if (sellerCode === 'Bandra') { updateInvStr.bandra = -tqty }
+                            else if (sellerCode === 'Powai') { updateInvStr.powai = -tqty }
+                            else if (sellerCode === 'Exhibition') { updateInvStr.exhibition = -tqty }
+
+                            if (['CH', 'CWEF', 'OS'].includes(buyerCode)) { updateInvStr.source = tqty }
+                            else if (buyerCode === 'CWEFStore') { updateInvStr.cwefstore = tqty }
+                            else if (buyerCode === 'Andheri') { updateInvStr.andheri = tqty }
+                            else if (buyerCode === 'Bandra') { updateInvStr.bandra = tqty }
+                            else if (buyerCode === 'Powai') { updateInvStr.powai = tqty }
+                            else if (buyerCode === 'Exhibition') { updateInvStr.exhibition = tqty }
+                            else { updateInvStr.sales = tqty }
+
                             await updateskuinv({ id: invId[0], source: updateInvStr.source, cwefstore: updateInvStr.cwefstore, andheri: updateInvStr.andheri, bandra: updateInvStr.bandra, powai: updateInvStr.powai, exhibition: updateInvStr.exhibition, sales: updateInvStr.sales })
                             await addledger(ledgerEntry)
                         }

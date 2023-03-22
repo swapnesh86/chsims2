@@ -68,8 +68,8 @@ export const {
     // Pass in a selector that returns the billNos slice of state
 } = billNosAdapter.getSelectors(state => selectBillNosData(state) ?? initialState)
 
-export const finyearNow = () => {
-    var time = new Date();
+export const finyearNow = (timevar) => {
+    var time = timevar ? (new Date(timevar)) : new Date();
     var yy = String(time.getFullYear()).substr(2, 2)
     var mm = time.getMonth() + 1;
     if (mm <= 3) { return (parseInt(yy) - 1); }
