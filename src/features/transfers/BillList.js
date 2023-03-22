@@ -62,7 +62,9 @@ const BillList = () => {
     const {
         data: billnos,
         isLoading: billLoading,
-        isSuccess: billSucecss
+        isSuccess: billSucecss,
+        isError: billisError,
+        error: billError
     } = useGetBillNosQuery('billnos', {
         pollingInterval: 60000,
         refetchOnFocus: true,
@@ -106,7 +108,9 @@ const BillList = () => {
 
     const {
         data: members,
-        isSuccess: memberSuccess
+        isSuccess: memberSuccess,
+        isError: memberisError,
+        error: memberError
     } = useGetMembersQuery('membersList', {
         pollingInterval: 60000,
         refetchOnFocus: true,
@@ -199,12 +203,13 @@ const BillList = () => {
     }, [addledgerSuccess, updateSkuinvSuccess, action, navigate, billNo, addedSkus, isAdInCharge, isBaInCharge, isPoInCharge])
 
     useEffect(() => {
-        if (addledgerisError || updateSkuinvisError) {
+        if (addledgerisError || updateSkuinvisError || billisError || memberisError) {
             let errStr = "Bill No: " + billNo + " --- Added SKUs: " + addedSkus + " --- Ledger: " + addledgerError?.data?.message + " --- Update Inventory: " + updateSkuinvError?.data?.message
+            errStr = errStr + "Membership no: " + newMembership + " --- Phone: " + phone + " --- Member Error: " + memberError + " --- BillNo error:" + billError
             setUpdateError(errStr)
             setErrorPopup(true)
         }
-    }, [addledgerisError, updateSkuinvisError, billNo, addledgerError, updateSkuinvError, addedSkus])
+    }, [addledgerisError, updateSkuinvisError, billNo, addledgerError, updateSkuinvError, addedSkus, billisError, billError, memberisError, memberError, newMembership, phone])
 
     useEffect(() => {
 
@@ -768,7 +773,7 @@ const BillList = () => {
                 <button className="close-btn" onClick={() => setPopupTrigger(false)}>Continue</button>
             </Popup>
             <Popup trigger={errorPopup} >
-                <h3>ERROR!! - Please report this to admin</h3>
+                <h3>ERROR!! - Please report this immediately to the admin (Swapnesh)</h3>
                 <p>{updateError}</p>
                 <button className="close-btn" onClick={() => setErrorPopup(false)}>Close</button>
             </Popup>
