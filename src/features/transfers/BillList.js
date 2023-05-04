@@ -457,6 +457,7 @@ const BillList = () => {
                             billdigits = pad(1)
                         }
                         mybillno = `CH${categorySelect(sellerCode, buyerCode)}${finyearNow()}-${billdigits}`
+                        console.log(mybillno)
                         await updatebillnos(myUpdateBillStr)
                     } else {
                         mybillno = returnBillNo
