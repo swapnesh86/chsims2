@@ -91,7 +91,7 @@ const Attendance = () => {
                         </select>
                     </div>
                     <div className="billing--line2">
-                        <label className="form__label" htmlFor="inout">Name: </label>
+                        <label className="form__label" htmlFor="inout">Activity: </label>
                         <select id="inout" name="inout" size="1" value={in_out} onChange={(e) => setInOut(e.target.value)} >
                             {[<option></option>, <option>IN</option>, <option>OUT</option>]}
                         </select>
