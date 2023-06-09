@@ -581,7 +581,7 @@ const LedgerList = () => {
                     showFoot: "lastPage",
                 };
             } else {
-                let billlength = (jsonContent.length * 16.5 + 120)
+                let billlength = (jsonContent.length * 13 + 150)
                 doc = new jsPDF('p', 'mm', [billlength, 95]);
                 doc.setFillColor(255, 255, 255);
                 let sidemargin = 4
@@ -608,6 +608,7 @@ const LedgerList = () => {
                     theme: 'grid'
                 };
                 doc.setFontSize(16);
+                doc.text("GST#: 27AAICC4194N1Z2", marginLeft, billlength - 28);
                 doc.text("Conditions:", marginLeft, billlength - 20);
                 doc.text("  1. Non-Refundable", marginLeft, billlength - 14);
                 doc.text("  2. Exchange only within 7 days", marginLeft, billlength - 8);
@@ -730,7 +731,7 @@ const LedgerList = () => {
             <>
                 <label className="form__label" htmlFor="report"> Shop Girl : </label>
                 <select id="staff" name="staff" size="1" value={shopGirl} onChange={(e) => setShopGirl(e.target.value)} >
-                    {[<option></option>, <option>Ankita</option>, <option>Poonam</option>, <option>Vaishnavi</option>, <option>Pratima</option>, <option>Neha</option>]}
+                    {[<option></option>, <option>Ankita</option>, <option>Poonam</option>, <option>Vaishnavi</option>, <option>Apeksha</option>, <option>Kirti</option>, <option>Neha</option>]}
                 </select>
                 <br></br>
                 <br></br>
