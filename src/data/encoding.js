@@ -145,6 +145,10 @@ export const encoding = {
 			"Description": "Womens Wear"
 		},
 		{
+			"hsn": 6217,
+			"Description": "Accessories"
+		},
+		{
 			"hsn": 6302,
 			"Description": "Home Decor"
 		},
