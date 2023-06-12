@@ -290,7 +290,7 @@ const BillList = () => {
                         entry.Return = 0
                     }
                     else {
-                        myBill = [...bill, { barcode: entry.Barcode, name: entry.Name, qty: (-entry.Return), mrp: ((entry.Price / entry.Qty) * entry.Return), hsn: entry.hsn, gst: entry.gst, return: 1 }]
+                        myBill = [...bill, { barcode: entry.Barcode, name: entry.Name, qty: (-entry.Return), mrp: ((entry.Price / entry.Qty)), hsn: entry.hsn, gst: entry.gst, return: 1 }]
                         entry.Return = 0
                     }
                     setBill(myBill)
