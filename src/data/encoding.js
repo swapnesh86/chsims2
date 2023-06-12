@@ -659,6 +659,14 @@ export const encoding = {
 		{
 			"COLLECTION": "2022",
 			"IDENTITY": "22"
+		},
+		{
+			"COLLECTION": "2023",
+			"IDENTITY": "23"
+		},
+		{
+			"COLLECTION": "2024",
+			"IDENTITY": "24"
 		}
 	],
 	"HSNCodes": [
