@@ -981,7 +981,7 @@ const LedgerList = () => {
                             <th scope="col" className="table__th ledger__ledgername">{saleTotals.adupi}</th>
                             <th scope="col" className="table__th ledger__ledgername">{saleTotals.adonline}</th>
                             <th scope="col" className="table__th ledger__ledgername">{saleTotals.adtotal}</th>
-                            <th scope="col" className="table__th ledger__ledgername">{saleTotals.becash}</th>
+                            <th scope="col" className="table__th ledger__ledgername">{saleTotals.bacash}</th>
                             <th scope="col" className="table__th ledger__ledgername">{saleTotals.bacard}</th>
                             <th scope="col" className="table__th ledger__ledgername">{saleTotals.baupi}</th>
                             <th scope="col" className="table__th ledger__ledgername">{saleTotals.baonline}</th>
