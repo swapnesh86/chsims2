@@ -469,7 +469,7 @@ const LedgerList = () => {
             else if (reportType === 'HSN Report') {
                 let mycontent = jsonHsnContent.map((entry) => {
                     return ({
-                        HSN: entry.HSN, GST: entry.gst, Description: entry.description, Quantity: entry.Qty, Price: entry.Price, Taxable: (entry.Price * (1 - entry.gst / 100)).toFixed(2), CGST: (entry.Price * entry.gst / 200).toFixed(2), SGST: (entry.Price * entry.gst / 200).toFixed(2)
+                        HSN: entry.HSN, GST: entry.gst, Description: entry.description, Quantity: entry.Qty, Price: entry.Price, Taxable: (entry.Price / (1 + entry.gst / 100)).toFixed(2), CGST: (entry.Price * entry.gst * 0.5 / (100 + entry.gst)).toFixed(2), SGST: (entry.Price * entry.gst * 0.5 / (100 + entry.gst)).toFixed(2)
                     })
                 })
                 content = mycontent;
@@ -477,7 +477,7 @@ const LedgerList = () => {
             else if (reportType === 'GST Summary') {
                 let mycontent = jsonGstContent.map((entry) => {
                     return ({
-                        Date: entry.Date, GST: entry.gst, Customer: entry.Customer, BillNo: entry.BillNo, Product: entry.name, Taxable: (entry.Price * (1 - entry.gst / 100)).toFixed(2), CGST: (entry.Price * entry.gst / 200).toFixed(2), SGST: (entry.Price * entry.gst / 200).toFixed(2), Price: entry.Price
+                        Date: entry.Date, GST: entry.gst, Customer: entry.Customer, BillNo: entry.BillNo, Product: entry.name, Taxable: (entry.Price / (1 + entry.gst / 100)).toFixed(2), CGST: (entry.Price * entry.gst * 0.5 / (100 + entry.gst)).toFixed(2), SGST: (entry.Price * entry.gst * 0.5 / (100 + entry.gst)).toFixed(2), Price: entry.Price
                     })
                 })
                 content = mycontent;
@@ -563,16 +563,16 @@ const LedgerList = () => {
                 content = {
                     startY: 190,
                     head: [["Date", "BillNo", "Barcode", "Name", "HSN", "Rate", "Qty", "GST", "Taxable", "CGST", "SGST", "Price",]],
-                    body: jsonContent.map(entry => [entry.Date, entry.BillNo, entry.Barcode, entry.name, entry.HSN, (entry.Price / entry.Qty), entry.Qty, entry.gst, (entry.Price * (1 - entry.gst / 100)).toFixed(2), (entry.Price * entry.gst / 200).toFixed(2), (entry.Price * entry.gst / 200).toFixed(2), entry.Price]),
+                    body: jsonContent.map(entry => [entry.Date, entry.BillNo, entry.Barcode, entry.name, entry.HSN, (entry.Price / entry.Qty), entry.Qty, entry.gst, (entry.Price / (1 + entry.gst / 100)).toFixed(2), (entry.Price * entry.gst * 0.5 / (100 + entry.gst)).toFixed(2), (entry.Price * entry.gst * 0.5 / (100 + entry.gst)).toFixed(2), entry.Price]),
                     foot: [
-                        [{ content: "Total @3", colSpan: 8 }, { content: (gstTotals.gst3tot * 0.97).toFixed(2) }, { content: (gstTotals.gst3tot * 0.015).toFixed(2) }, { content: (gstTotals.gst3tot * 0.015).toFixed(2) }, { content: gstTotals.gst3tot }],
-                        [{ content: "Total @5", colSpan: 8 }, { content: (gstTotals.gst5tot * 0.95).toFixed(2) }, { content: (gstTotals.gst5tot * 0.025).toFixed(2) }, { content: (gstTotals.gst5tot * 0.025).toFixed(2) }, { content: gstTotals.gst5tot }],
-                        [{ content: "Total @12", colSpan: 8 }, { content: (gstTotals.gst12tot * 0.88).toFixed(2) }, { content: (gstTotals.gst12tot * 0.06).toFixed(2) }, { content: (gstTotals.gst12tot * 0.06).toFixed(2) }, { content: gstTotals.gst12tot }],
-                        [{ content: "Total @18", colSpan: 8 }, { content: (gstTotals.gst18tot * 0.82).toFixed(2) }, { content: (gstTotals.gst18tot * 0.09).toFixed(2) }, { content: (gstTotals.gst18tot * 0.09).toFixed(2) }, { content: gstTotals.gst18tot }],
+                        [{ content: "Total @3", colSpan: 8 }, { content: (gstTotals.gst3tot / 1.03).toFixed(2) }, { content: (gstTotals.gst3tot * 0.015 / 1.03).toFixed(2) }, { content: (gstTotals.gst3tot * 0.015 / 1.03).toFixed(2) }, { content: gstTotals.gst3tot }],
+                        [{ content: "Total @5", colSpan: 8 }, { content: (gstTotals.gst5tot / 1.05).toFixed(2) }, { content: (gstTotals.gst5tot * 0.025 / 1.05).toFixed(2) }, { content: (gstTotals.gst5tot * 0.025 / 1.05).toFixed(2) }, { content: gstTotals.gst5tot }],
+                        [{ content: "Total @12", colSpan: 8 }, { content: (gstTotals.gst12tot / 1.12).toFixed(2) }, { content: (gstTotals.gst12tot * 0.06 / 1.12).toFixed(2) }, { content: (gstTotals.gst12tot * 0.06 / 1.12).toFixed(2) }, { content: gstTotals.gst12tot }],
+                        [{ content: "Total @18", colSpan: 8 }, { content: (gstTotals.gst18tot / 1.18).toFixed(2) }, { content: (gstTotals.gst18tot * 0.09 / 1.18).toFixed(2) }, { content: (gstTotals.gst18tot * 0.09 / 1.18).toFixed(2) }, { content: gstTotals.gst18tot }],
                         [{ content: "Total", colSpan: 8 },
-                        { content: ((gstTotals.gst18tot * 0.82) + (gstTotals.gst3tot * 0.97) + (gstTotals.gst5tot * 0.95) + (gstTotals.gst12tot * 0.88)).toFixed(2) },
-                        { content: ((gstTotals.gst18tot * 0.09) + (gstTotals.gst3tot * 0.015) + (gstTotals.gst5tot * 0.025) + (gstTotals.gst12tot * 0.06)).toFixed(2) },
-                        { content: ((gstTotals.gst18tot * 0.09) + (gstTotals.gst3tot * 0.015) + (gstTotals.gst5tot * 0.025) + (gstTotals.gst12tot * 0.06)).toFixed(2) },
+                        { content: ((gstTotals.gst18tot / 1.18) + (gstTotals.gst3tot / 1.03) + (gstTotals.gst5tot / 1.05) + (gstTotals.gst12tot / 1.12)).toFixed(2) },
+                        { content: ((gstTotals.gst18tot * 0.09 / 1.18) + (gstTotals.gst3tot * 0.015 / 1.03) + (gstTotals.gst5tot * 0.025 / 1.05) + (gstTotals.gst12tot * 0.06 / 1.12)).toFixed(2) },
+                        { content: ((gstTotals.gst18tot * 0.09 / 1.18) + (gstTotals.gst3tot * 0.015 / 1.03) + (gstTotals.gst5tot * 0.025 / 1.05) + (gstTotals.gst12tot * 0.06 / 1.12)).toFixed(2) },
                         { content: (gstTotals.gst18tot + gstTotals.gst3tot + gstTotals.gst5tot + gstTotals.gst12tot) }],
                     ],
                     margin: { top: 10, right: sidemargin, bottom: 0, left: sidemargin },
@@ -600,7 +600,7 @@ const LedgerList = () => {
                     head: [["Name", "Qty", "Price"]],
                     body: jsonContent.map(entry => [entry.name, entry.Qty, entry.Price]),
                     foot: [
-                        [{ content: "GST", colSpan: 2 }, { content: ((gstTotals.gst18tot * 0.18) + (gstTotals.gst3tot * 0.03) + (gstTotals.gst5tot * 0.05) + (gstTotals.gst12tot * 0.12)).toFixed(2) }],
+                        [{ content: "GST", colSpan: 2 }, { content: ((gstTotals.gst18tot * 0.18) / 1.18 + (gstTotals.gst3tot * 0.03) / 1.03 + (gstTotals.gst5tot * 0.05) / 1.05 + (gstTotals.gst12tot * 0.12) / 1.12).toFixed(2) }],
                         [{ content: "Total", colSpan: 2 }, { content: total }]
                     ],
                     margin: { top: 10, right: sidemargin, bottom: 0, left: sidemargin },
@@ -638,8 +638,8 @@ const LedgerList = () => {
         } else if (reportType === 'HSN Report') {
             let headers = [["HSN", "GST", "Description", "Quantity", "Price", "Taxable", "CGST", "SGST"
             ]]
-            let data = jsonHsnContent.map(entry => [entry.HSN, entry.gst, entry.description, entry.Qty, entry.Price, (entry.Price * (1 - entry.gst / 100)).toFixed(2),
-            (entry.Price * entry.gst / 200).toFixed(2), (entry.Price * entry.gst / 200).toFixed(2)
+            let data = jsonHsnContent.map(entry => [entry.HSN, entry.gst, entry.description, entry.Qty, entry.Price, (entry.Price / (1 + entry.gst / 100)).toFixed(2),
+            (entry.Price * entry.gst * 0.5 / (100 + entry.gst)).toFixed(2), (entry.Price * entry.gst * 0.5 / (100 + entry.gst)).toFixed(2)
             ])
             doc = new jsPDF('portrait', 'pt', 'A4');
             doc.setFontSize(11);
@@ -652,8 +652,8 @@ const LedgerList = () => {
         } else if (reportType === 'GST Summary') {
             let headers = [["Date", "GST", "Customer", "Bill No.", "Product", "Taxable", "CGST", "SGST", "Price"
             ]]
-            let data = jsonGstContent.map(entry => [entry.Date, entry.gst, entry.Customer, entry.BillNo, entry.name, (entry.Price * (1 - entry.gst / 100)).toFixed(2),
-            (entry.Price * entry.gst / 200).toFixed(2), (entry.Price * entry.gst / 200).toFixed(2), entry.Price
+            let data = jsonGstContent.map(entry => [entry.Date, entry.gst, entry.Customer, entry.BillNo, entry.name, (entry.Price / (1 + entry.gst / 100)).toFixed(2),
+            (entry.Price * entry.gst * 0.5 / (100 + entry.gst)).toFixed(2), (entry.Price * entry.gst * 0.5 / (100 + entry.gst)).toFixed(2), entry.Price
             ])
             doc = new jsPDF('portrait', 'pt', 'A4');
             doc.setFontSize(11);
