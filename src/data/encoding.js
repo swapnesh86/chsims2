@@ -199,6 +199,14 @@ export const encoding = {
 		{
 			"hsn": 420231,
 			"Description": "Accessories"
+		},
+		{
+			"hsn": 6116,
+			"Description": "Accessories"
+		},
+		{
+			"hsn": 6216,
+			"Description": "Accessories"
 		}
 	],
 
@@ -816,6 +824,12 @@ export const encoding = {
 		},
 		{
 			"HSNCode": 420231
+		},
+		{
+			"HSNCode": 6116
+		},
+		{
+			"HSNCode": 6216
 		}
 	]
 }
