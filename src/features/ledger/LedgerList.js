@@ -88,6 +88,7 @@ const LedgerList = () => {
     const [andheri, setAndheri] = useState(false)
     const [bandra, setBandra] = useState(false)
     const [powai, setPowai] = useState(false)
+    const [exhibition, setExhibition] = useState(false)
     const [internal, setInternal] = useState(false)
     const [otherSellers, setOtherSellers] = useState(false)
     const [internalProduction, setInternalProduction] = useState(false)
@@ -412,6 +413,7 @@ const LedgerList = () => {
         if (andheri) tempstr = 'CHAD'
         if (bandra) tempstr = tempstr + (tempstr !== '' ? '|CHBA' : 'CHBA')
         if (powai) tempstr = tempstr + (tempstr !== '' ? '|CHPO' : 'CHPO')
+        if (exhibition) tempstr = tempstr + (tempstr !== '' ? '|CHEX' : 'CHEX')
         if (chpurchases) tempstr = tempstr + (tempstr !== '' ? '|CHDB' : 'CHDB')
         if (chreturns) tempstr = tempstr + (tempstr !== '' ? '|CHDN' : 'CHDN')
         if (otherSellers) tempstr = tempstr + (tempstr !== '' ? '|CHOS' : 'CHOS')
@@ -420,7 +422,7 @@ const LedgerList = () => {
 
         setBillNoSearch(tempstr)
 
-    }, [andheri, bandra, powai, chpurchases, chreturns, otherSellers, internalProduction, internal])
+    }, [andheri, bandra, powai, exhibition, chpurchases, chreturns, otherSellers, internalProduction, internal])
 
     useEffect(() => {
         let tempstr = ''
@@ -682,6 +684,7 @@ const LedgerList = () => {
     const handleToggleAndheri = () => setAndheri(prev => !prev)
     const handleToggleBandra = () => setBandra(prev => !prev)
     const handleTogglePowai = () => setPowai(prev => !prev)
+    const handleToggleExhibition = () => setExhibition(prev => !prev)
     const handleToggleOtherSellers = () => setOtherSellers(prev => !prev)
     const handleToggleChPurchases = () => setChPurchases(prev => !prev)
     const handleToggleChReturns = () => setChReturns(prev => !prev)
@@ -1035,6 +1038,16 @@ const LedgerList = () => {
                             checked={powai}
                         />
                         Powai
+                    </label>
+                    <label htmlFor="persist" className="form__persist">
+                        <input
+                            type="checkbox"
+                            className="form__checkbox"
+                            id="persist"
+                            onChange={handleToggleExhibition}
+                            checked={exhibition}
+                        />
+                        Exhibition
                     </label>
                     <label htmlFor="persist" className="form__persist">
                         <input
