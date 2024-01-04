@@ -307,6 +307,7 @@ const BillList = () => {
     let shopHeaderSection
     let newInvHeaderSection
     let newItemSection
+    let discountSection
     let content
     let searchtableContent
     let returnBillSection
@@ -523,7 +524,7 @@ const BillList = () => {
                     else if ((isAdmin || isInventoryManager || isShopManager) && action === 'Internal') myemail = 'shruti@creativehandicrafts.org'      // send to ShopManager, Inventory Manager
                     else myemail = email // populate email from form
                     if (myemail) {
-                        await sendEmail({ recipient: myemail, orderType: orderType, billno: mybillno, customer: myBuyer, messagebody: bill })
+                        await sendEmail({ recipient: myemail, orderType: orderType, billno: mybillno, customer: myBuyer, factor: factor, messagebody: bill })
                     }
                 }
 
@@ -692,6 +693,12 @@ const BillList = () => {
 
                     </div>
 
+                discountSection =
+                    <div className="billing--line2">
+                        {((isAdmin || isShopManager) && store === 'Exhibition' && editPrice) && <label htmlFor="persist" className="form__label">
+                            Discount Percent: <input type="text" id="discount" value={100 - (factor * 100)} onChange={(e) => setFactor((100 - e.target.value) / 100)} placeholder="Discount Percent" />
+                        </label>}
+                    </div>
 
 
                 content = bill.map(entry => { //JSON.stringify(skus)
@@ -785,6 +792,7 @@ const BillList = () => {
             {(((isAdmin || isShopManager) && action === "Billing") || isAdInCharge || isBaInCharge || isPoInCharge) && shopHeaderSection}
             <br></br>
             {newItemSection}
+            {discountSection}
             <br></br>
             <p className={validQty ? "offscreen" : "errmsg"}>{validQty ? '' : 'Quantity Check Failed'}</p>
             {content}
