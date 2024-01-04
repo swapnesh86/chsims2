@@ -519,11 +519,11 @@ const BillList = () => {
 
                     //console.log(billHtml)
                     let myemail
-                    if ((isAdmin || isInventoryManager || isShopManager) && action === 'Inventory') myemail = 'swapnesh.j@gmail.com'         // send to Accounts, ShopManager, Inventory Manager
-                    else if ((isAdmin || isInventoryManager || isShopManager) && action === 'Internal') myemail = 'swapnesh.j@gmail.com'      // send to ShopManager, Inventory Manager
+                    if ((isAdmin || isInventoryManager || isShopManager) && action === 'Inventory') myemail = 'shruti@creativehandicrafts.org'         // send to Accounts, ShopManager, Inventory Manager
+                    else if ((isAdmin || isInventoryManager || isShopManager) && action === 'Internal') myemail = 'shruti@creativehandicrafts.org'      // send to ShopManager, Inventory Manager
                     else myemail = email // populate email from form
                     if (myemail) {
-                        await sendEmail({ recipient: myemail, subject: `${orderType}: Bill No.${mybillno}`, messagebody: bill })
+                        await sendEmail({ recipient: myemail, orderType: orderType, billno: mybillno, customer: myBuyer, messagebody: bill })
                     }
                 }
 
