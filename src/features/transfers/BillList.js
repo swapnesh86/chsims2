@@ -592,7 +592,7 @@ const BillList = () => {
 
                             <label className="form__label" htmlFor="source">Select Action: </label>
                             <select id="action" name="action" size="1" value={action} onChange={(e) => setAction(e.target.value)} >
-                                {[<option></option>, <option>Billing</option>, <option>Inventory</option>, <option>Internal</option>]}
+                                {[<option key='' value=''></option>, <option key="Billing" value="Billing">Billing</option>, <option key="Inventory" value="Inventory">Inventory</option>, <option key="Internal" value="Internal">Internal</option>]}
                             </select>
                             <br></br>
                             <br></br>
@@ -600,7 +600,7 @@ const BillList = () => {
                                 <div>
                                     <label className="form__label" htmlFor="store"> Store: </label>
                                     <select id="store" name="store" size="1" value={store} onChange={(e) => setStore(e.target.value)} >
-                                        {[<option></option>, <option>Andheri</option>, <option>Bandra</option>, <option>Powai</option>, <option>Exhibition</option>]}
+                                        {[<option key='' value=''></option>, <option key="Andheri" value="Andheri">Andheri</option>, <option key="Bandra" value="Bandra">Bandra</option>, <option key="Powai" value="Powai">Powai</option>, <option key="Exhibition" value="Exhibition">Exhibition</option>]}
                                     </select>
                                 </div>
                             }
@@ -608,11 +608,11 @@ const BillList = () => {
                                 <div className="inventory--header">
                                     <label className="form__label" htmlFor="source"> Source: </label>
                                     <select id="source" name="source" size="1" value={source} onChange={(e) => setSource(e.target.value)} >
-                                        {[<option></option>, <option>CH</option>, <option>OS</option>, <option>CWEF</option>, <option>CWEFStore</option>]}
+                                        {[<option key='' value=''></option>, <option key="CH" value="CH">CH</option>, <option key="OS" value="OS">OS</option>, <option key="CWEF" value="CWEF">CWEF</option>, <option key="CWEFStore" value="CWEFStore">CWEFStore</option>]}
                                     </select>
                                     <label className="form__label" htmlFor="destination"> Destination: </label>
                                     <select id="destination" name="destination" size="1" value={destination} onChange={(e) => setDestination(e.target.value)} >
-                                        {[<option></option>, <option>CH</option>, <option>OS</option>, <option>CWEF</option>, <option>CWEFStore</option>]}
+                                        {[<option key='' value=''></option>, <option key="CH" value="CH">CH</option>, <option key="OS" value="OS">OS</option>, <option key="CWEF" value="CWEF">CWEF</option>, <option key="CWEFStore" value="CWEFStore">CWEFStore</option>]}
                                     </select>
                                     {(source === 'OS' || destination === 'OS') &&
                                         <>
@@ -625,11 +625,11 @@ const BillList = () => {
                                 <div className="inventory--header">
                                     <label className="form__label" htmlFor="source"> Source: </label>
                                     <select id="source" name="source" size="1" value={source} onChange={(e) => setSource(e.target.value)} >
-                                        {[<option></option>, <option>CWEFStore</option>, <option>Andheri</option>, <option>Bandra</option>, <option>Powai</option>, <option>Exhibition</option>]}
+                                        {[<option key='' value=''></option>, <option key="CWEFStore" value="CWEFStore">CWEFStore</option>, <option key="Andheri" value="Andheri">Andheri</option>, <option key="Bandra" value="Bandra">Bandra</option>, <option key="Powai" value="Powai">Powai</option>, <option key="Exhibition" value="Exhibition">Exhibition</option>]}
                                     </select>
                                     <label className="form__label" htmlFor="destination"> Destination: </label>
                                     <select id="destination" name="destination" size="1" value={destination} onChange={(e) => setDestination(e.target.value)} >
-                                        {[<option></option>, <option>CWEFStore</option>, <option>Andheri</option>, <option>Bandra</option>, <option>Powai</option>, <option>Exhibition</option>]}
+                                        {[<option key='' value=''></option>, <option key="CWEFStore" value="CWEFStore">CWEFStore</option>, <option key="Andheri" value="Andheri">Andheri</option>, <option key="Bandra" value="Bandra">Bandra</option>, <option key="Powai" value="Powai">Powai</option>, <option key="Exhibition" value="Exhibition">Exhibition</option>]}
                                     </select>
                                 </div>
                             }
@@ -645,14 +645,14 @@ const BillList = () => {
                         <div className="billing--line2">
                             <label className="form__label" htmlFor="brand">Order Type: </label>
                             <select id="orderType" name="orderType" size="1" value={orderType} onChange={(e) => setOrderType(e.target.value)} >
-                                {[<option></option>, <option>Internal</option>, <option>Sale</option>, <option>Exchange</option>]}
+                                {[<option key='' value=''></option>, <option key="Internal" value="Internal">Internal</option>, <option key="Sale" value="Sale">Sale</option>, <option key="Exchange" value="Exchange">Exchange</option>]}
                             </select>
                             <input type="text" id="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" />
                         </div>
                         <div className="billing--line2">
                             <label className="form__label" htmlFor="brand"> Payment Type: </label>
                             <select id="paymentType" name="paymentType" size="1" value={paymentType} onChange={(e) => setPaymentType(e.target.value)} >
-                                {[<option></option>, <option>Cash</option>, <option>Card</option>, <option>UPI</option>, <option>Online</option>]}
+                                {[<option key='' value=''></option>, <option key="Cash" value="Cash">Cash</option>, <option key="Card" value="Card">Card</option>, <option key="UPI" value="UPI">UPI</option>, <option key="Online" value="Online">Online</option>]}
                             </select>
                             <input type="text" id="membership" placeholder="Membership ID"
                                 className={validMember ? "green-back" : "red-back"}

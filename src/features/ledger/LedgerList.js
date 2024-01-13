@@ -140,7 +140,7 @@ const LedgerList = () => {
             let myGstSummary = [...jsonContent.reduce((r, o) => {
                 const key = o.Date + '-' + o.buyer + '-' + o.BillNo + '-' + o.name
                 const item = r.get(key) || Object.assign({}, o, {
-                    Date: o.Date, Customer: o.buyer, BillNo: o.BillNo, Name: o.name,
+                    Key: key, Date: o.Date, Customer: o.buyer, BillNo: o.BillNo, Name: o.name,
                     Price: 0, gst: o.gst
                 })
 
@@ -151,7 +151,8 @@ const LedgerList = () => {
             }, new Map()).values()]
 
             const myGstTable = myGstSummary?.length && myGstSummary.map(key => {
-                return (<GstSummary gstrow={key} />)
+                //console.log(key.Key)
+                return (<GstSummary key={key.Key} gstrow={key} />)
             })
 
             //console.log(myGstSummary)
@@ -168,7 +169,7 @@ const LedgerList = () => {
             let myHsnSummary = [...jsonContent.reduce((r, o) => {
                 const key = o.HSN + '-' + o.gst
                 const item = r.get(key) || Object.assign({}, o, {
-                    description: encoding.hsnDesc.find(entry => entry.hsn === o.HSN).Description,
+                    Key: key, description: encoding.hsnDesc.find(entry => entry.hsn === o.HSN).Description,
                     Qty: 0, Price: 0, HSN: o.HSN, gst: o.gst
                 })
 
@@ -181,7 +182,7 @@ const LedgerList = () => {
 
             //console.log('HSN', myHsnSummary)
             const myHsntable = myHsnSummary?.length && myHsnSummary.map(key => {
-                return (<HsnSummary hsnrow={key} />)
+                return (<HsnSummary key={key.Key} hsnrow={key} />)
             })
 
             setJsonHsnContent(myHsnSummary)
@@ -204,7 +205,7 @@ const LedgerList = () => {
             let mysalessummary = [...jsonContent.reduce((r, o) => {
                 const key = o.Date
                 const item = r.get(key) || Object.assign({}, o, {
-                    adcash: 0, adcard: 0, adupi: 0, adonline: 0, adtotal: 0,
+                    Key: key, adcash: 0, adcard: 0, adupi: 0, adonline: 0, adtotal: 0,
                     bacash: 0, bacard: 0, baupi: 0, baonline: 0, batotal: 0,
                     pocash: 0, pocard: 0, poupi: 0, poonline: 0, pototal: 0,
                     excash: 0, excard: 0, exupi: 0, exonline: 0, extotal: 0,
@@ -244,8 +245,8 @@ const LedgerList = () => {
 
             setJsonSalesContent([...mysalessummary, mytotal])
 
-            const mytable = mysalessummary?.length && mysalessummary.map(date => {
-                return (<SalesSummary summaryrow={date} />)
+            const mytable = mysalessummary?.length && mysalessummary.map(key => {
+                return (<SalesSummary key={key.Key} summaryrow={key} />)
             })
 
             setSaleTable(mytable)
@@ -734,7 +735,12 @@ const LedgerList = () => {
             <>
                 <label className="form__label" htmlFor="report"> Shop Girl : </label>
                 <select id="staff" name="staff" size="1" value={shopGirl} onChange={(e) => setShopGirl(e.target.value)} >
-                    {[<option></option>, <option>Ankita</option>, <option>Poonam</option>, <option>Vaishnavi</option>, <option>Apeksha</option>, <option>Kirti</option>, <option>Neha</option>]}
+                    {[<option key="Ankita" value="Ankita">Ankita</option>,
+                    <option key="Poonam" value="Poonam">Poonam</option>,
+                    <option key="Vaishnavi" value="Vaishnavi">Vaishnavi</option>,
+                    <option key="Apeksha" value="Apeksha">Apeksha</option>,
+                    <option key="Kirti" value="Kirti">Kirti</option>,
+                    <option key="Neha" value="Neha">Neha</option>]}
                 </select>
                 <br></br>
                 <br></br>
@@ -1145,7 +1151,13 @@ const LedgerList = () => {
         <>
             <label className="form__label" htmlFor="report"> Select Report : </label>
             <select id="report" name="report" size="1" value={reportType} onChange={(e) => setReportType(e.target.value)} >
-                {[<option></option>, <option>Ledger</option>, <option>Sales Summary</option>, <option>HSN Report</option>, <option>GST Summary</option>, <option>Attendance</option>, <option>Commission</option>]}
+                {[<option key="Ledger" value="Ledger" >Ledger</option>,
+                <option key="Sales Summary" value="Sales Summary" >Sales Summary</option>,
+                <option key="HSN Report" value="HSN Report" >HSN Report</option>,
+                <option key="GST Summary" value="GST Summary" >GST Summary</option>,
+                <option key="Attendance" value="Attendance" >Attendance</option>,
+                <option key="Commission" value="Commission" >Commission</option>
+                ]}
             </select>
             <br></br>
             {dateSelector}
