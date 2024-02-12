@@ -334,7 +334,7 @@ const LedgerList = () => {
                 let myattendanceReformat = [...attendanceContent.reduce((r, o) => {
                     const key = o.name + '-' + o.date
                     const item = r.get(key) || Object.assign({}, o, {
-                        name: o.name, date: o.date, location: o.location,
+                        Key: key, name: o.name, date: o.date, location: o.location,
                         in: 0, out: 0
                     })
 
@@ -347,7 +347,7 @@ const LedgerList = () => {
 
                 const myattendancetable = myattendanceReformat?.length && myattendanceReformat.map(key => {
                     if (key.name === shopGirl) {
-                        return (<StaffAttendance entry={key} />)
+                        return (<StaffAttendance key={key.Key} entry={key} />)
                     } else return null
                 })
 
@@ -397,7 +397,7 @@ const LedgerList = () => {
             }, new Map()).values()]
 
             const mycommissiontable = mycommissionData?.length && mycommissionData.map(key => {
-                return (<Commission entry={key} />)
+                return (<Commission key={key.name} entry={key} />)
             })
             setCommisionTable(mycommissiontable)
             //console.log(mycommissionData)
