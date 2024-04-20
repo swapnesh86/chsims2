@@ -281,6 +281,10 @@ export const encoding = {
 		{
 			"SEGMENT": "Edibles",
 			"IDENTITY": "K"
+		},
+		{
+			"SEGMENT": "Fabric",
+			"IDENTITY": "L"
 		}
 	],
 
