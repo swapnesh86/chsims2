@@ -317,8 +317,9 @@ const BillList = () => {
 
     if (SkuinvisSuccess) {
 
-        const { ids, entities } = skuinv
-        let skuIds = ids.filter(sku => (entities[sku].name.toLowerCase().includes(newSearch.toLowerCase())))
+        ///const { ids, entities } = skuinv
+        const { ids: invids, entities: inventities } = skuinv
+        let skuIds = invids.filter(sku => (inventities[sku].name.toLowerCase().includes(newSearch.toLowerCase())))
 
         if (billLoading) content = <p>Loading...</p>
 
@@ -397,371 +398,366 @@ const BillList = () => {
 
             let myUpdateBillStr = { id: billids[0], ad: 0, ba: 0, po: 0, ex: 0, db: 0, dn: 0, rs: 0, int: 0, os: 0, ip: 0, date: 0 }
 
-            if (SkuinvisLoading) content = <p>Loading...</p>
 
-            if (SkuinvisSuccess) {
+            const getbillno = (seller, buyer) => {
 
-                const { ids: invids, entities: inventities } = skuinv
-
-                const getbillno = (seller, buyer) => {
-
-                    if (seller === 'CH' && buyer === 'CWEFStore') { (myUpdateBillStr.db = 1); return (billentities[billids[0]].db); }
-                    if (seller === 'OS' && buyer === 'CWEFStore') { (myUpdateBillStr.os = 1); return (billentities[billids[0]].os); }
-                    if (seller === 'CWEF' && buyer === 'CWEFStore') { (myUpdateBillStr.ip = 1); return (billentities[billids[0]].ip); }
-                    if (seller === 'CWEFStore' && buyer === 'CH') { (myUpdateBillStr.dn = 1); return (billentities[billids[0]].dn); }
-                    if (seller === 'CWEFStore' && buyer === 'OS') { (myUpdateBillStr.rs = 1); return (billentities[billids[0]].rs); }
-                    if ((seller === 'CWEFStore' || seller === 'Andheri' || seller === 'Bandra' || seller === 'Powai' || seller === 'Exhibition')
-                        && (buyer === 'CWEFStore' || buyer === 'Andheri' || buyer === 'Bandra' || buyer === 'Powai' || buyer === 'Exhibition')) {
-                        (myUpdateBillStr.int = 1); return (billentities[billids[0]].int);
-                    }
-                    if (seller === 'Andheri') { (myUpdateBillStr.ad = 1); return (billentities[billids[0]].ad); }
-                    if (seller === 'Bandra') { (myUpdateBillStr.ba = 1); return (billentities[billids[0]].ba); }
-                    if (seller === 'Powai') { (myUpdateBillStr.po = 1); return (billentities[billids[0]].po); }
-                    if (seller === 'Exhibition') { (myUpdateBillStr.ex = 1); return (billentities[billids[0]].ex); }
+                if (seller === 'CH' && buyer === 'CWEFStore') { (myUpdateBillStr.db = 1); return (billentities[billids[0]].db); }
+                if (seller === 'OS' && buyer === 'CWEFStore') { (myUpdateBillStr.os = 1); return (billentities[billids[0]].os); }
+                if (seller === 'CWEF' && buyer === 'CWEFStore') { (myUpdateBillStr.ip = 1); return (billentities[billids[0]].ip); }
+                if (seller === 'CWEFStore' && buyer === 'CH') { (myUpdateBillStr.dn = 1); return (billentities[billids[0]].dn); }
+                if (seller === 'CWEFStore' && buyer === 'OS') { (myUpdateBillStr.rs = 1); return (billentities[billids[0]].rs); }
+                if ((seller === 'CWEFStore' || seller === 'Andheri' || seller === 'Bandra' || seller === 'Powai' || seller === 'Exhibition')
+                    && (buyer === 'CWEFStore' || buyer === 'Andheri' || buyer === 'Bandra' || buyer === 'Powai' || buyer === 'Exhibition')) {
+                    (myUpdateBillStr.int = 1); return (billentities[billids[0]].int);
                 }
+                if (seller === 'Andheri') { (myUpdateBillStr.ad = 1); return (billentities[billids[0]].ad); }
+                if (seller === 'Bandra') { (myUpdateBillStr.ba = 1); return (billentities[billids[0]].ba); }
+                if (seller === 'Powai') { (myUpdateBillStr.po = 1); return (billentities[billids[0]].po); }
+                if (seller === 'Exhibition') { (myUpdateBillStr.ex = 1); return (billentities[billids[0]].ex); }
+            }
 
-                const makeBill = async (e) => {
-                    e.preventDefault()
+            const makeBill = async (e) => {
+                e.preventDefault()
 
-                    let myorderType = ''
-                    let mySeller = ''
-                    let sellerCode = ''
-                    let myBuyer = ''
-                    let buyerCode = ''
-                    let myPhone = ''
-                    let myEmail = ''
-                    let myPaymentType = ''
-                    let myMembership = ''
-                    let myAddedSkus = ''
+                let myorderType = ''
+                let mySeller = ''
+                let sellerCode = ''
+                let myBuyer = ''
+                let buyerCode = ''
+                let myPhone = ''
+                let myEmail = ''
+                let myPaymentType = ''
+                let myMembership = ''
+                let myAddedSkus = ''
 
-                    if (isAdmin || isShopManager || isInventoryManager) {
-                        if (action === 'Inventory') {
-                            myPaymentType = 'Online'
-                            if (source === 'CH') { myorderType = 'CHPurchase'; mySeller = 'CH'; myBuyer = 'CWEFStore'; sellerCode = mySeller; buyerCode = myBuyer }
-                            else if (source === 'OS') { myorderType = 'OSPurchase'; mySeller = otherSeller; myBuyer = 'CWEFStore'; sellerCode = 'OS'; buyerCode = myBuyer }
-                            else if (source === 'CWEF') { myorderType = 'InternalProduction'; mySeller = 'CWEF'; myBuyer = 'CWEFStore'; sellerCode = mySeller; buyerCode = myBuyer }
-                            else if (source === 'CWEFStore') {
-                                if (destination === 'CH') { myorderType = 'CHReturn'; myBuyer = 'CH'; buyerCode = myBuyer }
-                                else if (destination === 'OS') { myorderType = 'OSReturn'; myBuyer = otherSeller; buyerCode = 'OS' }
-                                mySeller = 'CWEFStore'; sellerCode = mySeller
+                if (isAdmin || isShopManager || isInventoryManager) {
+                    if (action === 'Inventory') {
+                        myPaymentType = 'Online'
+                        if (source === 'CH') { myorderType = 'CHPurchase'; mySeller = 'CH'; myBuyer = 'CWEFStore'; sellerCode = mySeller; buyerCode = myBuyer }
+                        else if (source === 'OS') { myorderType = 'OSPurchase'; mySeller = otherSeller; myBuyer = 'CWEFStore'; sellerCode = 'OS'; buyerCode = myBuyer }
+                        else if (source === 'CWEF') { myorderType = 'InternalProduction'; mySeller = 'CWEF'; myBuyer = 'CWEFStore'; sellerCode = mySeller; buyerCode = myBuyer }
+                        else if (source === 'CWEFStore') {
+                            if (destination === 'CH') { myorderType = 'CHReturn'; myBuyer = 'CH'; buyerCode = myBuyer }
+                            else if (destination === 'OS') { myorderType = 'OSReturn'; myBuyer = otherSeller; buyerCode = 'OS' }
+                            mySeller = 'CWEFStore'; sellerCode = mySeller
+                        }
+                    }
+                    else if (action === 'Internal') { myorderType = 'InternalTransfer'; myBuyer = destination; mySeller = source; myPaymentType = 'NA';; sellerCode = mySeller; buyerCode = myBuyer }
+                    else if (action === 'Billing' && (isAdmin || isShopManager)) { myorderType = orderType; mySeller = store; myBuyer = name; myPhone = phone; myEmail = email; myPaymentType = (myorderType === 'Internal' ? 'NA' : paymentType); myMembership = membership; sellerCode = mySeller; buyerCode = 'Customer' }
+                } else if (isAdInCharge || isBaInCharge || isPoInCharge) { myorderType = orderType; mySeller = status; myBuyer = name; myPhone = phone; myEmail = email; myPaymentType = (myorderType === 'Internal' ? 'NA' : paymentType); myMembership = membership; sellerCode = mySeller; buyerCode = 'Customer' }
+
+                let mybillno
+                if (orderType !== 'Exchange') {
+                    let billdigits = pad(getbillno(sellerCode, buyerCode))
+                    if (finyearNow(billentities[billids[0]].date) !== finyearNow()) {
+                        myUpdateBillStr.date = new Date()
+                        billdigits = pad(1)
+                    }
+                    mybillno = `CH${categorySelect(sellerCode, buyerCode)}${finyearNow()}-${billdigits}`
+                    console.log(mybillno)
+                    await updatebillnos(myUpdateBillStr)
+                } else {
+                    mybillno = returnBillNo
+                }
+                setBillNo(mybillno)
+
+                bill.forEach(entry => {
+                    myAddedSkus = myAddedSkus ? (myAddedSkus + '-' + entry.barcode) : entry.barcode
+                })
+                setAddedSkus(myAddedSkus)
+
+                bill.forEach(async (entry) => {
+
+                    if (entry.barcode.toUpperCase().match('FBFSBIA2001|FBFSCIA2001|FBFSDIA2001') && (isAdInCharge || isBaInCharge || isPoInCharge || (action === 'Billing'))) {
+                        let membershipDuration = encoding.membership.find(temp => temp.barcode === entry.barcode).duration
+                        if (newMembership) {
+                            if (existingMember) {
+                                const { entities: memberentities } = members
+                                await updateMember({ id: existingMember, barcode: memberentities[existingMember].barcode, phone: phone, duration: membershipDuration, billno: mybillno, time: new Date() })
+                            } else {
+                                await addMember({ barcode: newMembership, phone: phone, duration: membershipDuration, billno: mybillno, time: new Date() })
                             }
                         }
-                        else if (action === 'Internal') { myorderType = 'InternalTransfer'; myBuyer = destination; mySeller = source; myPaymentType = 'NA';; sellerCode = mySeller; buyerCode = myBuyer }
-                        else if (action === 'Billing' && (isAdmin || isShopManager)) { myorderType = orderType; mySeller = store; myBuyer = name; myPhone = phone; myEmail = email; myPaymentType = (myorderType === 'Internal' ? 'NA' : paymentType); myMembership = membership; sellerCode = mySeller; buyerCode = 'Customer' }
-                    } else if (isAdInCharge || isBaInCharge || isPoInCharge) { myorderType = orderType; mySeller = status; myBuyer = name; myPhone = phone; myEmail = email; myPaymentType = (myorderType === 'Internal' ? 'NA' : paymentType); myMembership = membership; sellerCode = mySeller; buyerCode = 'Customer' }
-
-                    let mybillno
-                    if (orderType !== 'Exchange') {
-                        let billdigits = pad(getbillno(sellerCode, buyerCode))
-                        if (finyearNow(billentities[billids[0]].date) !== finyearNow()) {
-                            myUpdateBillStr.date = new Date()
-                            billdigits = pad(1)
-                        }
-                        mybillno = `CH${categorySelect(sellerCode, buyerCode)}${finyearNow()}-${billdigits}`
-                        console.log(mybillno)
-                        await updatebillnos(myUpdateBillStr)
-                    } else {
-                        mybillno = returnBillNo
                     }
-                    setBillNo(mybillno)
 
-                    bill.forEach(entry => {
-                        myAddedSkus = myAddedSkus ? (myAddedSkus + '-' + entry.barcode) : entry.barcode
-                    })
-                    setAddedSkus(myAddedSkus)
+                    const ledgerEntry = { billno: mybillno, barcode: entry.barcode, name: entry.name, ordertype: myorderType, buyer: (myBuyer ? myBuyer : buyerCode), seller: mySeller, phone: myPhone, email: myEmail, paymenttype: myPaymentType, membership: myMembership, qty: entry.qty, totalprice: (entry.qty * entry.mrp * factor), hsncode: entry.hsn, gst: entry.gst }
 
-                    bill.forEach(async (entry) => {
+                    const invId = invids.filter(id => (
+                        inventities[id].barcode.toLowerCase() === entry.barcode.toLowerCase()
+                    ))
 
-                        if (entry.barcode.toUpperCase().match('FBFSBIA2001|FBFSCIA2001|FBFSDIA2001') && (isAdInCharge || isBaInCharge || isPoInCharge || (action === 'Billing'))) {
-                            let membershipDuration = encoding.membership.find(temp => temp.barcode === entry.barcode).duration
-                            if (newMembership) {
-                                if (existingMember) {
-                                    const { entities: memberentities } = members
-                                    await updateMember({ id: existingMember, barcode: memberentities[existingMember].barcode, phone: phone, duration: membershipDuration, billno: mybillno, time: new Date() })
-                                } else {
-                                    await addMember({ barcode: newMembership, phone: phone, duration: membershipDuration, billno: mybillno, time: new Date() })
-                                }
-                            }
-                        }
+                    let canSave = [invId[0], mybillno, entry.barcode, myorderType, (myBuyer || buyerCode), mySeller, myPaymentType, entry.qty, entry.hsn, entry.gst].every(Boolean)
 
-                        const ledgerEntry = { billno: mybillno, barcode: entry.barcode, name: entry.name, ordertype: myorderType, buyer: (myBuyer ? myBuyer : buyerCode), seller: mySeller, phone: myPhone, email: myEmail, paymenttype: myPaymentType, membership: myMembership, qty: entry.qty, totalprice: (entry.qty * entry.mrp * factor), hsncode: entry.hsn, gst: entry.gst }
+                    if (canSave) {
+                        const tqty = Number(entry.qty)
+                        let updateInvStr = { source: 0, cwefstore: 0, andheri: 0, bandra: 0, powai: 0, exhibition: 0, sales: 0 }
+                        if (['CH', 'CWEF', 'OS'].includes(sellerCode)) { updateInvStr.source = -tqty }
+                        else if (sellerCode === 'CWEFStore') { updateInvStr.cwefstore = -tqty }
+                        else if (sellerCode === 'Andheri') { updateInvStr.andheri = -tqty }
+                        else if (sellerCode === 'Bandra') { updateInvStr.bandra = -tqty }
+                        else if (sellerCode === 'Powai') { updateInvStr.powai = -tqty }
+                        else if (sellerCode === 'Exhibition') { updateInvStr.exhibition = -tqty }
 
-                        const invId = invids.filter(id => (
-                            inventities[id].barcode.toLowerCase() === entry.barcode.toLowerCase()
-                        ))
+                        if (['CH', 'CWEF', 'OS'].includes(buyerCode)) { updateInvStr.source = tqty }
+                        else if (buyerCode === 'CWEFStore') { updateInvStr.cwefstore = tqty }
+                        else if (buyerCode === 'Andheri') { updateInvStr.andheri = tqty }
+                        else if (buyerCode === 'Bandra') { updateInvStr.bandra = tqty }
+                        else if (buyerCode === 'Powai') { updateInvStr.powai = tqty }
+                        else if (buyerCode === 'Exhibition') { updateInvStr.exhibition = tqty }
+                        else { updateInvStr.sales = tqty }
 
-                        let canSave = [invId[0], mybillno, entry.barcode, myorderType, (myBuyer || buyerCode), mySeller, myPaymentType, entry.qty, entry.hsn, entry.gst].every(Boolean)
-
-                        if (canSave) {
-                            const tqty = Number(entry.qty)
-                            let updateInvStr = { source: 0, cwefstore: 0, andheri: 0, bandra: 0, powai: 0, exhibition: 0, sales: 0 }
-                            if (['CH', 'CWEF', 'OS'].includes(sellerCode)) { updateInvStr.source = -tqty }
-                            else if (sellerCode === 'CWEFStore') { updateInvStr.cwefstore = -tqty }
-                            else if (sellerCode === 'Andheri') { updateInvStr.andheri = -tqty }
-                            else if (sellerCode === 'Bandra') { updateInvStr.bandra = -tqty }
-                            else if (sellerCode === 'Powai') { updateInvStr.powai = -tqty }
-                            else if (sellerCode === 'Exhibition') { updateInvStr.exhibition = -tqty }
-
-                            if (['CH', 'CWEF', 'OS'].includes(buyerCode)) { updateInvStr.source = tqty }
-                            else if (buyerCode === 'CWEFStore') { updateInvStr.cwefstore = tqty }
-                            else if (buyerCode === 'Andheri') { updateInvStr.andheri = tqty }
-                            else if (buyerCode === 'Bandra') { updateInvStr.bandra = tqty }
-                            else if (buyerCode === 'Powai') { updateInvStr.powai = tqty }
-                            else if (buyerCode === 'Exhibition') { updateInvStr.exhibition = tqty }
-                            else { updateInvStr.sales = tqty }
-
-                            await updateskuinv({ id: invId[0], source: updateInvStr.source, cwefstore: updateInvStr.cwefstore, andheri: updateInvStr.andheri, bandra: updateInvStr.bandra, powai: updateInvStr.powai, exhibition: updateInvStr.exhibition, sales: updateInvStr.sales })
-                            await addledger(ledgerEntry)
-                        }
-                        else {
-                            console.log("Should never see this - ERROR - Swapnesh")
-                        }
-                    })
-
-                    //console.log(billHtml)
-                    let myemail
-                    if ((isAdmin || isInventoryManager || isShopManager) && action === 'Inventory') myemail = 'shruti@creativehandicrafts.org'         // send to Accounts, ShopManager, Inventory Manager
-                    else if ((isAdmin || isInventoryManager || isShopManager) && action === 'Internal') myemail = 'shruti@creativehandicrafts.org'      // send to ShopManager, Inventory Manager
-                    else myemail = email // populate email from form
-                    if (myemail) {
-                        await sendEmail({ recipient: myemail, orderType: orderType, billno: mybillno, customer: myBuyer, factor: factor, messagebody: bill })
+                        await updateskuinv({ id: invId[0], source: updateInvStr.source, cwefstore: updateInvStr.cwefstore, andheri: updateInvStr.andheri, bandra: updateInvStr.bandra, powai: updateInvStr.powai, exhibition: updateInvStr.exhibition, sales: updateInvStr.sales })
+                        await addledger(ledgerEntry)
                     }
-                }
-
-                const deleteEntry = (barcode) => {
-                    const myBill = [...bill]
-                    const index = myBill.findIndex((obj) => obj.barcode === barcode)
-                    myBill.splice(index, 1)
-                    setBill(myBill)
-                }
-
-                const handleSubmit = (e) => {
-                    e.preventDefault();
-
-                    let myBill = [...bill]
-                    let index
-
-                    let skuId = ids.filter(sku => (entities[sku].barcode.toLowerCase() === newEntry.toLowerCase()))
-                    if (skuId[0]) index = myBill.findIndex((obj) => obj.barcode.toLowerCase() === newEntry.toLowerCase())
-                    else index = myBill.findIndex((obj) => obj.barcode === 'NA')
-
-                    if (index !== -1) myBill[index].qty++
                     else {
-
-                        //console.log(skuId)
-                        if (skuId[0]) {
-                            if (entities[skuId[0]].barcode.toUpperCase().match('FBFSBIA2001|FBFSCIA2001|FBFSDIA2001') && (isAdInCharge || isBaInCharge || isPoInCharge || (action === 'Billing'))) {
-                                setPopupTrigger(true)
-                            }
-                            const myMrp = validMember ? entities[skuId[0]].MBR : entities[skuId[0]].MRP
-                            const myGst = getGst(entities[skuId[0]].HSNCode, myMrp)
-                            myBill = [...bill, {
-                                barcode: entities[skuId[0]].barcode.toUpperCase(), name: entities[skuId[0]].name,
-                                colour: (entities[skuId[0]].barcode.length === 11 ? (encoding.colour.find(item => item.IDENTITY === entities[skuId[0]].barcode.substr(5, 1).toUpperCase()).COLOUR) : ""),
-                                size: (entities[skuId[0]].barcode.length === 11 ? (encoding.sizes.find(item => item.IDENTITY === entities[skuId[0]].barcode.substr(4, 1).toUpperCase()).SIZE) : ""),
-                                qty: 1, mrp: myMrp, hsn: entities[skuId[0]].HSNCode, gst: myGst, return: 0
-                            }]
-
-                        } else {
-                            myBill = [...bill, { barcode: 'NA', name: 'NA', colour: 'NA', size: 'NA', qty: 1, mrp: 0, hsn: 0, gst: 0, return: 0 }]    // This needs to be removed
-                        }
+                        console.log("Should never see this - ERROR - Swapnesh")
                     }
-                    setBill(myBill)
-                    setNewEntry('')
+                })
+
+                //console.log(billHtml)
+                let myemail
+                if ((isAdmin || isInventoryManager || isShopManager) && action === 'Inventory') myemail = 'shruti@creativehandicrafts.org'         // send to Accounts, ShopManager, Inventory Manager
+                else if ((isAdmin || isInventoryManager || isShopManager) && action === 'Internal') myemail = 'shruti@creativehandicrafts.org'      // send to ShopManager, Inventory Manager
+                else myemail = email // populate email from form
+                if (myemail) {
+                    await sendEmail({ recipient: myemail, orderType: orderType, billno: mybillno, customer: myBuyer, factor: factor, messagebody: bill })
                 }
+            }
 
-                const updateQty = (value, barcode) => {
-                    let myBill = [...bill]
-                    const index = myBill.findIndex((obj) => obj.barcode === barcode)
-                    myBill[index].qty = value
-                    setBill(myBill)
+            const deleteEntry = (barcode) => {
+                const myBill = [...bill]
+                const index = myBill.findIndex((obj) => obj.barcode === barcode)
+                myBill.splice(index, 1)
+                setBill(myBill)
+            }
+
+            const handleSubmit = (e) => {
+                e.preventDefault();
+
+                let myBill = [...bill]
+                let index
+
+                let skuId = invids.filter(sku => (inventities[sku].barcode.toLowerCase() === newEntry.toLowerCase()))
+                if (skuId[0]) index = myBill.findIndex((obj) => obj.barcode.toLowerCase() === newEntry.toLowerCase())
+                else index = myBill.findIndex((obj) => obj.barcode === 'NA')
+
+                if (index !== -1) myBill[index].qty++
+                else {
+
+                    //console.log(skuId)
+                    if (skuId[0]) {
+                        if (inventities[skuId[0]].barcode.toUpperCase().match('FBFSBIA2001|FBFSCIA2001|FBFSDIA2001') && (isAdInCharge || isBaInCharge || isPoInCharge || (action === 'Billing'))) {
+                            setPopupTrigger(true)
+                        }
+                        const myMrp = validMember ? inventities[skuId[0]].MBR : inventities[skuId[0]].MRP
+                        const myGst = getGst(inventities[skuId[0]].HSNCode, myMrp)
+                        myBill = [...bill, {
+                            barcode: inventities[skuId[0]].barcode.toUpperCase(), name: inventities[skuId[0]].name,
+                            colour: (inventities[skuId[0]].barcode.length === 11 ? (encoding.colour.find(item => item.IDENTITY === inventities[skuId[0]].barcode.substr(5, 1).toUpperCase()).COLOUR) : ""),
+                            size: (inventities[skuId[0]].barcode.length === 11 ? (encoding.sizes.find(item => item.IDENTITY === inventities[skuId[0]].barcode.substr(4, 1).toUpperCase()).SIZE) : ""),
+                            qty: 1, mrp: myMrp, hsn: inventities[skuId[0]].HSNCode, gst: myGst, return: 0
+                        }]
+
+                    } else {
+                        myBill = [...bill, { barcode: 'NA', name: 'NA', colour: 'NA', size: 'NA', qty: 1, mrp: 0, hsn: 0, gst: 0, return: 0 }]    // This needs to be removed
+                    }
                 }
-                const updateMrp = (value, barcode) => {
-                    let myBill = [...bill]
-                    const index = myBill.findIndex((obj) => obj.barcode === barcode)
-                    myBill[index].mrp = value
-                    myBill[index].gst = getGst(myBill[index].hsn, value)
-                    setBill(myBill)
-                }
+                setBill(myBill)
+                setNewEntry('')
+            }
 
-                const handleToggleEditPrice = () => setEditPrice(prev => !prev)
+            const updateQty = (value, barcode) => {
+                let myBill = [...bill]
+                const index = myBill.findIndex((obj) => obj.barcode === barcode)
+                myBill[index].qty = value
+                setBill(myBill)
+            }
+            const updateMrp = (value, barcode) => {
+                let myBill = [...bill]
+                const index = myBill.findIndex((obj) => obj.barcode === barcode)
+                myBill[index].mrp = value
+                myBill[index].gst = getGst(myBill[index].hsn, value)
+                setBill(myBill)
+            }
 
-                newInvHeaderSection =
-                    <form>
-                        <div >
+            const handleToggleEditPrice = () => setEditPrice(prev => !prev)
 
-                            <label className="form__label" htmlFor="source">Select Action: </label>
-                            <select id="action" name="action" size="1" value={action} onChange={(e) => setAction(e.target.value)} >
-                                {[<option key='' value=''></option>, <option key="Billing" value="Billing">Billing</option>, <option key="Inventory" value="Inventory">Inventory</option>, <option key="Internal" value="Internal">Internal</option>]}
-                            </select>
-                            <br></br>
-                            <br></br>
-                            {(action === 'Billing' && (isAdmin || isShopManager)) &&
-                                <div>
-                                    <label className="form__label" htmlFor="store"> Store: </label>
-                                    <select id="store" name="store" size="1" value={store} onChange={(e) => setStore(e.target.value)} >
-                                        {[<option key='' value=''></option>, <option key="Andheri" value="Andheri">Andheri</option>, <option key="Bandra" value="Bandra">Bandra</option>, <option key="Powai" value="Powai">Powai</option>, <option key="Exhibition" value="Exhibition">Exhibition</option>]}
-                                    </select>
-                                </div>
-                            }
-                            {(action === 'Inventory') &&
-                                <div className="inventory--header">
-                                    <label className="form__label" htmlFor="source"> Source: </label>
-                                    <select id="source" name="source" size="1" value={source} onChange={(e) => setSource(e.target.value)} >
-                                        {[<option key='' value=''></option>, <option key="CH" value="CH">CH</option>, <option key="OS" value="OS">OS</option>, <option key="CWEF" value="CWEF">CWEF</option>, <option key="CWEFStore" value="CWEFStore">CWEFStore</option>]}
-                                    </select>
-                                    <label className="form__label" htmlFor="destination"> Destination: </label>
-                                    <select id="destination" name="destination" size="1" value={destination} onChange={(e) => setDestination(e.target.value)} >
-                                        {[<option key='' value=''></option>, <option key="CH" value="CH">CH</option>, <option key="OS" value="OS">OS</option>, <option key="CWEF" value="CWEF">CWEF</option>, <option key="CWEFStore" value="CWEFStore">CWEFStore</option>]}
-                                    </select>
-                                    {(source === 'OS' || destination === 'OS') &&
-                                        <>
-                                            <input type="text" id="os" value={otherSeller} onChange={(e) => setOtherSeller(e.target.value)} placeholder="Name of Third Party" />
-                                        </>
-                                    }
-                                </div>
-                            }
-                            {(action === 'Internal') &&
-                                <div className="inventory--header">
-                                    <label className="form__label" htmlFor="source"> Source: </label>
-                                    <select id="source" name="source" size="1" value={source} onChange={(e) => setSource(e.target.value)} >
-                                        {[<option key='' value=''></option>, <option key="CWEFStore" value="CWEFStore">CWEFStore</option>, <option key="Andheri" value="Andheri">Andheri</option>, <option key="Bandra" value="Bandra">Bandra</option>, <option key="Powai" value="Powai">Powai</option>, <option key="Exhibition" value="Exhibition">Exhibition</option>]}
-                                    </select>
-                                    <label className="form__label" htmlFor="destination"> Destination: </label>
-                                    <select id="destination" name="destination" size="1" value={destination} onChange={(e) => setDestination(e.target.value)} >
-                                        {[<option key='' value=''></option>, <option key="CWEFStore" value="CWEFStore">CWEFStore</option>, <option key="Andheri" value="Andheri">Andheri</option>, <option key="Bandra" value="Bandra">Bandra</option>, <option key="Powai" value="Powai">Powai</option>, <option key="Exhibition" value="Exhibition">Exhibition</option>]}
-                                    </select>
-                                </div>
-                            }
-                        </div>
-                    </form>
+            newInvHeaderSection =
+                <form>
+                    <div >
 
-                shopHeaderSection =
-                    <form>
-                        <div className="billing--header">
-                            <input type="text" id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Name" />
-                            <input type="text" id="phone" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Phone" />
-                        </div>
-                        <div className="billing--line2">
-                            <label className="form__label" htmlFor="brand">Order Type: </label>
-                            <select id="orderType" name="orderType" size="1" value={orderType} onChange={(e) => setOrderType(e.target.value)} >
-                                {[<option key='' value=''></option>, <option key="Internal" value="Internal">Internal</option>, <option key="Sale" value="Sale">Sale</option>, <option key="Exchange" value="Exchange">Exchange</option>]}
-                            </select>
-                            <input type="text" id="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" />
-                        </div>
-                        <div className="billing--line2">
-                            <label className="form__label" htmlFor="brand"> Payment Type: </label>
-                            <select id="paymentType" name="paymentType" size="1" value={paymentType} onChange={(e) => setPaymentType(e.target.value)} >
-                                {[<option key='' value=''></option>, <option key="Cash" value="Cash">Cash</option>, <option key="Card" value="Card">Card</option>, <option key="UPI" value="UPI">UPI</option>, <option key="Online" value="Online">Online</option>]}
-                            </select>
-                            <input type="text" id="membership" placeholder="Membership ID"
-                                className={validMember ? "green-back" : "red-back"}
-                                value={membership}
-                                onChange={(e) => setMembership(e.target.value)}
-                            />
-                        </div>
+                        <label className="form__label" htmlFor="source">Select Action: </label>
+                        <select id="action" name="action" size="1" value={action} onChange={(e) => setAction(e.target.value)} >
+                            {[<option key='' value=''></option>, <option key="Billing" value="Billing">Billing</option>, <option key="Inventory" value="Inventory">Inventory</option>, <option key="Internal" value="Internal">Internal</option>]}
+                        </select>
                         <br></br>
-                    </form>
-
-
-                newItemSection =
-                    <div className={((isAdmin || isShopManager) && store === 'Exhibition') ? "addedit-bill-entry" : "add-bill-entry"} >
-                        <form onSubmit={handleSubmit}>
-                            <div className="new-sku">
-                                <input
-                                    type="text"
-                                    id="new-sku"
-                                    value={newEntry}
-                                    onChange={(e) => setNewEntry(e.target.value)}
-                                    placeholder="Enter new sku"
-                                />
-
+                        <br></br>
+                        {(action === 'Billing' && (isAdmin || isShopManager)) &&
+                            <div>
+                                <label className="form__label" htmlFor="store"> Store: </label>
+                                <select id="store" name="store" size="1" value={store} onChange={(e) => setStore(e.target.value)} >
+                                    {[<option key='' value=''></option>, <option key="Andheri" value="Andheri">Andheri</option>, <option key="Bandra" value="Bandra">Bandra</option>, <option key="Powai" value="Powai">Powai</option>, <option key="Exhibition" value="Exhibition">Exhibition</option>]}
+                                </select>
                             </div>
-                        </form>
-                        {((isAdmin || isShopManager) && store === 'Exhibition') && <label htmlFor="persist" className="form__persist">
-                            <input
-                                type="checkbox"
-                                className="form__checkbox"
-                                id="persist"
-                                onChange={handleToggleEditPrice}
-                                checked={editPrice}
-                            />
-                            Edit Price
-                        </label>}
-                        <p>Total: {total}</p>
-                        <button disabled={(!validQty || !bill.length || ((isAdInCharge || isBaInCharge || isPoInCharge || (action === 'Billing')) && (!paymentType || !orderType)) || (newMembership && !phone))} onClick={makeBill}>Make Bill</button>
-
+                        }
+                        {(action === 'Inventory') &&
+                            <div className="inventory--header">
+                                <label className="form__label" htmlFor="source"> Source: </label>
+                                <select id="source" name="source" size="1" value={source} onChange={(e) => setSource(e.target.value)} >
+                                    {[<option key='' value=''></option>, <option key="CH" value="CH">CH</option>, <option key="OS" value="OS">OS</option>, <option key="CWEF" value="CWEF">CWEF</option>, <option key="CWEFStore" value="CWEFStore">CWEFStore</option>]}
+                                </select>
+                                <label className="form__label" htmlFor="destination"> Destination: </label>
+                                <select id="destination" name="destination" size="1" value={destination} onChange={(e) => setDestination(e.target.value)} >
+                                    {[<option key='' value=''></option>, <option key="CH" value="CH">CH</option>, <option key="OS" value="OS">OS</option>, <option key="CWEF" value="CWEF">CWEF</option>, <option key="CWEFStore" value="CWEFStore">CWEFStore</option>]}
+                                </select>
+                                {(source === 'OS' || destination === 'OS') &&
+                                    <>
+                                        <input type="text" id="os" value={otherSeller} onChange={(e) => setOtherSeller(e.target.value)} placeholder="Name of Third Party" />
+                                    </>
+                                }
+                            </div>
+                        }
+                        {(action === 'Internal') &&
+                            <div className="inventory--header">
+                                <label className="form__label" htmlFor="source"> Source: </label>
+                                <select id="source" name="source" size="1" value={source} onChange={(e) => setSource(e.target.value)} >
+                                    {[<option key='' value=''></option>, <option key="CWEFStore" value="CWEFStore">CWEFStore</option>, <option key="Andheri" value="Andheri">Andheri</option>, <option key="Bandra" value="Bandra">Bandra</option>, <option key="Powai" value="Powai">Powai</option>, <option key="Exhibition" value="Exhibition">Exhibition</option>]}
+                                </select>
+                                <label className="form__label" htmlFor="destination"> Destination: </label>
+                                <select id="destination" name="destination" size="1" value={destination} onChange={(e) => setDestination(e.target.value)} >
+                                    {[<option key='' value=''></option>, <option key="CWEFStore" value="CWEFStore">CWEFStore</option>, <option key="Andheri" value="Andheri">Andheri</option>, <option key="Bandra" value="Bandra">Bandra</option>, <option key="Powai" value="Powai">Powai</option>, <option key="Exhibition" value="Exhibition">Exhibition</option>]}
+                                </select>
+                            </div>
+                        }
                     </div>
+                </form>
 
-                discountSection =
+            shopHeaderSection =
+                <form>
+                    <div className="billing--header">
+                        <input type="text" id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Name" />
+                        <input type="text" id="phone" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Phone" />
+                    </div>
                     <div className="billing--line2">
-                        {((isAdmin || isShopManager) && store === 'Exhibition' && editPrice) && <label htmlFor="persist" className="form__label">
-                            Discount Percent: <input type="text" id="discount" value={100 - (factor * 100)} onChange={(e) => setFactor((100 - e.target.value) / 100)} placeholder="Discount Percent" />
-                        </label>}
+                        <label className="form__label" htmlFor="brand">Order Type: </label>
+                        <select id="orderType" name="orderType" size="1" value={orderType} onChange={(e) => setOrderType(e.target.value)} >
+                            {[<option key='' value=''></option>, <option key="Internal" value="Internal">Internal</option>, <option key="Sale" value="Sale">Sale</option>, <option key="Exchange" value="Exchange">Exchange</option>]}
+                        </select>
+                        <input type="text" id="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" />
                     </div>
+                    <div className="billing--line2">
+                        <label className="form__label" htmlFor="brand"> Payment Type: </label>
+                        <select id="paymentType" name="paymentType" size="1" value={paymentType} onChange={(e) => setPaymentType(e.target.value)} >
+                            {[<option key='' value=''></option>, <option key="Cash" value="Cash">Cash</option>, <option key="Card" value="Card">Card</option>, <option key="UPI" value="UPI">UPI</option>, <option key="Online" value="Online">Online</option>]}
+                        </select>
+                        <input type="text" id="membership" placeholder="Membership ID"
+                            className={validMember ? "green-back" : "red-back"}
+                            value={membership}
+                            onChange={(e) => setMembership(e.target.value)}
+                        />
+                    </div>
+                    <br></br>
+                </form>
 
 
-                content = bill.map(entry => { //JSON.stringify(skus)
-                    return (
-                        <table>
-                            <tbody>
-                                <tr className="table__row bill--row" >
-                                    <td className="table__cell bill__entry">{entry.barcode}</td>
-                                    <td className="table__cell bill__entry">{entry.name}</td>
-                                    <td className="table__cell bill__entry">{(entry.barcode.length === 11 ? (encoding.colour.find(item => item.IDENTITY === entry.barcode.substr(5, 1).toUpperCase()).COLOUR) : null)}</td>
-                                    <td className="table__cell bill__entry">{(entry.barcode.length === 11 ? (encoding.sizes.find(item => item.IDENTITY === entry.barcode.substr(4, 1).toUpperCase()).SIZE) : null)}</td>
-                                    <td className="table__cell bill__entry">
+            newItemSection =
+                <div className={((isAdmin || isShopManager) && store === 'Exhibition') ? "addedit-bill-entry" : "add-bill-entry"} >
+                    <form onSubmit={handleSubmit}>
+                        <div className="new-sku">
+                            <input
+                                type="text"
+                                id="new-sku"
+                                value={newEntry}
+                                onChange={(e) => setNewEntry(e.target.value)}
+                                placeholder="Enter new sku"
+                            />
+
+                        </div>
+                    </form>
+                    {((isAdmin || isShopManager) && store === 'Exhibition') && <label htmlFor="persist" className="form__persist">
+                        <input
+                            type="checkbox"
+                            className="form__checkbox"
+                            id="persist"
+                            onChange={handleToggleEditPrice}
+                            checked={editPrice}
+                        />
+                        Edit Price
+                    </label>}
+                    <p>Total: {total}</p>
+                    <button disabled={(!validQty || !bill.length || ((isAdInCharge || isBaInCharge || isPoInCharge || (action === 'Billing')) && (!paymentType || !orderType)) || (newMembership && !phone))} onClick={makeBill}>Make Bill</button>
+
+                </div>
+
+            discountSection =
+                <div className="billing--line2">
+                    {((isAdmin || isShopManager) && store === 'Exhibition' && editPrice) && <label htmlFor="persist" className="form__label">
+                        Discount Percent: <input type="text" id="discount" value={100 - (factor * 100)} onChange={(e) => setFactor((100 - e.target.value) / 100)} placeholder="Discount Percent" />
+                    </label>}
+                </div>
+
+
+            content = bill.map(entry => { //JSON.stringify(skus)
+                return (
+                    <table>
+                        <tbody>
+                            <tr className="table__row bill--row" >
+                                <td className="table__cell bill__entry">{entry.barcode}</td>
+                                <td className="table__cell bill__entry">{entry.name}</td>
+                                <td className="table__cell bill__entry">{(entry.barcode.length === 11 ? (encoding.colour.find(item => item.IDENTITY === entry.barcode.substr(5, 1).toUpperCase()).COLOUR) : null)}</td>
+                                <td className="table__cell bill__entry">{(entry.barcode.length === 11 ? (encoding.sizes.find(item => item.IDENTITY === entry.barcode.substr(4, 1).toUpperCase()).SIZE) : null)}</td>
+                                <td className="table__cell bill__entry">
+                                    <input
+                                        className='sku_edit_qty'
+                                        id='qty'
+                                        type='text'
+                                        //placeholder={entry.qty}
+                                        value={entry.qty}
+                                        onChange={(e) => updateQty(e.target.value, entry.barcode)}
+                                    />
+                                </td>
+                                {((isAdmin || isShopManager || isInventoryManager) && editPrice && ((action === 'Billing' && store === 'Exhibition') || (action === 'Inventory' && (source === 'OS' || destination === 'OS'))))
+                                    ? <td className="table__cell bill__entry">
                                         <input
-                                            className='sku_edit_qty'
+                                            className='bill_edit_mrp'
                                             id='qty'
                                             type='text'
-                                            //placeholder={entry.qty}
-                                            value={entry.qty}
-                                            onChange={(e) => updateQty(e.target.value, entry.barcode)}
+                                            value={entry.mrp}
+                                            onChange={(e) => updateMrp(e.target.value, entry.barcode)}
                                         />
-                                    </td>
-                                    {((isAdmin || isShopManager || isInventoryManager) && editPrice && ((action === 'Billing' && store === 'Exhibition') || (action === 'Inventory' && (source === 'OS' || destination === 'OS'))))
-                                        ? <td className="table__cell bill__entry">
-                                            <input
-                                                className='bill_edit_mrp'
-                                                id='qty'
-                                                type='text'
-                                                value={entry.mrp}
-                                                onChange={(e) => updateMrp(e.target.value, entry.barcode)}
-                                            />
-                                        </td> :
-                                        <td className="table__cell bill__entry-center">{entry.mrp}</td>
-                                    }
-                                    <td className="table__cell bill__entry-center">{entry.mrp * entry.qty * factor}</td>
-                                    <td className="table__cell bill__entry-center">
-                                        <button className="trash" onClick={() => deleteEntry(entry.barcode)}>
-                                            <FontAwesomeIcon icon={faTrash} />
-                                        </button>
-                                    </td>
+                                    </td> :
+                                    <td className="table__cell bill__entry-center">{entry.mrp}</td>
+                                }
+                                <td className="table__cell bill__entry-center">{entry.mrp * entry.qty * factor}</td>
+                                <td className="table__cell bill__entry-center">
+                                    <button className="trash" onClick={() => deleteEntry(entry.barcode)}>
+                                        <FontAwesomeIcon icon={faTrash} />
+                                    </button>
+                                </td>
 
-                                </tr>
-                            </tbody>
-                        </table>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                )
+            })
+
+            searchtableContent = (skuIds?.length && newSearch.length > 3)
+                ? skuIds.map(skuid => { //JSON.stringify(skus)
+                    //inventities[skuid].Barcode.substr(5, 1)
+                    return (
+
+                        <tr className="table__row bill--searchrow" >
+                            <td className="table__cell bill__entry">{inventities[skuid].barcode}</td>
+                            <td className="table__cell bill__entry">{inventities[skuid].name}</td>
+                            <td className="table__cell bill__entry">{inventities[skuid].barcode.length === 11 ? encoding.sizes.find(temp => { return temp.IDENTITY === inventities[skuid].barcode.substr(4, 1) }).SIZE : ""}</td>
+                            <td className="table__cell bill__entry">{inventities[skuid].barcode.length === 11 ? encoding.colour.find(temp => { return temp.IDENTITY === inventities[skuid].barcode.substr(5, 1) }).COLOUR : ""}</td>
+                        </tr>
 
                     )
                 })
+                : null
 
-                searchtableContent = (skuIds?.length && newSearch.length > 3)
-                    ? skuIds.map(skuid => { //JSON.stringify(skus)
-                        //entities[skuid].Barcode.substr(5, 1)
-                        return (
-
-                            <tr className="table__row bill--searchrow" >
-                                <td className="table__cell bill__entry">{entities[skuid].barcode}</td>
-                                <td className="table__cell bill__entry">{entities[skuid].name}</td>
-                                <td className="table__cell bill__entry">{entities[skuid].barcode.length === 11 ? encoding.sizes.find(temp => { return temp.IDENTITY === entities[skuid].barcode.substr(4, 1) }).SIZE : ""}</td>
-                                <td className="table__cell bill__entry">{entities[skuid].barcode.length === 11 ? encoding.colour.find(temp => { return temp.IDENTITY === entities[skuid].barcode.substr(5, 1) }).COLOUR : ""}</td>
-                            </tr>
-
-                        )
-                    })
-                    : null
-            }
         }
     }
 
