@@ -79,7 +79,7 @@ const Attendance = () => {
             <div className="billing--line2">
                 <label className="form__label" htmlFor="name">Name: </label>
                 <select id="name" name="name" size="1" value={name} onChange={(e) => setName(e.target.value)} >
-                    {[<option></option>, <option>Ankita</option>, <option>Poonam</option>, <option>Vaishnavi</option>, <option>Apeksha</option>, <option>Kirti</option>, <option>Neha</option>]}
+                    {[<option></option>, <option>Ankita</option>, <option>Aditi</option>, <option>Minakshi</option>, <option>Poonam</option>, <option>Vaishnavi</option>, <option>Apeksha</option>, <option>Kirti</option>, <option>Neha</option>]}
                 </select>
             </div>
             {(isAdmin || isAdInCharge || isBaInCharge || isPoInCharge) &&

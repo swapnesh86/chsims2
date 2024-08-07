@@ -736,6 +736,8 @@ const LedgerList = () => {
                 <label className="form__label" htmlFor="report"> Shop Girl : </label>
                 <select id="staff" name="staff" size="1" value={shopGirl} onChange={(e) => setShopGirl(e.target.value)} >
                     {[<option key="Ankita" value="Ankita">Ankita</option>,
+                    <option key="Aditi" value="Aditi">Aditi</option>,
+                    <option key="Minakshi" value="Minakshi">Minakshi</option>,
                     <option key="Poonam" value="Poonam">Poonam</option>,
                     <option key="Vaishnavi" value="Vaishnavi">Vaishnavi</option>,
                     <option key="Apeksha" value="Apeksha">Apeksha</option>,
