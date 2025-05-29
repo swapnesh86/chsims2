@@ -75,6 +75,7 @@ const InventoryList = () => {
                             <th scope="col" className="table__th skuinv__skuinvname">Size</th>
                             <th scope="col" className="table__th skuinv__skuinvname">MRP</th>
                             <th scope="col" className="table__th skuinv__skuinvname">MBR</th>
+                            <th scope="col" className="table__th skuinv__skuinvname">CP</th>
                             <th scope="col" className="table__th skuinv__skuinvname">Sourced</th>
                             <th scope="col" className="table__th skuinv__skuinvname">CWEFStore</th>
                             <th scope="col" className="table__th skuinv__skuinvname">Andheri</th>

@@ -95,6 +95,7 @@ const SearchSkuList = () => {
               <th scope="col" className="table__th sku__primary">Name</th>
               <th scope="col" className="table__th sku__primary">MRP</th>
               <th scope="col" className={`table__th ${editClass}`}>MBR</th>
+              <th scope="col" className={`table__th ${editClass}`}>CP</th>
               <th scope="col" className={`table__th ${editClass}`}>HSNCode</th>
               {(isAdmin || isSkuManager) && edit && <th scope="col" className="table__th sku__primary">Edit</th>}
               {isAdmin && edit && <th scope="col" className="table__th sku__primary">Delete</th>}

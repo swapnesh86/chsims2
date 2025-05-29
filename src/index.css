@@ -347,7 +347,7 @@ tr {
   position: sticky;
   top: 0;
   z-index: 1;
-  grid-template-columns: 9em 12em 4em 4em 6em 6em 8em 7em 7em 7em 8em 9em 8em 8em 3em 4em 5em 4em;
+  grid-template-columns: 9em 12em 4em 4em 6em 6em 6em 8em 7em 7em 7em 8em 9em 8em 8em 3em 4em 5em 4em;
   color: #000;
 }
 
@@ -382,7 +382,7 @@ tr {
   font-size: 0.75rem;
   display: grid;
   color: #000;
-  grid-template-columns: 9em 12em 4em 4em 6em 6em 8em 7em 7em 7em 8em 9em 8em 8em 3em 4em 5em 4em;
+  grid-template-columns: 9em 12em 4em 4em 6em 6em 6em 8em 7em 7em 7em 8em 9em 8em 8em 3em 4em 5em 4em;
 }
 
 .editattendance--row {
@@ -682,7 +682,7 @@ tr {
 
 .table--skus {
   display: grid;
-  grid-template-columns: 10em repeat(2, 7em) 14em repeat(3, 5em);
+  grid-template-columns: 10em repeat(2, 7em) 14em repeat(4, 5em);
 }
 
 .table--commission--table {
@@ -699,12 +699,12 @@ tr {
 
 .table--skusedit {
   display: grid;
-  grid-template-columns: 10em repeat(2, 7em) 14em repeat(4, 5em);
+  grid-template-columns: 10em repeat(2, 7em) 14em repeat(5, 5em);
 }
 
 .table--skuseditdel {
   display: grid;
-  grid-template-columns: 10em repeat(2, 7em) 14em repeat(5, 5em);
+  grid-template-columns: 10em repeat(2, 7em) 14em repeat(6, 5em);
 }
 
 body {

@@ -24,6 +24,7 @@ const Sku = ({ skuId }) => {
                 <td className="table__cell sku__primary">{sku.name}</td>
                 <td className="table__cell sku__primary">{sku.MRP}</td>
                 <td className="table__cell sku__optional">{sku.MBR}</td>
+                <td className="table__cell sku__optional">{sku.CP}</td>
                 <td className="table__cell sku__optional">{sku.HSNCode}</td>
             </tr>
         )

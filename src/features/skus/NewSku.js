@@ -39,6 +39,7 @@ const NewSku = () => {
   const [name, setName] = useState('')
   const [mrp, setMrp] = useState(0)
   const [mbr, setMbr] = useState(0)
+  const [cp, setCp] = useState(0)
   const [addedskus, setAddedSkus] = useState('')
 
 
@@ -50,8 +51,8 @@ const NewSku = () => {
   const [validDid, setValidDid] = useState(false)
 
   useEffect(() => {
-    setValidNumber([mbr, mrp].every(Boolean))
-  }, [mrp, mbr])
+    setValidNumber([mbr, mrp, cp].every(Boolean))
+  }, [mrp, mbr, cp])
 
   useEffect(() => {
     setValidName(NAME_REGEX.test(name))
@@ -187,6 +188,7 @@ const NewSku = () => {
 
   const onMrpChanged = e => setMrp(e.target.value)
   const onMbrChanged = e => setMbr(e.target.value)
+  const onCpChanged = e => setCp(e.target.value)
   const onNameChanged = e => setName(e.target.value)
   const onDidChanged = e => setDid(e.target.value)
 
@@ -212,7 +214,7 @@ const NewSku = () => {
       const barcode = `${encoding.brands.find(temp => { return temp.BRAND === brand[0]; }).IDENTITY}${encoding.segments.find(temp => { return temp.SEGMENT === segment[0]; }).IDENTITY}${encoding.categories.find(temp => { return temp.CATEGORY === category[0]; }).IDENTITY}${encoding.sizes.find(temp => { return temp.SIZE === element; }).IDENTITY}${encoding.colour.find(temp => { return temp.COLOUR === colour; }).IDENTITY}${subcolour}${encoding.collections.find(temp => { return temp.COLLECTION === collection; }).IDENTITY}${did}`
 
       if (canSave) {
-        await addNewSku({ barcode: barcode, name: name, MRP: mrp, MBR: mbr, HSNCode: Number(HSNCode) })
+        await addNewSku({ barcode: barcode, name: name, MRP: mrp, MBR: mbr, CP: cp, HSNCode: Number(HSNCode) })
       }
     });
 
@@ -403,6 +405,19 @@ const NewSku = () => {
             autoComplete="off"
             value={mbr}
             onChange={onMbrChanged}
+          />
+        </div>
+        <div className="form__newsku">
+          <label className="form__label" htmlFor="cp">
+            Cost Price: <span className="dummy"></span></label>
+          <input
+            className={`form__input-small ${validNumberClass}`}
+            id="cp"
+            name="cp"
+            type="text"
+            autoComplete="off"
+            value={cp}
+            onChange={onCpChanged}
           />
         </div>
       </form>

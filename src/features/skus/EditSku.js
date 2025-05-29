@@ -17,6 +17,7 @@ const EditSku = ({ skuId }) => {
     const [name, setName] = useState(sku?.name)
     const [mrp, setMrp] = useState(sku?.MRP)
     const [mbr, setMbr] = useState(sku?.MBR)
+    const [cp, setCp] = useState(sku?.CP)
     const [hsn, setHsn] = useState(sku?.HSNCode)
 
     const { isAdmin, isSkuManager } = useAuth()
@@ -28,7 +29,7 @@ const EditSku = ({ skuId }) => {
     }
 
     const onSaveClicked = async (e) => {
-        await updateSku({ id: skuId, name: name, MRP: mrp, MBR: mbr, HSNCode: hsn })
+        await updateSku({ id: skuId, name: name, MRP: mrp, MBR: mbr, CP: cp, HSNCode: hsn })
     }
 
 
@@ -63,6 +64,15 @@ const EditSku = ({ skuId }) => {
                         type='text'
                         value={mbr}
                         onChange={(e) => setMbr(e.target.value)}
+                    />
+                </td>
+                <td className="table__cell sku__primary">
+                    <input
+                        className='sku_edit_num'
+                        id='cp'
+                        type='text'
+                        value={cp}
+                        onChange={(e) => setCp(e.target.value)}
                     />
                 </td>
                 <td className="table__cell sku__primary">

@@ -9,8 +9,6 @@ import { useGetLedgerQuery, useAddNewLedgerMutation } from "../ledger/ledgerApiS
 import { useGetBillNosQuery, useUpdateBillNoMutation, categorySelect, finyearNow, pad } from "./billNoApiSlice"
 import { useGetMembersQuery, useAddNewMemberMutation, useUpdateMemberMutation } from "../membership/membersApiSlice"
 
-//import { useGetSkusQuery } from "../skus/skusApiSlice"
-//import { useGetInventoryQuery, useAddNewInventoryMutation, useUpdateInventoryMutation } from "../inventory/inventoryApiSlice"
 import { useGetSkuinvQuery, useUpdateSkuinvMutation } from '../skuinv/skuinvApiSlice';
 
 
@@ -23,10 +21,12 @@ import Popup from "../../components/Popup"
 const BillList = () => {
     const [newEntry, setNewEntry] = useState('')
     const [editPrice, setEditPrice] = useState(false)
+    const [cwef2cwef, setCwef2cwef] = useState(false)
+    const [ch2cwef, setCh2cwef] = useState(false)
     const [newSearch, setNewSearch] = useState('')
     const [bill, setBill] = useState([])
     const [total, setTotal] = useState(0)
-    const [factor, setFactor] = useState(0)
+    const [factor, setFactor] = useState(1)
     const [returnBillNo, setReturnBillNo] = useState('XYZ');
     const [returnBillContent, setReturnBillContent] = useState([]);
     const [billNo, setBillNo] = useState([]);
@@ -183,17 +183,16 @@ const BillList = () => {
     }, [bill, skuinv, action, isAdInCharge, isBaInCharge, isPoInCharge, isAdmin, isInventoryManager, isShopManager, orderType, source, status, store, SkuinvisSuccess])
 
     useEffect(() => {
-        let myfactor = 1
+        setCh2cwef(false)
+        setCwef2cwef(false)
         if ((isAdmin || isShopManager || isInventoryManager) && (action === 'Inventory')) {
-            if (source === 'CH' || destination === 'CH') myfactor = 0.5
-            else if (source === 'CWEF' || destination === 'CWEF') myfactor = 0
+            if ((source === 'CH' && (destination === 'CWEFStore' || destination === 'CWEF')) || ((source === 'CWEFStore' || source === 'CWEF') && destination === 'CH')) setCh2cwef(true)
+            else if ((source === 'CWEFStore' || source === 'CWEF') && (destination === 'CWEFStore' || destination === 'CWEF')) setCwef2cwef(true)
         }
-        if ((isAdmin || isShopManager || isInventoryManager) && (action === 'Internal')) myfactor = 0
-        if (orderType === 'Internal') myfactor = 0
+        if ((isAdmin || isShopManager || isInventoryManager) && (action === 'Internal')) setCwef2cwef(true)
+        if (orderType === 'Internal') setCwef2cwef(true)
 
-        setFactor(myfactor)
-
-    }, [isAdmin, isShopManager, isInventoryManager, action, orderType, source, destination, bill])
+    }, [isAdmin, isShopManager, isInventoryManager, action, orderType, source, destination])
 
     useEffect(() => {
         if (addledgerSuccess && updateSkuinvSuccess) {
@@ -245,13 +244,14 @@ const BillList = () => {
 
     }, [membership, memberSuccess, members, newMembership])
 
+    // This function is used to modify the price for members on the fly.
     useEffect(() => {
 
         const updatePrice = () => {
 
             if (bill.length) {
 
-                if (SkuinvisSuccess && !editPrice) {
+                if (SkuinvisSuccess && !editPrice && action === 'Billing') {
                     const { ids: skuIds, entities: skuEntities } = skuinv
                     bill.forEach(entry => {
                         if (!entry.return && entry.name !== 'NA') {
@@ -274,7 +274,7 @@ const BillList = () => {
         }
         updatePrice()
 
-    }, [bill, SkuinvisSuccess, skuinv, validMember, editPrice])
+    }, [bill, SkuinvisSuccess, skuinv, validMember, editPrice, action])
 
 
     useEffect(() => {
@@ -549,7 +549,7 @@ const BillList = () => {
                         if (inventities[skuId[0]].barcode.toUpperCase().match('FBFSBIA2001|FBFSCIA2001|FBFSDIA2001') && (isAdInCharge || isBaInCharge || isPoInCharge || (action === 'Billing'))) {
                             setPopupTrigger(true)
                         }
-                        const myMrp = validMember ? inventities[skuId[0]].MBR : inventities[skuId[0]].MRP
+                        const myMrp = ch2cwef ? inventities[skuId[0]].CP : cwef2cwef ? 0 : validMember ? inventities[skuId[0]].MBR : inventities[skuId[0]].MRP
                         const myGst = getGst(inventities[skuId[0]].HSNCode, myMrp)
                         myBill = [...bill, {
                             barcode: inventities[skuId[0]].barcode.toUpperCase(), name: inventities[skuId[0]].name,

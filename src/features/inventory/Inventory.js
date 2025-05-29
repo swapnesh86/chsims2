@@ -18,6 +18,7 @@ const Inventory = ({ skuinvId }) => {
                 <td className="table__cell skuinv__primary">{(skuinv.barcode.length === 11 ? (encoding.sizes.find(item => item.IDENTITY === skuinv.barcode.substr(4, 1).toUpperCase()).SIZE) : null)}</td>
                 <td className="table__cell skuinv__primary">{skuinv.MRP}</td>
                 <td className="table__cell skuinv__primary">{skuinv.MBR}</td>
+                <td className="table__cell skuinv__primary">{skuinv.CP}</td>
                 <td className="table__cell skuinv__primary">{skuinv.source}</td>
                 <td className="table__cell skuinv__primary">{skuinv.cwefstore}</td>
                 <td className="table__cell skuinv__primary">{skuinv.andheri}</td>
