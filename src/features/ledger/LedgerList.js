@@ -737,11 +737,10 @@ const LedgerList = () => {
                 <select id="staff" name="staff" size="1" value={shopGirl} onChange={(e) => setShopGirl(e.target.value)} >
                     {[<option key="Ankita" value="Ankita">Ankita</option>,
                     <option key="Aditi" value="Aditi">Aditi</option>,
-                    <option key="Minakshi" value="Minakshi">Minakshi</option>,
                     <option key="Poonam" value="Poonam">Poonam</option>,
-                    <option key="Vaishnavi" value="Vaishnavi">Vaishnavi</option>,
-                    <option key="Apeksha" value="Apeksha">Apeksha</option>,
                     <option key="Kirti" value="Kirti">Kirti</option>,
+                    <option key="Sanika" value="Sanika">Sanika</option>,
+                    <option key="Sanchi" value="Sanchi">Sanchi</option>,
                     <option key="Neha" value="Neha">Neha</option>]}
                 </select>
                 <br></br>
