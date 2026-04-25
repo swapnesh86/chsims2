@@ -741,6 +741,8 @@ const LedgerList = () => {
                     <option key="Kirti" value="Kirti">Kirti</option>,
                     <option key="Sanika" value="Sanika">Sanika</option>,
                     <option key="Sanchi" value="Sanchi">Sanchi</option>,
+                    <option key="Minakshi" value="Minakshi">Minakshi</option>,
+                    <option key="Vaishnavi" value="Vaishnavi">Vaishnavi</option>,
                     <option key="Neha" value="Neha">Neha</option>]}
                 </select>
                 <br></br>
