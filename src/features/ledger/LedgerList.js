@@ -520,7 +520,7 @@ const LedgerList = () => {
         const chaddress = "D.P. Road No. 11, MIDC,\nOff Mahakali Caves Road,\nAndheri East, Mumbai 400 093.\nPh: 2832 4692 / 2837 3096\njohnyjoseph@creativehandicrafts.org"
         const chgst = "27AAATC0086C1Z7"
         const cwefaddress = "D.P. Road No. 11, MIDC,\nOff Mahakali Caves Road,\nAndheri East, Mumbai 400 093.\n"
-        const cwefgst = "27AAICC4194N1Z2"
+        const cwefgst = "27AAATC0086C1Z7"
 
         let sidemargin = 30
 
@@ -543,7 +543,7 @@ const LedgerList = () => {
                         sellerAddr = chaddress; buyerAddr = cwefaddress; sellerGst = chgst; buyerGst = cwefgst;
                     }
                     else if (chreturns) {
-                        headstr = "Creative Women's Empowerment Foundation"; billtype = "Debit Note: CWEF to CH"; sellerRegaddr = cwefaddress; sellerAddr = cwefaddress;
+                        headstr = "Creative Handicrafts"; billtype = "Debit Note: CWEF to CH"; sellerRegaddr = cwefaddress; sellerAddr = cwefaddress;
                         buyerAddr = chaddress; sellerGst = cwefgst; buyerGst = chgst;
                     }
                     topcontent = {
@@ -590,7 +590,7 @@ const LedgerList = () => {
                 let sidemargin = 4
                 topcontent = {
                     startY: 6,
-                    head: [[{ content: "Creative Womens Empowerment Foundation", colSpan: 2, styles: { halign: 'center', } }]],
+                    head: [[{ content: "Creative Handicrafts", colSpan: 2, styles: { halign: 'center', } }]],
                     body: [["Date: ", jsonContent[0].Date], ["Time: ", jsonContent[0].time], ["Customer: ", jsonContent[0].buyer], ["Bill No.: ", jsonContent[0].BillNo]],
                     margin: { top: 10, right: sidemargin, bottom: 0, left: sidemargin },
                     styles: { fontSize: 16, fontStyle: 'bold', fillColor: [255, 255, 255], textColor: [0, 0, 0], lineWidth: 0.2, lineColor: [0, 0, 0] },
@@ -611,7 +611,7 @@ const LedgerList = () => {
                     theme: 'grid'
                 };
                 doc.setFontSize(16);
-                doc.text("GST#: 27AAICC4194N1Z2", marginLeft, billlength - 28);
+                doc.text("GST#: 27AAATC0086C1Z7", marginLeft, billlength - 28);
                 doc.text("Conditions:", marginLeft, billlength - 20);
                 doc.text("  1. Non-Refundable", marginLeft, billlength - 14);
                 doc.text("  2. Exchange only within 7 days", marginLeft, billlength - 8);
